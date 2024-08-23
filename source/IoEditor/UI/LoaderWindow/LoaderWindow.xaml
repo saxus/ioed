@@ -4,10 +4,13 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:IoEditor.UI.LoaderWindow"
-        Style="{StaticResource DialogWindow}"
-        
+        Style="{StaticResource DialogWindow}"        
         mc:Ignorable="d"
         Title="Open stud.io files"  Height="200" Width="400">
+    <Window.InputBindings>
+        <KeyBinding Key="Escape" Command="{Binding CancelCommand}" CommandParameter="{Binding RelativeSource={RelativeSource AncestorType=Window}}" />
+    </Window.InputBindings>
+
     <Grid Margin="10">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto" />
