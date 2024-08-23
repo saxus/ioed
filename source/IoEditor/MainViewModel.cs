@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -10,6 +11,8 @@ using IoEditor.Model;
 using IoEditor.UI.LoaderWindow;
 using IoEditor.UI.Utils;
 
+using Microsoft.Win32;
+
 namespace IoEditor
 {
     internal class MainViewModel : INotifyPropertyChanged
@@ -17,6 +20,7 @@ namespace IoEditor
         #region Commands
         public ICommand OpenFilesCommand { get; }
         public ICommand SaveFileCommand { get; }
+        public ICommand SaveAsCommand { get; }
         public ICommand ExitCommand { get; }
 
         #endregion
@@ -44,6 +48,7 @@ namespace IoEditor
         {
             OpenFilesCommand = new DelegateCommand(OpenFilesCmd);
             SaveFileCommand = new DelegateCommand(SaveFileCmd);
+            SaveAsCommand = new DelegateCommand(SaveAsCmd); 
             ExitCommand = new DelegateCommand(ExitCmd);
         }
 
@@ -55,7 +60,41 @@ namespace IoEditor
 
         private void SaveFileCmd(object obj)
         {
-            throw new NotImplementedException();
+            throw new NotImplementedException("Save not implemented");
+        }
+
+        private void SaveAsCmd(object obj)
+        {
+            var saveFileDialog = new SaveFileDialog
+            {
+                Filter = "Studio file (*.io)|*.io",
+                Title = "Save As"
+            };
+
+            if (saveFileDialog.ShowDialog() != true)
+            {
+                return;
+            }
+
+            string filePath = saveFileDialog.FileName;
+
+            if (File.Exists(filePath))
+            {
+                var result = MessageBox.Show("File already exists. Do you want to overwrite?", "Confirm Overwrite", MessageBoxButton.YesNo, MessageBoxImage.Warning);
+                if (result != MessageBoxResult.Yes)
+                {
+                    return;
+                }
+            }
+
+            try
+            {
+                throw new NotImplementedException("Save not implemented");
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error saving file: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
         }
 
         private void OpenFilesCmd(object obj)
