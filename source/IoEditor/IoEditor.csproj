@@ -9,7 +9,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Folder Include="Model\" />
+    <Folder Include="Models\Instruction\" />
+    <Folder Include="Models\Model\" />
   </ItemGroup>
 
 </Project>

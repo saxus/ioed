@@ -15,8 +15,8 @@ namespace IoEditor.UI.LoaderWindow
 {
     internal class LoaderViewModel : INotifyPropertyChanged
     {
-        private string _referenceFile;
-        public string ReferenceFile
+        private string? _referenceFile;
+        public string? ReferenceFile
         {
             get { return _referenceFile; }
             set
@@ -29,8 +29,8 @@ namespace IoEditor.UI.LoaderWindow
             }
         }
 
-        private string _targetFile;
-        public string TargetFile
+        private string? _targetFile;
+        public string? TargetFile
         {
             get { return _targetFile; }
             set
@@ -76,7 +76,6 @@ namespace IoEditor.UI.LoaderWindow
                 return;
             }
 
-            // Set the DialogResult to true and close the window
             if (param is Window window)
             {
                 window.DialogResult = true;
@@ -86,7 +85,6 @@ namespace IoEditor.UI.LoaderWindow
 
         private void Cancel(object param)
         {
-            // Close the window without setting DialogResult
             if (param is Window window)
             {
                 window.DialogResult = false;

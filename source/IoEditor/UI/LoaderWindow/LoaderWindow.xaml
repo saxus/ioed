@@ -29,7 +29,7 @@
         <TextBox Grid.Row="1" Grid.Column="1" Text="{Binding TargetFile, UpdateSourceTrigger=PropertyChanged}" Margin="5" />
         <Button Grid.Row="1" Grid.Column="2" Content="Browse..." Margin="5" Command="{Binding BrowseTargetFileCommand}" />
 
-        <StackPanel Grid.Row="3" Grid.Column="1" Grid.ColumnSpan="2" Orientation="Horizontal" HorizontalAlignment="Right" Margin="5">
+        <StackPanel Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="3" Orientation="Horizontal" HorizontalAlignment="Right" Margin="5">
             <Button Content="Open" Width="75" Margin="5" Command="{Binding OpenCommand}" CommandParameter="{Binding RelativeSource={RelativeSource AncestorType=Window}}" />
             <Button Content="Cancel" Width="75" Margin="5" Command="{Binding CancelCommand}" CommandParameter="{Binding RelativeSource={RelativeSource AncestorType=Window}}" />
         </StackPanel>

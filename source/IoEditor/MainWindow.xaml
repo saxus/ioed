@@ -7,7 +7,7 @@
         ResizeMode="CanResizeWithGrip"
         Style="{StaticResource StandardWindow}"
         mc:Ignorable="d"
-        Title="IO Editor" Height="450" Width="800">
+        Title="{Binding Project.TargetFile, StringFormat=IO Editor - {0}, TargetNullValue=IO Editor}" Height="450" Width="800">
 
     <Window.InputBindings>
         <KeyBinding Key="O" Modifiers="Ctrl" Command="{Binding OpenFilesCommand}" />

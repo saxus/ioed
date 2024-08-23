@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
+using IoEditor.Model;
 using IoEditor.UI.LoaderWindow;
 using IoEditor.UI.Utils;
 
@@ -13,9 +14,31 @@ namespace IoEditor
 {
     internal class MainViewModel : INotifyPropertyChanged
     {
+        #region Commands
         public ICommand OpenFilesCommand { get; }
         public ICommand SaveFileCommand { get; }
         public ICommand ExitCommand { get; }
+
+        #endregion
+
+
+        #region propeties
+
+        private StudioProject _project;
+        public StudioProject Project
+        {
+            get { return _project; }
+            set
+            {
+                if (_project != value)
+                {
+                    _project = value;
+                    RaisePropertyChanged(nameof(Project));
+                }
+            }
+        }
+
+        #endregion
 
         public MainViewModel()
         {
@@ -24,6 +47,7 @@ namespace IoEditor
             ExitCommand = new DelegateCommand(ExitCmd);
         }
 
+        #region Command handlers
         private void ExitCmd(object obj)
         {
             Application.Current.Shutdown();
@@ -42,10 +66,27 @@ namespace IoEditor
 
             if (dr == true)
             {
-                Console.WriteLine(vm.ReferenceFile);
-                Console.WriteLine(vm.TargetFile);
+                OpenFiles(vm.ReferenceFile, vm.TargetFile);
             }
         }
+
+        #endregion
+
+
+        public void OpenFiles(string reference, string target)
+        {
+            try
+            {
+                Project = StudioProject.Open(reference, target);
+                // Additional logic to handle the opened project if needed
+            }
+            catch (Exception ex)
+            {
+                // Handle exceptions (e.g., log the error, show a message to the user, etc.)
+                Console.WriteLine($"Error opening files: {ex.Message}");
+            }
+        }
+
 
         public event PropertyChangedEventHandler? PropertyChanged;
 
