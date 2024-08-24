@@ -6,6 +6,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using IoEditor.Models.LDraw;
+using IoEditor.Models.InfoFile;
+using System.Text.Json;
+using IoEditor.Models.Model;
+using IoEditor.Models.Instructions;
 
 namespace IoEditor.Models.Studio
 {
@@ -52,28 +56,54 @@ namespace IoEditor.Models.Studio
 
             var fileName = Path.GetFileNameWithoutExtension(filePath);
 
-            var model = LDrawLoader.LoadFromZipEntry(zipEntryModel);
-
+            var infoFileSchema = ReadInfoFileSchema(zipEntryInfoFile);
+            var model = ReadModelFile(zipEntryModel);
+            var instruction = ReadInstructionFile(zipEntryInstruction);
             var thumbnailContent = ReadThumbnailContent(zipEntryThumbnail);
 
             return new StudioFile(
                 filePath, 
-                fileName, 
+                fileName,
+                infoFileSchema.Version,
                 model,
+                instruction,
                 thumbnailContent);
         }
 
         private static byte[] ReadThumbnailContent(ZipArchiveEntry zipEntryThumbnail)
         {
-            if (zipEntryThumbnail == null)
-            {
-                return null;
-            }
+            if (zipEntryThumbnail == null) throw new ArgumentNullException(nameof(zipEntryThumbnail));
 
             using var thumbnailStream = zipEntryThumbnail.Open();
             using var memoryStream = new MemoryStream();
             thumbnailStream.CopyTo(memoryStream);
             return memoryStream.ToArray();
+        }
+
+        private static InfoFileSchema ReadInfoFileSchema(ZipArchiveEntry zipEntryInfoFile)
+        {
+            if (zipEntryInfoFile == null) throw new ArgumentNullException(nameof(zipEntryInfoFile));
+
+            using var infoFileStream = zipEntryInfoFile.Open();
+            using var reader = new StreamReader(infoFileStream);
+            var jsonString = reader.ReadToEnd();
+            return JsonSerializer.Deserialize<InfoFileSchema>(jsonString);
+        }
+
+        private static LDrawModel ReadModelFile(ZipArchiveEntry zipEntryModel)
+        {
+            if (zipEntryModel == null) throw new ArgumentNullException(nameof(zipEntryModel));
+
+            using var modelStream = zipEntryModel.Open();
+            return LDrawLoader.LoadFromStream(modelStream);
+        }
+
+        private static Instruction ReadInstructionFile(ZipArchiveEntry zipEntryInstruction)
+        {
+            if (zipEntryInstruction == null) throw new ArgumentNullException(nameof(zipEntryInstruction));
+
+            using var instructionStream = zipEntryInstruction.Open();
+            return InstructionLoader.LoadFromStream(instructionStream);
         }
     }
 }

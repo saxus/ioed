@@ -3,18 +3,17 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.IO.Compression;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace IoEditor.Models.LDraw
+namespace IoEditor.Models.Instructions
 {
-    internal class LDrawLoader
+    internal class InstructionLoader
     {
-        internal static LDrawModel LoadFromStream(Stream modelStream)
+        internal static Instruction LoadFromStream(Stream modelStream)
         {
-            return new LDrawModel();
+            return new Instruction();
         }
     }
 }
