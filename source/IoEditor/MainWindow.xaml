@@ -4,10 +4,15 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:IoEditor"
+        xmlns:conv="clr-namespace:IoEditor.UI.Converters"
         ResizeMode="CanResizeWithGrip"
         Style="{StaticResource StandardWindow}"
         mc:Ignorable="d"
-        Title="{Binding Project.TargetFile, StringFormat=IO Editor - {0}, TargetNullValue=IO Editor}" Height="450" Width="800">
+        Title="{Binding Project.Target.FileName, StringFormat=IO Editor - {0}, TargetNullValue=IO Editor}" Height="450" Width="800">
+
+    <Window.Resources>
+        <conv:ByteArrayToImageConverter x:Key="ByteArrayToImageConverter" />
+    </Window.Resources>
 
     <Window.InputBindings>
         <KeyBinding Key="O" Modifiers="Ctrl" Command="{Binding OpenFilesCommand}" />
@@ -45,6 +50,14 @@
                           Width="10" />
 
         </Grid>
+
+        <StackPanel Grid.Row="1" Grid.Column="2" Orientation="Vertical">
+            <Image Source="{Binding Project.Target.ThumbnailContent, Converter={StaticResource ByteArrayToImageConverter}}" Height="300" Width="300" />
+            <Label Foreground="Wheat" Content="{Binding Project.Target.FileName}" />
+
+            <Image Source="{Binding Project.Reference.ThumbnailContent, Converter={StaticResource ByteArrayToImageConverter}}" Height="300" Width="300" />
+            <Label Foreground="Wheat" Content="{Binding Project.Reference.FileName}" />
+        </StackPanel>
 
         <StatusBar Grid.Row="2">
             <StatusBarItem>Done.</StatusBarItem>

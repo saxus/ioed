@@ -28,8 +28,8 @@ namespace IoEditor
 
         #region propeties
 
-        private StudioProject _project;
-        public StudioProject Project
+        private IoEdProject _project;
+        public IoEdProject Project
         {
             get { return _project; }
             set
@@ -116,12 +116,10 @@ namespace IoEditor
         {
             try
             {
-                Project = StudioProject.Open(reference, target);
-                // Additional logic to handle the opened project if needed
+                Project = IoEdProjectLoader.Load(reference, target);
             }
             catch (Exception ex)
             {
-                // Handle exceptions (e.g., log the error, show a message to the user, etc.)
                 Console.WriteLine($"Error opening files: {ex.Message}");
             }
         }
