@@ -54,6 +54,33 @@
         <StackPanel Grid.Row="1" Grid.Column="2" Orientation="Vertical">
             <Image Source="{Binding Project.Target.ThumbnailContent, Converter={StaticResource ByteArrayToImageConverter}}" Height="300" Width="300" />
             <Label Foreground="Wheat" Content="{Binding Project.Target.FileName}" />
+            <ListView ItemsSource="{Binding Project.Target.Model.Steps}" Height="400">
+                <ListView.ItemTemplate>
+                    <DataTemplate>
+                        <StackPanel>
+                            <TextBlock>
+                                STEP
+                                <Run Text="{Binding Parts.Count, Mode=OneWay}"></Run>
+                                <Run Text="{Binding Description}"></Run>
+                            </TextBlock>
+                            <ItemsControl ItemsSource="{Binding Parts}">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <TextBlock Text="{Binding PartName}" Margin="6" Background="Yellow" />
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                                <ItemsControl.ItemsPanel>
+                                    <ItemsPanelTemplate>
+                                        <StackPanel Orientation="Horizontal" />
+                                    </ItemsPanelTemplate>
+                                </ItemsControl.ItemsPanel>
+                            </ItemsControl>
+
+                        </StackPanel>
+                    </DataTemplate>
+                </ListView.ItemTemplate>
+            </ListView>
+            
 
             <Image Source="{Binding Project.Reference.ThumbnailContent, Converter={StaticResource ByteArrayToImageConverter}}" Height="300" Width="300" />
             <Label Foreground="Wheat" Content="{Binding Project.Reference.FileName}" />
