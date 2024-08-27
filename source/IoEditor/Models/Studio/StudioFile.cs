@@ -15,16 +15,22 @@ namespace IoEditor.Models.Studio
             string fileName, 
             string name, 
             string version,
-            LDrawModel model, 
+            LDrawModel mainModel, 
+            List<LDrawModel> models,
             Instruction instruction,
             byte[] thumbnailContent)
         {
             this.FileName = fileName;
             this.Name = name;
             this.Version = version;
-            this.Model = model;
+            this.MainModel = mainModel;
             this.Instruction = instruction;
             this.ThumbnailContent = thumbnailContent;
+
+            foreach (var model in models)
+            {
+                this.Models[model.Name] = model;
+            }
         }
 
         public string FileName { get; }
@@ -33,7 +39,9 @@ namespace IoEditor.Models.Studio
 
         public string Version { get; }
 
-        public LDrawModel Model { get; }
+        public LDrawModel MainModel { get; }
+
+        public Dictionary<string, LDrawModel> Models { get; } = new Dictionary<string, LDrawModel>();
 
         public Instruction Instruction { get; }
 

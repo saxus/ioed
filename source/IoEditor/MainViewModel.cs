@@ -8,15 +8,27 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
 using IoEditor.Model;
+using IoEditor.Models.Configuration;
+using IoEditor.Models.ImageCache;
+using IoEditor.Models.Model;
+using IoEditor.Models.Studio;
 using IoEditor.UI.LoaderWindow;
 using IoEditor.UI.Utils;
 
+using Microsoft.Extensions.Options;
 using Microsoft.Win32;
 
 namespace IoEditor
 {
     internal class MainViewModel : INotifyPropertyChanged
     {
+        private readonly PartImageCache _partImageCache = new PartImageCache();
+        private readonly StudioOptions _options;
+        private readonly PartLibrary _partLibrary;
+        private readonly ColorLibrary _colorLibrary;
+
+        
+
         #region Commands
         public ICommand OpenFilesCommand { get; }
         public ICommand SaveFileCommand { get; }
@@ -44,8 +56,12 @@ namespace IoEditor
 
         #endregion
 
-        public MainViewModel()
+        public MainViewModel(IOptions<StudioOptions> options)
         {
+            _options = options.Value;
+            _partLibrary = new PartLibrary(_options);
+            _colorLibrary = new ColorLibrary(_options);
+
             OpenFilesCommand = new DelegateCommand(OpenFilesCmd);
             SaveFileCommand = new DelegateCommand(SaveFileCmd);
             SaveAsCommand = new DelegateCommand(SaveAsCmd); 
@@ -117,10 +133,44 @@ namespace IoEditor
             try
             {
                 Project = IoEdProjectLoader.Load(reference, target);
+
+                UpdateImageCache(Project.Target);
+                UpdateImageCache(Project.Reference);
             }
             catch (Exception ex)
             {
                 Console.WriteLine($"Error opening files: {ex.Message}");
+            }
+        }
+
+        public async void UpdateImageCache(StudioFile studioFile)
+        {
+            var tasks = new List<Task>();
+
+            foreach (var model in studioFile.Models.Values)
+            {
+                foreach (var part in model.Steps.SelectMany(step => step.Parts)
+                                                .Where(x => x.IsOfficialPart))
+                {
+                    if (part.Image == null)
+                    {
+                        tasks.Add(UpdatePartImageAsync(part));
+                    }
+                }
+            }
+
+            await Task.WhenAll(tasks);
+        }
+
+        private async Task UpdatePartImageAsync(LDrawPart part)
+        {
+            var ldrawColorId = part.LDrawColorId;
+            var blColorId = _colorLibrary.GetColorByLDrawColorCode(ldrawColorId).BLColorCode.Value;
+
+            var image = await _partImageCache.LoadImageAsync(part.PartName, blColorId);
+            if (image != null)
+            {
+                Application.Current.Dispatcher.Invoke(() => part.Image = image);
             }
         }
 

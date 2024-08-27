@@ -57,17 +57,20 @@ namespace IoEditor.Models.Studio
             var fileName = Path.GetFileNameWithoutExtension(filePath);
 
             var infoFileSchema = ReadInfoFileSchema(zipEntryInfoFile);
-            var model = ReadModelFile(zipEntryModel);
+            var (mainModel, models) = ReadModelFile(zipEntryModel);
             var instruction = ReadInstructionFile(zipEntryInstruction);
             var thumbnailContent = ReadThumbnailContent(zipEntryThumbnail);
 
-            return new StudioFile(
-                filePath, 
-                fileName,
-                infoFileSchema.Version,
-                model,
-                instruction,
-                thumbnailContent);
+            var studioFile = new StudioFile(
+               filePath,
+               fileName,
+               infoFileSchema.Version,
+               mainModel,
+               models,
+               instruction,
+               thumbnailContent);
+
+            return studioFile;
         }
 
         private static byte[] ReadThumbnailContent(ZipArchiveEntry zipEntryThumbnail)
@@ -90,12 +93,12 @@ namespace IoEditor.Models.Studio
             return JsonSerializer.Deserialize<InfoFileSchema>(jsonString);
         }
 
-        private static LDrawModel ReadModelFile(ZipArchiveEntry zipEntryModel)
+        private static (LDrawModel mainModel, List<LDrawModel> allModels) ReadModelFile(ZipArchiveEntry zipEntryModel)
         {
             if (zipEntryModel == null) throw new ArgumentNullException(nameof(zipEntryModel));
 
             using var modelStream = zipEntryModel.Open();
-            return LDrawLoader.LoadFromStream(modelStream);
+            return LDrawLoader.ReadModels(new LineReader(modelStream));
         }
 
         private static Instruction ReadInstructionFile(ZipArchiveEntry zipEntryInstruction)

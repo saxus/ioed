@@ -1,0 +1,44 @@
+﻿<Window x:Class="IoEditor.UI.SettingsWindow.SettingsWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Style="{StaticResource StandardWindow}"
+        Title="Io Editor settings" Height="300" Width="400">
+
+    <Window.InputBindings>
+        <KeyBinding Key="Escape" Command="{Binding CancelCommand}" CommandParameter="{Binding RelativeSource={RelativeSource AncestorType=Window}}" />
+    </Window.InputBindings>
+
+    
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <TabControl Margin="10,10,10,0"  Grid.Row="0">
+            <TabItem Header="Studio Settings">
+                <Grid Background="white">
+                    <Grid Background="White" Margin="10">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                        </Grid.RowDefinitions>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+
+                        <Label Content="Studio Folder:" Grid.Row="0" Grid.Column="0" />
+                        
+                        <TextBox Text="{Binding StudioFolderPath}" Grid.Row="1" Grid.Column="0" IsReadOnly="True" Margin="0,0,5,0"/>
+                        <Button Content="Browse" Grid.Row="1" Grid.Column="1" Command="{Binding BrowseStudioFolderCommand}" />
+                    </Grid>
+                </Grid>
+            </TabItem>
+        </TabControl>
+        <StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Right" Margin="10">
+            <Button Content="OK" Width="75" Margin="5" Command="{Binding SaveCommand}" CommandParameter="{Binding RelativeSource={RelativeSource AncestorType=Window}}" />
+            <Button Content="Cancel" Width="75" Margin="5" Command="{Binding CancelCommand}" CommandParameter="{Binding RelativeSource={RelativeSource AncestorType=Window}}" />
+        </StackPanel>
+    </Grid>
+</Window>

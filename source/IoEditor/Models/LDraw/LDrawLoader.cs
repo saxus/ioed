@@ -12,26 +12,26 @@ namespace IoEditor.Models.LDraw
 {
     internal class LDrawLoader
     {
-        public static LDrawModel LoadFromStream(Stream modelStream)
+        public static (LDrawModel mainModel, List<LDrawModel> allModels) 
+            LoadFromStream(Stream modelStream)
         {
             using var reader = new LineReader(modelStream);
 
-            var model = ReadModel(reader);
+            var model = ReadModels(reader);
 
             return model;
         }
 
 
-        private static LDrawModel ReadModel(LineReader reader)
+        public static (LDrawModel mainModel, List<LDrawModel> allModels) 
+            ReadModels(LineReader reader)
         {
-            var model = new LDrawModel()
-            {
-                Name = "Untitled Model",
-            };
+            var models = new List<LDrawModel>();
+            LDrawModel currentModel = null;
+            LDrawModel mainModel = null;
 
             var isParsingFinished = false;
             var currentStep = new LDrawStep();
-            model.Steps.Add(currentStep);
 
             while (reader.CanRead)
             {
@@ -61,8 +61,13 @@ namespace IoEditor.Models.LDraw
                 throw new InvalidOperationException("Unexpected end of file.");
             }
 
-            return model;
+            // Add the last model if it exists
+            if (currentModel != null)
+            {
+                models.Add(currentModel);
+            }
 
+            return (mainModel, models);
 
             // ---------------------------------------------------------------
             void ParseMetaCommand(string content)
@@ -76,7 +81,25 @@ namespace IoEditor.Models.LDraw
                 }
                 else if (content.StartsWith("FILE "))
                 {
-                    model.File = content.Substring(5);
+                    if (currentModel != null)
+                    {
+                        models.Add(currentModel);
+                    }
+
+                    currentModel = new LDrawModel
+                    {
+                        File = content.Substring(5),
+                        Name = "Untitled Model"
+                    };
+
+                    // Set the mainModel when the first model is instantiated
+                    if (mainModel == null)
+                    {
+                        mainModel = currentModel;
+                    }
+
+                    currentStep = new LDrawStep();
+                    currentModel.Steps.Add(currentStep);
 
                     if (!reader.TryReadLine(out var nextLine))
                     {
@@ -86,21 +109,21 @@ namespace IoEditor.Models.LDraw
                     var s = SplitLine(nextLine);
                     if (s.type == "0")
                     {
-                        model.Descrption = s.content;
+                        currentModel.Descrption = s.content;
                     }
                 }
                 else if (content.StartsWith("Name: "))
                 {
-                    model.Name = content.Substring(6);
+                    currentModel.Name = content.Substring(6);
                 }
                 else if (content.StartsWith("Author: "))
                 {
-                    model.Author = content.Substring(8);
+                    currentModel.Author = content.Substring(8);
                 }
                 else if (content.Equals("STEP"))
                 {
                     currentStep = new LDrawStep();
-                    model.Steps.Add(currentStep);
+                    currentModel.Steps.Add(currentStep);
                 }
                 else if (content.StartsWith("STUDIOSTEPDESC"))
                 {
@@ -115,13 +138,14 @@ namespace IoEditor.Models.LDraw
 
                 var part = new LDrawPart()
                 {
-                    BricklinkColorId = ParseToInt(reader, line[0]),
+                    LDrawColorId = ParseToInt(reader, line[0]),
                     PartName = line[16],
                 };
 
                 currentStep.Parts.Add(part);
             }
         }
+
 
         private static int ParseToInt(LineReader reader, string v)
         {
