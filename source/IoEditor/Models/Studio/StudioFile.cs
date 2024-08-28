@@ -29,7 +29,27 @@ namespace IoEditor.Models.Studio
 
             foreach (var model in models)
             {
-                this.Models[model.Name] = model;
+                this.Models[model.Name.ToLower()] = model;
+            }
+
+            UpdateModelReferences();
+        }
+
+        private void UpdateModelReferences()
+        {
+            foreach (var model in Models.Values)
+            {
+                foreach (var step in model.Steps)
+                {
+                    foreach (var part in step.Parts)
+                    {
+                        if (!part.IsOfficialPart)
+                        {
+                            var partModel = GetModel(part.PartName);
+                            part.Model = partModel;
+                        }
+                    }
+                }
             }
         }
 
@@ -46,5 +66,18 @@ namespace IoEditor.Models.Studio
         public Instruction Instruction { get; }
 
         public byte[] ThumbnailContent { get; }
+
+        internal LDrawModel GetModel(string partName)
+        {
+            string lowercasedPartName = partName.ToLower();
+            if (Models.TryGetValue(lowercasedPartName, out LDrawModel model))
+            {
+                return model;
+            }
+            else
+            {
+                return null;
+            }
+        }
     }
 }

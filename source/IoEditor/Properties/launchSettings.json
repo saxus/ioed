@@ -2,7 +2,7 @@
   "profiles": {
     "IoEditor": {
       "commandName": "Project",
-      "commandLineArgs": "/openfiles ..\\..\\..\\..\\..\\TestData\\AtlasIIAS.io ..\\..\\..\\..\\..\\TestData\\AtlasIIASModified.io "
+      "commandLineArgs": "/openfiles ..\\..\\..\\..\\..\\TestData\\TestData2.io ..\\..\\..\\..\\..\\TestData\\TestData.io"
     }
   }
 }

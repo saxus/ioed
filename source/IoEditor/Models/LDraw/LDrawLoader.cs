@@ -13,17 +13,6 @@ namespace IoEditor.Models.LDraw
     internal class LDrawLoader
     {
         public static (LDrawModel mainModel, List<LDrawModel> allModels) 
-            LoadFromStream(Stream modelStream)
-        {
-            using var reader = new LineReader(modelStream);
-
-            var model = ReadModels(reader);
-
-            return model;
-        }
-
-
-        public static (LDrawModel mainModel, List<LDrawModel> allModels) 
             ReadModels(LineReader reader)
         {
             var models = new List<LDrawModel>();
@@ -67,6 +56,11 @@ namespace IoEditor.Models.LDraw
                 models.Add(currentModel);
             }
 
+            foreach (var model in models)
+            {
+                FixModelsLastStep(model);
+            }
+
             return (mainModel, models);
 
             // ---------------------------------------------------------------
@@ -89,7 +83,7 @@ namespace IoEditor.Models.LDraw
                     currentModel = new LDrawModel
                     {
                         File = content.Substring(5),
-                        Name = "Untitled Model"
+                        Name = content.Substring(5),
                     };
 
                     // Set the mainModel when the first model is instantiated
@@ -114,7 +108,7 @@ namespace IoEditor.Models.LDraw
                 }
                 else if (content.StartsWith("Name: "))
                 {
-                    currentModel.Name = content.Substring(6);
+                    currentModel.Name = content.Substring(6).Trim();
                 }
                 else if (content.StartsWith("Author: "))
                 {
@@ -146,6 +140,15 @@ namespace IoEditor.Models.LDraw
             }
         }
 
+
+        private static void FixModelsLastStep(LDrawModel model)
+        {
+            if (model.Steps.Count > 1 &&
+                !model.Steps.Last().Parts.Any())
+            {
+                model.Steps.RemoveAt(model.Steps.Count - 1);
+            }
+        }
 
         private static int ParseToInt(LineReader reader, string v)
         {

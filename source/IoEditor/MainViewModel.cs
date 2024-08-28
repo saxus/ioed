@@ -136,6 +136,22 @@ namespace IoEditor
 
                 UpdateImageCache(Project.Target);
                 UpdateImageCache(Project.Reference);
+
+                var stepB = new IndexedStepsBuilder(_partLibrary, _colorLibrary);
+                var list = stepB.CreateIndexedSteps(Project.Reference.MainModel, Project.Reference);
+
+                foreach (var l in list)
+                {
+                    Console.WriteLine($"#{l.Index}");
+                    foreach (var p in l.Submodels)
+                    {
+                        Console.WriteLine($"\tS\t{p.Quantity} x {p.ModelName}");
+                    }
+                    foreach (var p in l.Parts)
+                    {
+                        Console.WriteLine($"\tP\t{p.Quantity} x {p.Color?.BLColorName} x \t{p.Part?.Description}");
+                    }
+                }
             }
             catch (Exception ex)
             {
