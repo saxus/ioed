@@ -1,4 +1,5 @@
 ﻿using IoEditor.Models.Configuration;
+using IoEditor.Models.ImageCache;
 
 using System;
 using System.Collections.Generic;
@@ -111,7 +112,9 @@ namespace IoEditor.Models.Studio
                 int? xpCatalogIndex = Parsers.NullableIntParser(values, headers, 14);
                 int? xpCatalogSubIndex = Parsers.NullableIntParser(values, headers, 15);
 
-                return new Part(studioItemNo, baseStudioItemNo, blItemNo, blItemKey, lDrawItemNo, lddItemNo, description, options, blCatalogIndex, blCatalogSubIndex, easyModeIndex, isAssembly, flexibleType, isDecorated, xpCatalogIndex, xpCatalogSubIndex);
+                var part = new Part(studioItemNo, baseStudioItemNo, blItemNo, blItemKey, lDrawItemNo, lddItemNo, description, options, blCatalogIndex, blCatalogSubIndex, easyModeIndex, isAssembly, flexibleType, isDecorated, xpCatalogIndex, xpCatalogSubIndex);
+                
+                return part;
             }
             catch (FormatException ex)
             {

@@ -1,4 +1,5 @@
-﻿using IoEditor.Models.Model;
+﻿using IoEditor.Models.ImageCache;
+using IoEditor.Models.Model;
 
 namespace IoEditor.Models.Studio
 {
@@ -6,11 +7,13 @@ namespace IoEditor.Models.Studio
     {
         private readonly PartLibrary _partLibrary;
         private readonly ColorLibrary _colorLibrary;
+        private readonly IBitmapImageProxyFactory _imageProxyFactory;
 
-        public IndexedStepsBuilder(PartLibrary partLibrary, ColorLibrary colorLibrary)
+        public IndexedStepsBuilder(PartLibrary partLibrary, ColorLibrary colorLibrary, IBitmapImageProxyFactory imageProxyFactory)
         {
             _partLibrary = partLibrary;
             _colorLibrary = colorLibrary;
+            _imageProxyFactory = imageProxyFactory;
         }
 
         public List<IndexedStep> CreateIndexedSteps(LDrawModel ldrawModel, StudioFile studioFile)
@@ -67,14 +70,11 @@ namespace IoEditor.Models.Studio
             var existingSubModel = indexedStep.Submodels.FirstOrDefault(x => x.Model == model);
             if (existingSubModel == null)
             {
-                existingSubModel = new IndexedStepSubmodel()
-                {
-                    Model = model
-                };
+                existingSubModel = new IndexedStepSubmodel(model);
+
                 indexedStep.Submodels.Add(existingSubModel);
             }
 
-            existingSubModel.Quantity++;
             existingSubModel.LDrawParts.Add(ldrawPart);
         }
 
@@ -89,18 +89,16 @@ namespace IoEditor.Models.Studio
             var existingPart = indexedStep.Parts.FirstOrDefault(p => p.Part == part && p.Color == color);
             if (existingPart != null)
             {
-                existingPart.Quantity++;
                 existingPart.LDrawParts.Add(ldrawPart);
             }
             else
             {
-                indexedStep.Parts.Add(new IndexedStepPart
-                {
-                    Part = part,
-                    Color = color,
-                    Quantity = 1,
-                    LDrawParts = new List<LDrawPart> { ldrawPart }
-                });
+                var imageProxy = _imageProxyFactory.Create(part, color);
+                var stepItem = new IndexedStepPart(part, color, imageProxy);
+                
+                stepItem.LDrawParts.Add(ldrawPart);
+
+                indexedStep.Parts.Add(stepItem);
             }
         }
     }

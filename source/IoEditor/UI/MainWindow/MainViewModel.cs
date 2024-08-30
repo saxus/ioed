@@ -25,11 +25,10 @@ namespace IoEditor.UI.MainWindow
     internal class MainViewModel : INotifyPropertyChanged
     {
         private readonly PartImageCache _partImageCache = new PartImageCache();
-        private readonly StudioOptions _options;
         private readonly PartLibrary _partLibrary;
         private readonly ColorLibrary _colorLibrary;
+        private readonly BitmapImageProxyFactory _imageProxyFactory;
 
-        
 
         #region Commands
         public ICommand OpenFilesCommand { get; }
@@ -58,15 +57,15 @@ namespace IoEditor.UI.MainWindow
 
         #endregion
 
-        public MainViewModel(IOptions<StudioOptions> options)
+        public MainViewModel(PartLibrary partLibrary, ColorLibrary colorLibrary, BitmapImageProxyFactory imageProxyFactory)
         {
-            _options = options.Value;
-            _partLibrary = new PartLibrary(_options);
-            _colorLibrary = new ColorLibrary(_options);
+            _partLibrary = partLibrary;
+            _colorLibrary = colorLibrary;
+            _imageProxyFactory = imageProxyFactory;
 
             OpenFilesCommand = new DelegateCommand(OpenFilesCmd);
             SaveFileCommand = new DelegateCommand(SaveFileCmd);
-            SaveAsCommand = new DelegateCommand(SaveAsCmd); 
+            SaveAsCommand = new DelegateCommand(SaveAsCmd);
             ExitCommand = new DelegateCommand(ExitCmd);
         }
 
@@ -141,12 +140,12 @@ namespace IoEditor.UI.MainWindow
 
                 Project = IoEdProjectLoader.Load(reference, target);
 
-                Console.WriteLine("Updating image cache");
-                UpdateImageCache(Project.Target);
-                UpdateImageCache(Project.Reference);
+                // Console.WriteLine("Updating image cache");
+                // UpdateImageCache(Project.Target);
+                // UpdateImageCache(Project.Reference);
 
                 Console.WriteLine("Compare reference and target files");
-                var stepBuilder = new IndexedStepsBuilder(_partLibrary, _colorLibrary);
+                var stepBuilder = new IndexedStepsBuilder(_partLibrary, _colorLibrary, _imageProxyFactory);
                 var stepComparer = new StepComparer(stepBuilder);
 
                 var comparisonResult = stepComparer.Compare(Project.Reference, Project.Target); 
@@ -184,22 +183,23 @@ namespace IoEditor.UI.MainWindow
         //     await Task.WhenAll(tasks);
         // }
 
-        private async Task UpdatePartImageAsync(LDrawPart part)
-        {
-            var ldrawColorId = part.LDrawColorId;
-            var blColorId = _colorLibrary.GetColorByLDrawColorCode(ldrawColorId).BLColorCode.Value;
-
-            var image = await _partImageCache.LoadImageAsync(part.PartName, blColorId);
-            if (image != null)
-            {
-                Application.Current.Dispatcher.Invoke(() => part.Image = image);
-            }
-        }
+        // private async Task UpdatePartImageAsync(LDrawPart part)
+        // {
+        //     var ldrawColorId = part.LDrawColorId;
+        //     var blColorId = _colorLibrary.GetColorByLDrawColorCode(ldrawColorId).BLColorCode.Value;
+        // 
+        //     var image = await _partImageCache.LoadImageAsync(part.PartName, blColorId);
+        //     if (image != null)
+        //     {
+        //         Application.Current.Dispatcher.Invoke(() => part.Image = image);
+        //     }
+        // }
 
 
         public event PropertyChangedEventHandler? PropertyChanged;
 
         private void RaisePropertyChanged(string propertyName)
             => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        
     }
 }

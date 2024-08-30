@@ -54,8 +54,9 @@ namespace IoEditor
                    config.AddJsonFile(_configFilePath, optional: false, reloadOnChange: true);
                })
                .ConfigureServices((context, services) =>
-               {
-                   services.Configure<StudioOptions>(context.Configuration.GetSection("StudioOptions"));
+               {                   
+                   services.AddIoEditorServices(context.Configuration);
+
                    services.AddSingleton<MainViewModel>();
                    services.AddSingleton<MainWindow>();
                })

@@ -6,5 +6,10 @@ namespace IoEditor.Models.Studio
     {
         public string ModelName => Model.Name;
         public LDrawModel Model { get; set; }
+
+        public IndexedStepSubmodel(LDrawModel model)
+        {
+            Model = model;
+        }
     }
 }

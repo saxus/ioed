@@ -1,14 +1,14 @@
-﻿using IoEditor.Models.Studio;
+﻿using Microsoft.Extensions.Hosting;
 
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Media.Imaging;
 
@@ -159,47 +159,5 @@ namespace IoEditor.Models.ImageCache
                 PartImageCache._semaphore.Release();
             }
         }
-
-        private void QueueLoadingImage(Part part, Action<object> value)
-        {
-            LoadImageAsync(part.)
-        }
-    }
-
-    internal class BitmapImageFacade : INotifyPropertyChanged
-    {
-        private readonly Part _part;
-        private readonly PartImageCache _partImageCache;
-
-        private BitmapImage? _image;
-        public BitmapImage Image
-        { 
-            get
-            {
-                if (_image == null)
-                {
-                    _partImageCache.QueueLoadingImage(_part, (res) =>
-                    {
-                        if (_image != res)
-                        {
-                            _image = res;
-                            RaisePropertyChanged(nameof(Image));
-                        }
-                    );
-                    return null;
-                }
-
-                return _image;
-            }
-        }
-
-        public BitmapImageFacade(PartImageCache partImageCache, Part part)
-        {
-            this._part = part;
-            this._partImageCache = partImageCache;
-        }
-
-        public event PropertyChangedEventHandler? PropertyChanged;
-        private void RaisePropertyChanged(string propertyName) => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
     }
 }

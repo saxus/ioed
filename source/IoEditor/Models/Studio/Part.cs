@@ -1,4 +1,6 @@
-﻿using System;
+﻿using IoEditor.Models.ImageCache;
+
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
@@ -8,7 +10,7 @@ using System.Windows.Media.Imaging;
 
 namespace IoEditor.Models.Studio
 {
-    internal class Part: INotifyPropertyChanged
+    internal class Part 
     {
         public int StudioItemNo { get; }
         public int BaseStudioItemNo { get; }
@@ -26,7 +28,6 @@ namespace IoEditor.Models.Studio
         public bool IsDecorated { get; }
         public int? XPCatalogIndex { get; }
         public int? XPCatalogSubIndex { get; }
-        public BitmapImageFacade Image { get; }
 
         public Part(
             int studioItemNo,
@@ -44,8 +45,7 @@ namespace IoEditor.Models.Studio
             string flexibleType,
             bool isDecorated,
             int? xpCatalogIndex,
-            int? xpCatalogSubIndex,
-            BitmapImageFacade imageFacade)
+            int? xpCatalogSubIndex)
         {
             StudioItemNo = studioItemNo;
             BaseStudioItemNo = baseStudioItemNo;
@@ -63,7 +63,10 @@ namespace IoEditor.Models.Studio
             IsDecorated = isDecorated;
             XPCatalogIndex = xpCatalogIndex;
             XPCatalogSubIndex = xpCatalogSubIndex;
-            this.Image = imageFacade;
         }
+
+        public event PropertyChangedEventHandler? PropertyChanged;
+        private void RaisePropertyChanged(string propertyName) 
+            => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
     }
 }
