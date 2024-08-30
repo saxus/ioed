@@ -1,4 +1,5 @@
-﻿using IoEditor.Models.Studio;
+﻿using IoEditor.Models.Comparison;
+using IoEditor.Models.Studio;
 
 using System;
 using System.Collections.Generic;
@@ -17,6 +18,20 @@ namespace IoEditor.Model
 
         public StudioFile Reference { get; }
         public StudioFile Target { get; }
+
+        public ComparisonResult _comparisonResult;
+        public ComparisonResult ComparisonResult
+        {
+            get => _comparisonResult;
+            set
+            {
+                if (_comparisonResult != value)
+                {
+                    _comparisonResult = value;
+                    RaisePropertyChanged(nameof(ComparisonResult));
+                }
+            }
+        }
 
         public IoEdProject(string referenceFileName, string targetFileName, StudioFile reference, StudioFile target)
         {

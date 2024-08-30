@@ -17,6 +17,8 @@ namespace IoEditor.Models.Studio
     {
         public static StudioFile Load(string filePath)
         {
+            Console.WriteLine("Loading Studio file: " + filePath);
+
             using var zipFile = ZipFile.Open(filePath, ZipArchiveMode.Read);
 
             ZipArchiveEntry zipEntryInfoFile = null;

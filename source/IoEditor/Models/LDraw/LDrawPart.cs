@@ -14,20 +14,6 @@ namespace IoEditor.Models.Model
         public Vector3 Position { get; set; }
         public Quaternion Rotation { get; set; }
 
-        private BitmapImage _image;
-        public BitmapImage Image
-        {
-            get => _image;
-            set
-            {
-                if (_image != value)
-                {
-                    _image = value;
-                    RaisePropertyChanged(nameof(Image));
-                }
-            }
-        }
-
         public bool IsOfficialPart =>
             PartName.EndsWith(".dat", StringComparison.OrdinalIgnoreCase);
 
