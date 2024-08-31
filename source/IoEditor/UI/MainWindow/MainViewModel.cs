@@ -122,7 +122,14 @@ namespace IoEditor.UI.MainWindow
 
             if (dr == true)
             {
-                OpenFiles(vm.ReferenceFile, vm.TargetFile);
+                try
+                {
+                    OpenFiles(vm.ReferenceFile, vm.TargetFile);
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"Error opening files: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
             }
         }
 
@@ -135,7 +142,6 @@ namespace IoEditor.UI.MainWindow
 
             try
             {
-
                 Console.WriteLine("==== Loading project ====");
 
                 Project = IoEdProjectLoader.Load(reference, target);
@@ -156,7 +162,13 @@ namespace IoEditor.UI.MainWindow
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Error opening files: {ex.Message}");
+                Console.WriteLine($"Error opening files!");
+                Console.WriteLine("=============================================================");
+                Console.WriteLine(ex.Message);
+                Console.WriteLine(ex.StackTrace);
+                Console.WriteLine("=============================================================");
+
+                throw;
             }
             finally
             {

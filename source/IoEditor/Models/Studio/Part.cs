@@ -65,6 +65,8 @@ namespace IoEditor.Models.Studio
             XPCatalogSubIndex = xpCatalogSubIndex;
         }
 
+        public override string ToString() => $"{BLItemNo} {Description}";
+
         public event PropertyChangedEventHandler? PropertyChanged;
         private void RaisePropertyChanged(string propertyName) 
             => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));

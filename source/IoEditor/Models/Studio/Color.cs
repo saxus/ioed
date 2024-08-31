@@ -57,5 +57,7 @@ namespace IoEditor.Models.Studio
             InsRGB = insRGB;
             InsCMYK = insCMYK;
         }
+
+        public override string ToString() => StudioColorName;
     }
 }

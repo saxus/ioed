@@ -12,7 +12,7 @@ namespace IoEditor.UI.MainWindow
 {
     public class IndexedStepItemTemplateSelector : DataTemplateSelector
     {
-        public DataTemplate IndexedStepItemTemplate { get; set; }
+        public DataTemplate IndexedStepPartTemplate { get; set; }
         public DataTemplate IndexedStepSubmodelTemplate { get; set; }
 
         public override DataTemplate SelectTemplate(object item, DependencyObject container)
@@ -21,9 +21,13 @@ namespace IoEditor.UI.MainWindow
             {
                 return IndexedStepSubmodelTemplate;
             }
-            else if (item is IndexedStepItem)
+            else if (item is IndexedStepPart)
             {
-                return IndexedStepItemTemplate;
+                return IndexedStepPartTemplate;
+            }
+            else
+            {
+                Console.WriteLine($"Unknown item type: {item.GetType()}");
             }
 
             return base.SelectTemplate(item, container);

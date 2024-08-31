@@ -1,5 +1,7 @@
 ﻿using IoEditor.Models.Studio;
 
+using Microsoft.Extensions.Hosting;
+
 using System.Collections.Concurrent;
 using System.Windows.Media.Imaging;
 
@@ -13,28 +15,31 @@ namespace IoEditor.Models.ImageCache
 
         public BackgroundPartImageLoader(PartImageCache cache)
         {
-            this._cache = cache;
-            StartProcessingQueueAsync();
+            _cache = cache;
         }
 
         public void QueueLoadingImage(Part part, Color color, Action<BitmapImage> callback)
         {
-            if (_queue != null)
-            {
-                _queue.Add((part, color, callback));
-            }
+            _queue?.Add((part, color, callback));
         }
 
-
-        private async void StartProcessingQueueAsync()
+        private async Task StartProcessingQueueAsync()
         {
             _queue = new BlockingCollection<(Part, Color, Action<BitmapImage>)>();
 
             await Task.Run(async () =>
             {
-                foreach (var item in _queue.GetConsumingEnumerable(_cancellationTokenSource.Token))
+                foreach (var (part, color, callback) in _queue.GetConsumingEnumerable(_cancellationTokenSource.Token))
                 {
-                    await ProcessQueuedItem(item.part, item.color, item.callback);
+                    try
+                    {
+                        await ProcessQueuedItem(part, color, callback);
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine(ex.Message);
+                        Console.WriteLine(ex.StackTrace);
+                    }
                 }
             }, _cancellationTokenSource.Token);
         }
@@ -50,13 +55,22 @@ namespace IoEditor.Models.ImageCache
             callback?.Invoke(image);
         }
 
-        public void StopProcessingQueue()
+        private void StopProcessingQueue()
         {
-            if (_queue != null)
-            {
-                _queue.CompleteAdding();
-                _queue = null;
-            }
+            _queue?.CompleteAdding();
+            _queue = null;
+        }
+
+        public Task StartAsync(CancellationToken cancellationToken)
+        {
+            return StartProcessingQueueAsync();
+        }
+
+        public Task StopAsync(CancellationToken cancellationToken)
+        {
+            _cancellationTokenSource.Cancel();
+            StopProcessingQueue();
+            return Task.CompletedTask;
         }
     }
 }

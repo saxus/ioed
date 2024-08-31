@@ -1,4 +1,5 @@
 ﻿using IoEditor.Models.Configuration;
+using IoEditor.Models.ImageCache;
 using IoEditor.UI.MainWindow;
 using IoEditor.UI.SettingsWindow;
 
@@ -21,9 +22,10 @@ namespace IoEditor
     /// </summary>
     public partial class App : Application
     {
-        private IHost _host;
         private readonly string _configFilePath;
-
+        
+        private IHost _host;
+        private BackgroundPartImageLoader _backgroundPartImageLoader;
 
         public App()
         {
@@ -61,6 +63,8 @@ namespace IoEditor
                    services.AddSingleton<MainWindow>();
                })
                .Build();
+
+            
         }
 
         private void Application_Startup(object sender, StartupEventArgs e)
@@ -68,6 +72,9 @@ namespace IoEditor
             // Handle global unhandled exceptions
             AppDomain.CurrentDomain.UnhandledException += CurrentDomain_UnhandledException;
             DispatcherUnhandledException += App_DispatcherUnhandledException;
+
+            _backgroundPartImageLoader = _host.Services.GetRequiredService<BackgroundPartImageLoader>();
+            Task.Run(() => _backgroundPartImageLoader.StartAsync(CancellationToken.None));
 
             var options = _host.Services.GetRequiredService<IOptions<StudioOptions>>().Value;
 
@@ -92,13 +99,30 @@ namespace IoEditor
             mainWindow.DataContext = mainViewModel;
             mainWindow.Show();
 
+
             // Handle command line arguments
             var args = e.Args;
             if (args.Length == 3 && args[0].Equals("/openfiles", StringComparison.OrdinalIgnoreCase))
             {
                 string referenceFile = args[1];
                 string targetFile = args[2];
-                mainViewModel.OpenFiles(referenceFile, targetFile);
+                try
+                {
+                    mainViewModel.OpenFiles(referenceFile, targetFile);
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"Error opening files: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
+            }
+        }
+
+        private void Application_Exit(object sender, ExitEventArgs e)
+        {
+            if (_backgroundPartImageLoader != null)
+            {
+                _backgroundPartImageLoader.StopAsync(CancellationToken.None).Wait();
+                _backgroundPartImageLoader = null;
             }
         }
 
@@ -117,6 +141,8 @@ namespace IoEditor
                 Console.WriteLine($"Stack Trace: {ex.StackTrace}");
             }
         }
+
+        
     }
 
 }

@@ -14,6 +14,9 @@ namespace Microsoft.Extensions.DependencyInjection
             services.Configure<StudioOptions>(configuration.GetSection("StudioOptions"));
 
             // image handling
+            services.AddSingleton<BackgroundPartImageLoader>();
+            services.AddSingleton<IPartImageLoader>(provider => provider.GetRequiredService<BackgroundPartImageLoader>());
+            
             services.AddSingleton<PartImageCache>();
             services.AddSingleton<BitmapImageProxyFactory>();
 

@@ -1,5 +1,7 @@
 ﻿using IoEditor.Models.Configuration;
 
+using Microsoft.Extensions.Options;
+
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -25,9 +27,9 @@ namespace IoEditor.Models.Studio
 
         private readonly StudioOptions _options;
 
-        public ColorLibrary(StudioOptions options)
+        public ColorLibrary(IOptions<StudioOptions> options)
         {
-            _options = options ?? throw new ArgumentNullException(nameof(options));
+            _options = options?.Value ?? throw new ArgumentNullException(nameof(options));
 
             var file = Path.Combine(_options.StudioFolder, "data", "StudioColorDefinition.txt");
             LoadColors(file);

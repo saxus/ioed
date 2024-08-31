@@ -1,6 +1,8 @@
 ﻿using IoEditor.Models.Configuration;
 using IoEditor.Models.ImageCache;
 
+using Microsoft.Extensions.Options;
+
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -27,9 +29,9 @@ namespace IoEditor.Models.Studio
 
         private readonly StudioOptions _options;
 
-        public PartLibrary(StudioOptions options)
+        public PartLibrary(IOptions<StudioOptions> options)
         {
-            _options = options ?? throw new ArgumentNullException(nameof(options));
+            _options = options?.Value ?? throw new ArgumentNullException(nameof(options));
 
             var file = Path.Combine(_options.StudioFolder, "data", "StudioPartDefinition2.txt");
             LoadParts(file);

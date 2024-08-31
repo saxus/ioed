@@ -16,5 +16,7 @@ namespace IoEditor.Models.Model
         public bool IsSubModel { get; set; }
 
         public List<LDrawStep> Steps { get; } = new List<LDrawStep>();
+
+        public override string ToString() => Name;
     }
 }
