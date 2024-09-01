@@ -44,6 +44,10 @@ namespace IoEditor.Models.Studio
                         {
                             AddPartToIndexedStep(ldrawPart, indexedStep);
                         }
+                        else if (ldrawPart.IsCustomPart)
+                        {
+                            AddPartToIndexedStep(ldrawPart, indexedStep);
+                        }
                         else if (ldrawPart.Model != null)
                         {
                             if (!indexedStep.Submodels.Any(x => x.Model == ldrawPart.Model))
@@ -72,7 +76,7 @@ namespace IoEditor.Models.Studio
             {
                 existingSubModel = new IndexedStepSubmodel(model);
 
-                indexedStep.Submodels.Add(existingSubModel);
+                indexedStep.Items.Add(existingSubModel);
             }
 
             existingSubModel.LDrawParts.Add(ldrawPart);
@@ -80,25 +84,52 @@ namespace IoEditor.Models.Studio
 
         private void AddPartToIndexedStep(LDrawPart ldrawPart, IndexedStep indexedStep)
         {
-            Part part = ldrawPart.IsOfficialPart
-                ? _partLibrary.GetPartByLDrawItemNo(ldrawPart.PartName)
-                : null;
-
-            var color = _colorLibrary.GetColorByLDrawColorCode(ldrawPart.LDrawColorId);
-
-            var existingPart = indexedStep.Parts.FirstOrDefault(p => p.Part == part && p.Color == color);
-            if (existingPart != null)
+            if (ldrawPart.IsCustomPart)
             {
-                existingPart.LDrawParts.Add(ldrawPart);
+                var color = _colorLibrary.GetColorByLDrawColorCode(ldrawPart.LDrawColorId);
+
+                var existingCustomPart = indexedStep.CustomParts.FirstOrDefault(p => p.Part.PartName == ldrawPart.PartName && p.Color == color);
+                if (existingCustomPart != null)
+                {
+                    existingCustomPart.LDrawParts.Add(ldrawPart);
+                }
+                else
+                {
+                    var stepItem = new IndexedStepCustomPart(ldrawPart.CustomPart, color);
+
+                    stepItem.LDrawParts.Add(ldrawPart);
+                    
+                    indexedStep.Items.Add(stepItem);
+                }
             }
             else
             {
-                var imageProxy = _imageProxyFactory.Create(part, color);
-                var stepItem = new IndexedStepPart(part, color, imageProxy);
-                
-                stepItem.LDrawParts.Add(ldrawPart);
 
-                indexedStep.Parts.Add(stepItem);
+                Part part = ldrawPart.IsOfficialPart
+                    ? _partLibrary.GetPartByLDrawItemNo(ldrawPart.PartName)
+                    : null;
+
+                if (part == null)
+                {
+                    Console.WriteLine($"ERROR: PART NOT FOUND: {ldrawPart.PartName}, Line: {ldrawPart.LineInFile}");
+                }
+
+                var color = _colorLibrary.GetColorByLDrawColorCode(ldrawPart.LDrawColorId);
+
+                var existingPart = indexedStep.Parts.FirstOrDefault(p => p.Part == part && p.Color == color);
+                if (existingPart != null)
+                {
+                    existingPart.LDrawParts.Add(ldrawPart);
+                }
+                else
+                {
+                    var imageProxy = _imageProxyFactory.Create(part, color);
+                    var stepItem = new IndexedStepPart(part, color, imageProxy);
+
+                    stepItem.LDrawParts.Add(ldrawPart);
+
+                    indexedStep.Items.Add(stepItem);
+                }
             }
         }
     }

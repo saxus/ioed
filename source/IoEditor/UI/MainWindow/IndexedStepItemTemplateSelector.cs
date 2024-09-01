@@ -13,6 +13,7 @@ namespace IoEditor.UI.MainWindow
     public class IndexedStepItemTemplateSelector : DataTemplateSelector
     {
         public DataTemplate IndexedStepPartTemplate { get; set; }
+        public DataTemplate IndexedStepCustomPartTemplate { get; set; }
         public DataTemplate IndexedStepSubmodelTemplate { get; set; }
 
         public override DataTemplate SelectTemplate(object item, DependencyObject container)
@@ -24,6 +25,10 @@ namespace IoEditor.UI.MainWindow
             else if (item is IndexedStepPart)
             {
                 return IndexedStepPartTemplate;
+            }
+            else if (item is IndexedStepCustomPart)
+            {
+                return IndexedStepCustomPartTemplate;
             }
             else
             {

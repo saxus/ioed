@@ -13,7 +13,11 @@ namespace IoEditor.Models.Studio
         public int Index { get; set; }
 
         public LDrawStep LDrawStep { get; set; }
-        public List<IndexedStepSubmodel> Submodels { get; } = new List<IndexedStepSubmodel>();
-        public List<IndexedStepPart> Parts { get; } = new List<IndexedStepPart>();
+
+        public List<IndexedStepItem> Items { get; } = new List<IndexedStepItem>();
+
+        public IEnumerable<IndexedStepSubmodel> Submodels => Items.OfType<IndexedStepSubmodel>();
+        public IEnumerable<IndexedStepPart> Parts => Items.OfType<IndexedStepPart>();
+        public IEnumerable<IndexedStepCustomPart> CustomParts => Items.OfType<IndexedStepCustomPart>();
     }
 }

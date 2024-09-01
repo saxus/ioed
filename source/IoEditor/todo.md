@@ -14,5 +14,9 @@ Minor goals
 - [ ] Mass recoloring
 - [ ] World domination
 
+todo
+- [x] parse customparts
+
 bugbug
 - [ ] fix defered image loading - it's not running in the background
+- [ ] fix scrolling in main window

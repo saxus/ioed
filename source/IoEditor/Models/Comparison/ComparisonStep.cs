@@ -18,4 +18,6 @@ namespace IoEditor.Models.Comparison
         public List<IndexedStepItem> AddedItems { get; } = new List<IndexedStepItem>();
         public List<IndexedStepItem> ModifiedItems { get; } = new List<IndexedStepItem>();   
     }
+
+
 }

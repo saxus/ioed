@@ -10,6 +10,8 @@ using IoEditor.Models.InfoFile;
 using System.Text.Json;
 using IoEditor.Models.Model;
 using IoEditor.Models.Instructions;
+using System.Xml.Linq;
+using System.ComponentModel;
 
 namespace IoEditor.Models.Studio
 {
@@ -26,6 +28,7 @@ namespace IoEditor.Models.Studio
             ZipArchiveEntry zipEntryModel = null;
             ZipArchiveEntry zipEntryInstruction = null;
             List<ZipArchiveEntry> zipEntryImages = new List<ZipArchiveEntry>();
+            List<ZipArchiveEntry> customPartEntries = new List<ZipArchiveEntry>();
 
             foreach (var entry in zipFile.Entries)
             {
@@ -49,6 +52,17 @@ namespace IoEditor.Models.Studio
                 {
                     zipEntryImages.Add(entry);
                 }
+                else
+                {
+                    if (entry.FullName.StartsWith("CustomParts/", StringComparison.OrdinalIgnoreCase))
+                    {
+                        var name = entry.FullName.Substring(12).ToLowerInvariant();
+                        if (name.EndsWith(".dat") && !name.Contains("/"))
+                        {
+                            customPartEntries.Add(entry);
+                        }
+                    }
+                }
             }
 
             if (zipEntryModel == null)
@@ -59,7 +73,10 @@ namespace IoEditor.Models.Studio
             var fileName = Path.GetFileNameWithoutExtension(filePath);
 
             var infoFileSchema = ReadInfoFileSchema(zipEntryInfoFile);
-            var (mainModel, models) = ReadModelFile(zipEntryModel);
+
+            var customParts = ReadCustomParts(customPartEntries);
+
+            var (mainModel, models) = ReadModelFile(zipEntryModel, customParts);
             var instruction = ReadInstructionFile(zipEntryInstruction);
             var thumbnailContent = ReadThumbnailContent(zipEntryThumbnail);
 
@@ -73,6 +90,65 @@ namespace IoEditor.Models.Studio
                thumbnailContent);
 
             return studioFile;
+        }
+
+        private static List<LDrawCustomPart> ReadCustomParts(List<ZipArchiveEntry> customPartEntries)
+        {
+            var res = new List<LDrawCustomPart>();
+
+            foreach (var entry in customPartEntries)
+            {
+                var part = ReadCustomPart(entry);
+                res.Add(part);
+            }
+
+            return res;
+        }
+
+        private static LDrawCustomPart ReadCustomPart(ZipArchiveEntry entry)
+        {
+            using var stream = entry.Open();
+            using var reader = new StreamReader(stream);
+
+            string partName = null;
+            string description = null;
+
+            while (!reader.EndOfStream)
+            {
+                var line = reader.ReadLine();
+
+                if (line.StartsWith("0 FILE", StringComparison.OrdinalIgnoreCase))
+                {
+                    description = reader.ReadLine();
+                    continue;
+                }
+
+                if (line.StartsWith("0 Name:  ", StringComparison.OrdinalIgnoreCase))
+                {
+                    partName = line.Substring(9).Trim();
+                }
+
+                if (description != null && partName != null)
+                {
+                    break; 
+                }
+            }
+
+            // Use filename as fallback if necessary
+            string fallbackName = entry.Name;
+            if (fallbackName.StartsWith("CustomParts/"))
+            {
+                fallbackName = fallbackName.Substring("CustomParts/".Length);
+            }
+
+            description = description ?? fallbackName;
+            partName = partName ?? fallbackName;
+
+            return new LDrawCustomPart()
+            {
+                PartName = partName,
+                Description = description
+            };
         }
 
         private static byte[] ReadThumbnailContent(ZipArchiveEntry zipEntryThumbnail)
@@ -95,12 +171,13 @@ namespace IoEditor.Models.Studio
             return JsonSerializer.Deserialize<InfoFileSchema>(jsonString);
         }
 
-        private static (LDrawModel mainModel, List<LDrawModel> allModels) ReadModelFile(ZipArchiveEntry zipEntryModel)
+        private static (LDrawModel mainModel, List<LDrawModel> allModels) 
+            ReadModelFile(ZipArchiveEntry zipEntryModel, List<LDrawCustomPart> customParts)
         {
             if (zipEntryModel == null) throw new ArgumentNullException(nameof(zipEntryModel));
 
             using var modelStream = zipEntryModel.Open();
-            return LDrawLoader.ReadModels(new LineReader(modelStream));
+            return LDrawLoader.ReadModels(new LineReader(modelStream), customParts);
         }
 
         private static Instruction ReadInstructionFile(ZipArchiveEntry zipEntryInstruction)

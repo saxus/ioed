@@ -15,6 +15,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Folder Include="Models\Comparison\Comparers\" />
     <Folder Include="Models\Geometry\" />
   </ItemGroup>
 

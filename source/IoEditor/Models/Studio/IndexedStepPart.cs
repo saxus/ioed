@@ -15,6 +15,8 @@ namespace IoEditor.Models.Studio
         private BitmapImageProxy _imageProxy;
         public BitmapImage Image => _imageProxy?.Image;
 
+        public override string SimplifiedHash => $"p::{Color.StudioColorCode}::{Part?.StudioItemNo.ToString() ?? "<NULL>"}";
+
 
         public IndexedStepPart(Part part, Color color, BitmapImageProxy imageProxy)
         {

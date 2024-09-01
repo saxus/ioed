@@ -13,8 +13,10 @@ namespace IoEditor.Models.LDraw
     internal class LDrawLoader
     {
         public static (LDrawModel mainModel, List<LDrawModel> allModels) 
-            ReadModels(LineReader reader)
+            ReadModels(LineReader reader, List<LDrawCustomPart>  customParts)
         {
+            var customPartsDic = customParts.ToDictionary(x => x.PartName, x => x);
+
             var models = new List<LDrawModel>();
             LDrawModel currentModel = null;
             LDrawModel mainModel = null;
@@ -22,8 +24,11 @@ namespace IoEditor.Models.LDraw
             var isParsingFinished = false;
             var currentStep = new LDrawStep();
 
+            var lineIndex = 0;
+
             while (reader.CanRead)
             {
+                lineIndex++;
                 var text = reader.ReadLine();
                 var line = SplitLine(text);
 
@@ -99,6 +104,7 @@ namespace IoEditor.Models.LDraw
                     {
                         throw new InvalidOperationException("Unexpected end of file.");
                     }
+                    lineIndex++;
 
                     var s = SplitLine(nextLine);
                     if (s.type == "0")
@@ -130,10 +136,14 @@ namespace IoEditor.Models.LDraw
             {
                 var line = content.Split(' ', 17, StringSplitOptions.RemoveEmptyEntries);
 
+                customPartsDic.TryGetValue(line[16], out var customPart);
+
                 var part = new LDrawPart()
                 {
+                    LineInFile = lineIndex,
                     LDrawColorId = ParseToInt(reader, line[0]),
-                    PartName = line[16],
+                    PartName = line[16], 
+                    CustomPart = customPart,
                 };
 
                 currentStep.Parts.Add(part);
