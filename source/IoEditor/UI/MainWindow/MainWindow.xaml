@@ -107,55 +107,57 @@
                                     </Label>
                                 </StackPanel>
 
-                                <Grid>
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="Auto" />
-                                        <ColumnDefinition Width="6" />
-                                        <ColumnDefinition Width="Auto" />
-                                        <ColumnDefinition Width="6" />
-                                        <ColumnDefinition Width="Auto" />
-                                        <ColumnDefinition Width="6" />
-                                        <ColumnDefinition Width="Auto" />
-                                    </Grid.ColumnDefinitions>
+                                <ScrollViewer VerticalScrollBarVisibility="Disabled" HorizontalScrollBarVisibility="Auto">
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="Auto" />
+                                            <ColumnDefinition Width="6" />
+                                            <ColumnDefinition Width="Auto" />
+                                            <ColumnDefinition Width="6" />
+                                            <ColumnDefinition Width="Auto" />
+                                            <ColumnDefinition Width="6" />
+                                            <ColumnDefinition Width="Auto" />
+                                        </Grid.ColumnDefinitions>
 
-                                    <Grid.RowDefinitions>
-                                        <RowDefinition Height="Auto" />
-                                        <RowDefinition Height="Auto" />
-                                    </Grid.RowDefinitions>
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="Auto" />
+                                            <RowDefinition Height="Auto" />
+                                        </Grid.RowDefinitions>
                                     
-                                    <Label Grid.Row="0" Grid.Column="0" Background="Wheat">Unmodified items</Label>
-                                    <Border Grid.Row="1" Grid.Column="0" Margin="0,6,6,0">
-                                        <ItemsControl ItemsSource="{Binding UnmodifiedItems}" 
-                                                  ItemTemplateSelector="{StaticResource IndexedStepItemTemplateSelector}"
-                                                  ItemsPanel="{StaticResource ItemsPanelTemplate}">
-                                        </ItemsControl>
-                                    </Border>
-
-                                    <Label Grid.Row="0" Grid.Column="2" Background="Wheat">Modified items</Label>
-                                    <Border Grid.Row="1" Grid.Column="2" Margin="0,6,6,0">
-                                        <ItemsControl ItemsSource="{Binding ModifiedItems}" 
+                                        <Label Grid.Row="0" Grid.Column="0" Background="Wheat">Unmodified items</Label>
+                                        <Border Grid.Row="1" Grid.Column="0" Margin="0,6,6,0">
+                                            <ItemsControl ItemsSource="{Binding UnmodifiedItems}" 
                                                       ItemTemplateSelector="{StaticResource IndexedStepItemTemplateSelector}"
                                                       ItemsPanel="{StaticResource ItemsPanelTemplate}">
-                                        </ItemsControl>
-                                    </Border>
+                                            </ItemsControl>
+                                        </Border>
 
-                                    <Label Grid.Row="0" Grid.Column="4" Background="Wheat">Removed items</Label>
-                                    <Border Grid.Row="1" Grid.Column="4" Margin="0,6,6,0">
-                                        <ItemsControl ItemsSource="{Binding RemovedItems}" 
-                                                      ItemTemplateSelector="{StaticResource IndexedStepItemTemplateSelector}"
-                                                      ItemsPanel="{StaticResource ItemsPanelTemplate}"> 
-                                        </ItemsControl>
-                                    </Border>
+                                        <Label Grid.Row="0" Grid.Column="2" Background="Wheat">Modified items</Label>
+                                        <Border Grid.Row="1" Grid.Column="2" Margin="0,6,6,0">
+                                            <ItemsControl ItemsSource="{Binding ModifiedItems}" 
+                                                          ItemTemplateSelector="{StaticResource IndexedStepItemTemplateSelector}"
+                                                          ItemsPanel="{StaticResource ItemsPanelTemplate}">
+                                            </ItemsControl>
+                                        </Border>
 
-                                    <Label Grid.Row="0" Grid.Column="6" Background="Wheat">Added items</Label>
-                                    <Border Grid.Row="1" Grid.Column="6" Margin="0,6,6,0">
-                                        <ItemsControl ItemsSource="{Binding AddedItems}" 
-                                                      ItemTemplateSelector="{StaticResource IndexedStepItemTemplateSelector}"
-                                                      ItemsPanel="{StaticResource ItemsPanelTemplate}">
-                                        </ItemsControl>
-                                    </Border>
+                                        <Label Grid.Row="0" Grid.Column="4" Background="Wheat">Removed items</Label>
+                                        <Border Grid.Row="1" Grid.Column="4" Margin="0,6,6,0">
+                                            <ItemsControl ItemsSource="{Binding RemovedItems}" 
+                                                          ItemTemplateSelector="{StaticResource IndexedStepItemTemplateSelector}"
+                                                          ItemsPanel="{StaticResource ItemsPanelTemplate}"> 
+                                            </ItemsControl>
+                                        </Border>
 
-                                </Grid>
+                                        <Label Grid.Row="0" Grid.Column="6" Background="Wheat">Added items</Label>
+                                        <Border Grid.Row="1" Grid.Column="6" Margin="0,6,6,0">
+                                            <ItemsControl ItemsSource="{Binding AddedItems}" 
+                                                          ItemTemplateSelector="{StaticResource IndexedStepItemTemplateSelector}"
+                                                          ItemsPanel="{StaticResource ItemsPanelTemplate}">
+                                            </ItemsControl>
+                                        </Border>
+
+                                    </Grid>
+                                </ScrollViewer>
                             </StackPanel>
                         </Border>
                     </DataTemplate>

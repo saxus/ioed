@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.Hosting;
 
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -21,22 +22,50 @@ namespace IoEditor.Models.ImageCache
         private static readonly HttpClient _httpClient = new HttpClient();
         private static readonly SemaphoreSlim _semaphore = new SemaphoreSlim(4); // Limit to 3 concurrent requests
 
-        public async Task<BitmapImage> LoadImageAsync(string partName, int BLColorId)
+        private readonly object _lock = new object();
+        private readonly HashSet<string> _failedParts = new HashSet<string>();
+        private readonly ConcurrentDictionary<string, BitmapImage> _cache = new ConcurrentDictionary<string, BitmapImage>();
+
+        private readonly string _basePath;
+
+        public PartImageCache()
+        {
+            _basePath = Path.GetDirectoryName(this.GetType().Assembly.Location);
+        }
+
+        private static string CreateKey(string partName, int blColorId)
+            => $"{blColorId}::{partName}";
+
+        public async Task<BitmapImage> LoadImageAsync(string partName, int blColorId)
         {
             if (partName.EndsWith(".dat", StringComparison.OrdinalIgnoreCase))
             {
                 partName = partName.Substring(0, partName.Length - 4);
             }
 
-            if (BLColorId <= 0)
+            if (blColorId <= 0)
             {
                 return null;
             }
 
-            byte[] bytes = null;
+            var cacheKey = CreateKey(partName, blColorId);
 
-            var path = Path.GetDirectoryName(this.GetType().Assembly.Location);
-            path = Path.Combine(path, "cache", BLColorId.ToString());
+            if (!_cache.TryGetValue(cacheKey, out var cachedImage))
+            {
+                cachedImage = await ReadOrDownloadAsync(partName, blColorId);
+                _cache.TryAdd(cacheKey, cachedImage);   
+            }
+
+            return cachedImage;
+
+        }
+
+
+        private async Task<BitmapImage> ReadOrDownloadAsync(string partName, int blColorId)
+        { 
+            byte[] bytes = null;
+            
+            var path = Path.Combine(_basePath, "cache", blColorId.ToString());
 
             foreach (var ext in s_extensions)
             {
@@ -51,7 +80,7 @@ namespace IoEditor.Models.ImageCache
 
             if (bytes == null)
             {
-                bytes = await FetchImageFromWebAsync(partName, BLColorId, path);
+                bytes = await FetchImageFromWebAsync(partName, blColorId, path);
             }
 
             if (bytes == null || bytes.Length < 1)
@@ -72,6 +101,12 @@ namespace IoEditor.Models.ImageCache
 
         private async Task<byte[]> FetchImageFromWebAsync(string partName, int colorId, string path)
         {
+            var key = CreateKey(partName, colorId);
+            if (_failedParts.Contains(key))
+            {
+                return null;
+            }
+
             byte[] bytes = null;
             string lastExt = "jpg";
 
@@ -106,6 +141,13 @@ namespace IoEditor.Models.ImageCache
                 }
 
                 File.WriteAllBytes(Path.Combine(path, partName + "." + lastExt), bytes);
+            }
+            else
+            {
+                lock (_lock)
+                {
+                    _failedParts.Add(partName);
+                }
             }
 
             return bytes;

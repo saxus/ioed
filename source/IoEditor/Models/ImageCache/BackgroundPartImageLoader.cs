@@ -51,6 +51,12 @@ namespace IoEditor.Models.ImageCache
                 return;
             }
 
+            if (part == null)
+            {
+                Console.WriteLine("Cannot load image, because part is null!");
+                return;
+            }
+
             var image = await _cache.LoadImageAsync(part.BLItemNo, color.BLColorCode.Value);
             callback?.Invoke(image);
         }

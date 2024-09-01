@@ -13,3 +13,6 @@ Minor goals
 - [ ] Find duplicated parts
 - [ ] Mass recoloring
 - [ ] World domination
+
+bugbug
+- [ ] fix defered image loading - it's not running in the background

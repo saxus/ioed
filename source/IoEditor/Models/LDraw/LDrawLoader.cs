@@ -128,7 +128,7 @@ namespace IoEditor.Models.LDraw
             // ---------------------------------------------------------------
             void ParseSubFileLine(string type, string content)
             {
-                var line = content.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+                var line = content.Split(' ', 17, StringSplitOptions.RemoveEmptyEntries);
 
                 var part = new LDrawPart()
                 {
