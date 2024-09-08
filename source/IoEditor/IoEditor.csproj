@@ -13,10 +13,16 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <UseWPF>true</UseWPF>
   </PropertyGroup>
-
+  
   <ItemGroup>
-    <Folder Include="Models\Comparison\Comparers\" />
-    <Folder Include="Models\Geometry\" />
+    <Compile Remove="Models\Comparison\Comparers\**" />
+    <Compile Remove="Models\Geometry\**" />
+    <EmbeddedResource Remove="Models\Comparison\Comparers\**" />
+    <EmbeddedResource Remove="Models\Geometry\**" />
+    <None Remove="Models\Comparison\Comparers\**" />
+    <None Remove="Models\Geometry\**" />
+    <Page Remove="Models\Comparison\Comparers\**" />
+    <Page Remove="Models\Geometry\**" />
   </ItemGroup>
 
   <ItemGroup>

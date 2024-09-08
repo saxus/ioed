@@ -2,9 +2,11 @@
 
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
+using System.Numerics;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -138,11 +140,29 @@ namespace IoEditor.Models.LDraw
 
                 customPartsDic.TryGetValue(line[16], out var customPart);
 
+                var position = new Vector3(
+                    x: ParseToFloat(reader, line[4]), 
+                    y: ParseToFloat(reader, line[5]), 
+                    z: ParseToFloat(reader, line[6]));
+
+                var rotation = new Matrix3x3(
+                    m11: ParseToFloat(reader, line[7]),
+                    m12: ParseToFloat(reader, line[8]),
+                    m13: ParseToFloat(reader, line[9]),
+                    m21: ParseToFloat(reader, line[10]),
+                    m22: ParseToFloat(reader, line[11]),
+                    m23: ParseToFloat(reader, line[12]),
+                    m31: ParseToFloat(reader, line[13]),
+                    m32: ParseToFloat(reader, line[14]),
+                    m33: ParseToFloat(reader, line[15])); 
+
                 var part = new LDrawPart()
                 {
                     LineInFile = lineIndex,
                     LDrawColorId = ParseToInt(reader, line[0]),
                     PartName = line[16], 
+                    Position = position,
+                    Rotation = rotation,
                     CustomPart = customPart,
                 };
 
@@ -172,7 +192,7 @@ namespace IoEditor.Models.LDraw
 
         private static float ParseToFloat(LineReader reader, string v)
         {
-            if (float.TryParse(v, out float result))
+            if (float.TryParse(v, CultureInfo.InvariantCulture, out float result))
             {
                 return result;
             }
