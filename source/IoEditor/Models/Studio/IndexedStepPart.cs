@@ -1,5 +1,5 @@
 ﻿using IoEditor.Models.ImageCache;
-
+using IoEditor.Models.Model;
 using System.ComponentModel;
 using System.Windows.Media.Imaging;
 
@@ -15,10 +15,9 @@ namespace IoEditor.Models.Studio
         private BitmapImageProxy _imageProxy;
         public BitmapImage Image => _imageProxy?.Image;
 
-        public override string SimplifiedHash => $"p::{Color.StudioColorCode}::{Part?.StudioItemNo.ToString() ?? "<NULL>"}";
 
-
-        public IndexedStepPart(Part part, Color color, BitmapImageProxy imageProxy)
+        public IndexedStepPart(LDrawPart lDrawPart, string parentModel, Part part, Color color, BitmapImageProxy imageProxy)
+            : base(lDrawPart, parentModel)
         {
             Part = part;
             Color = color;

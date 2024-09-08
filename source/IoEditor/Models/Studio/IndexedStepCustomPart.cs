@@ -8,10 +8,8 @@ namespace IoEditor.Models.Studio
 
         public Color Color { get; }
 
-        public override string SimplifiedHash => $"cp::{Color.StudioColorCode}::{Part.PartName}";
-
-
-        public IndexedStepCustomPart(LDrawCustomPart part, Color color)
+        public IndexedStepCustomPart(LDrawPart lDrawPart, string parentModel, LDrawCustomPart part, Color color)
+            : base(lDrawPart, parentModel)
         {
             Part = part;
             Color = color;

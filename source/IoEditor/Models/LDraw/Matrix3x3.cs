@@ -39,5 +39,35 @@
                 a.M31 * b.M13 + a.M32 * b.M23 + a.M33 * b.M33
             );
         }
+
+        public bool Equals(Matrix3x3 other)
+        {
+            return M11 == other.M11 &&
+                   M12 == other.M12 &&
+                   M13 == other.M13 &&
+                   M21 == other.M21 &&
+                   M22 == other.M22 &&
+                   M23 == other.M23 &&
+                   M31 == other.M31 &&
+                   M32 == other.M32 &&
+                   M33 == other.M33;
+        }
+
+        public override int GetHashCode()
+        {
+            var hash1 = HashCode.Combine(M11, M12, M13, M21, M22, M23);
+            var hash2 = HashCode.Combine(M31, M32, M33);
+            return HashCode.Combine(hash1, hash2);
+        }
+
+        public static bool operator ==(Matrix3x3 left, Matrix3x3 right)
+        {
+            return left.Equals(right);
+        }
+
+        public static bool operator !=(Matrix3x3 left, Matrix3x3 right)
+        {
+            return !(left == right);
+        }
     }
 }

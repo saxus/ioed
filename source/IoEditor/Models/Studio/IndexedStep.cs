@@ -12,6 +12,8 @@ namespace IoEditor.Models.Studio
     {
         public int Index { get; set; }
 
+        public string Model { get; set; }
+
         public LDrawStep LDrawStep { get; set; }
 
         public List<IndexedStepItem> Items { get; } = new List<IndexedStepItem>();

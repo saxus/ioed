@@ -1,4 +1,5 @@
-﻿using IoEditor.Models.Studio;
+﻿using IoEditor.Models.Model;
+using IoEditor.Models.Studio;
 
 using System;
 using System.Collections;
@@ -28,54 +29,122 @@ namespace IoEditor.Models.Comparison
             var indexedReferenceSteps = this._stepBuilder.CreateIndexedSteps(reference.MainModel, reference);
             var indexedTargetSteps = this._stepBuilder.CreateIndexedSteps(target.MainModel, target);
 
+            var allParts = indexedReferenceSteps.SelectMany(x => x.Items).ToList();
+
             var countRef = indexedReferenceSteps.Count;
             var countTarget = indexedTargetSteps.Count; 
 
             var indexRef = 0;
             var indexTarget = 0;
 
-            while (true)
-            {
-                var refStep = indexRef < countRef ? indexedReferenceSteps[indexRef] : null;
-                var targetStep = indexTarget < countTarget ? indexedTargetSteps[indexTarget] : null;
+            Console.WriteLine($"==== COMPARING STEPS  ==========================");
 
-                if (refStep == null && targetStep == null)
+            bool AreModelsEquals(string referenceModel, string targetModel)
+            {
+                var isBaseReferenceModel = indexedReferenceSteps.FirstOrDefault()?.Model == referenceModel;
+                var isBaseTargetModel = indexedTargetSteps.FirstOrDefault()?.Model == targetModel;
+
+                if (isBaseReferenceModel && isBaseTargetModel)
                 {
-                    break;
+                    return true;
                 }
 
-                // === EQUALITY DETERMINATION ====
+                return string.Equals(referenceModel, targetModel, StringComparison.OrdinalIgnoreCase);
+            }
+
+            var refStepIndex = 0;
+            
+            foreach (var targetStep in indexedTargetSteps)
+            {
+                Console.WriteLine($"COMPARING STEP #{targetStep.Index}, model: {targetStep.LDrawStep}");
+
                 var comparisonResult = new ComparisonStep()
                 {
-                    Index = result.Steps.Count,
+                    Index = targetStep.Index,
+                    TargetStep = targetStep,
                 };
 
-                // TODO: current model model check to detect that are we in the same subassembly
+                var refStep = indexedReferenceSteps[refStepIndex];
 
-                var comparedSteps = CompareSteps(refStep, targetStep);
-
-                if (AreTheTwoStepExactlyTheSame(comparedSteps))
+                foreach (var targetPart in targetStep.Items)
                 {
-                    comparisonResult.Equality = StepEquality.Equal;
-                }
-                else
-                {
-                    comparisonResult.Equality = StepEquality.ModifiedStep;
+                    Console.WriteLine($"  Looking for part {targetPart.LDrawPartName} @ {targetPart.LDrawPart.Position} x {targetPart.LDrawPart.TransformationMatrix}");
+
+                    var equalParts = allParts.Where(x => AreModelsEquals(x.ParentModel, targetStep.Model)
+                                            && x.LDrawPart.EqualsWithCoordinates(targetPart.LDrawPart))
+                                            .ToList();
+
+                    if (equalParts.Count > 1)
+                    {
+                        Console.WriteLine($"    !!! Possible duplicated parts found {equalParts.Count}");                        
+                    }
+                    else if (equalParts.Count > 0)
+                    {
+                        var equalPart = equalParts.FirstOrDefault();
+
+                        Console.WriteLine($"    Part found: {equalPart.LDrawPartName} @ {equalPart.StepIndex}");
+
+                        comparisonResult.UnmodifiedItems.Add(targetPart);
+                    }
+                    else
+                    {
+                        Console.WriteLine($"    Part not found.");
+
+                        comparisonResult.UnmodifiedItems.Add(targetPart);
+                    }
                 }
 
-                comparisonResult.ReferenceStep = refStep;
-                comparisonResult.TargetStep = targetStep;
-                comparisonResult.UnmodifiedItems.AddRange(comparedSteps.UnmodifiedItems);
-                comparisonResult.RemovedItems.AddRange(comparedSteps.RemovedItems);
-                comparisonResult.AddedItems.AddRange(comparedSteps.AddedItems);
-                comparisonResult.ModifiedItems.AddRange(comparedSteps.ModifiedItems);
 
-                // === END OF EQUALITY DETERMINATION ===
                 result.Steps.Add(comparisonResult);
-
-                indexRef++;
-                indexTarget++;
+               
             }
+
+            Console.WriteLine($"==== DONE  ==========================");
+
+
+
+            // while (true)
+            // {
+            //     var refStep = indexRef < countRef ? indexedReferenceSteps[indexRef] : null;
+            //     var targetStep = indexTarget < countTarget ? indexedTargetSteps[indexTarget] : null;
+            // 
+            //     if (refStep == null && targetStep == null)
+            //     {
+            //         break;
+            //     }
+            // 
+            //     // === EQUALITY DETERMINATION ====
+            //     var comparisonResult = new ComparisonStep()
+            //     {
+            //         Index = result.Steps.Count,
+            //     };
+            // 
+            //     // TODO: current model model check to detect that are we in the same subassembly
+            // 
+            //     var comparedSteps = CompareSteps(refStep, targetStep);
+            // 
+            //     if (AreTheTwoStepExactlyTheSame(comparedSteps))
+            //     {
+            //         comparisonResult.Equality = StepEquality.Equal;
+            //     }
+            //     else
+            //     {
+            //         comparisonResult.Equality = StepEquality.ModifiedStep;
+            //     }
+            // 
+            //     comparisonResult.ReferenceStep = refStep;
+            //     comparisonResult.TargetStep = targetStep;
+            //     comparisonResult.UnmodifiedItems.AddRange(comparedSteps.UnmodifiedItems);
+            //     comparisonResult.RemovedItems.AddRange(comparedSteps.RemovedItems);
+            //     comparisonResult.AddedItems.AddRange(comparedSteps.AddedItems);
+            //     comparisonResult.ModifiedItems.AddRange(comparedSteps.ModifiedItems);
+            // 
+            //     // === END OF EQUALITY DETERMINATION ===
+            //     result.Steps.Add(comparisonResult);
+            // 
+            //     indexRef++;
+            //     indexTarget++;
+            // }
 
             return result;
         }
@@ -87,73 +156,39 @@ namespace IoEditor.Models.Comparison
                 && !comparedSteps.ModifiedItems.Any();
         }
 
-        private static PartComparison CompareSteps(IndexedStep refStep, IndexedStep targetStep)
-        {
-            var refItems = CreateComparisonList(refStep).ToList();
-            var targetItems = CreateComparisonList(targetStep).ToList();
+        // private static PartComparison CompareSteps(IndexedStep refStep, IndexedStep targetStep)
+        // {
+        //     var refItems = CreateComparisonList(refStep).ToList();
+        //     var targetItems = CreateComparisonList(targetStep).ToList();
+        // 
+        //     var unmodifiedItems = new List<IndexedStepItem>();
+        //     var removedItems = new List<IndexedStepItem>();
+        //     var addedItems = new List<IndexedStepItem>();
+        //     var modifiedItems = new List<IndexedStepItem>();
+        // 
+        //     
+        // 
+        // 
+        //     return new PartComparison(unmodifiedItems, removedItems, addedItems, modifiedItems);
+        // }
 
-            var unmodifiedItems = new List<IndexedStepItem>();
-            var removedItems = new List<IndexedStepItem>();
-            var addedItems = new List<IndexedStepItem>();
-            var modifiedItems = new List<IndexedStepItem>();
-
-            var refItemCounts = refItems.GroupBy(item => item.Hash)
-                                .ToDictionary(g => g.Key, g => g.ToList());
-
-            var targetItemCounts = targetItems.GroupBy(item => item.Hash)
-                                              .ToDictionary(g => g.Key, g => g.ToList());
-
-            foreach (var refItem in refItemCounts)
-            {
-                if (targetItemCounts.TryGetValue(refItem.Key, out var targetItemList))
-                {
-                    int refCount = refItem.Value.Count;
-                    int targetCount = targetItemList.Count;
-
-                    int unmodifiedCount = Math.Min(refCount, targetCount);
-                    int addedCount = targetCount - unmodifiedCount;
-                    int removedCount = refCount - unmodifiedCount;
-
-                    unmodifiedItems.AddRange(refItem.Value.Take(unmodifiedCount).Select(x => x.StepItem));
-                    removedItems.AddRange(refItem.Value.Skip(unmodifiedCount).Select(x => x.StepItem));
-                    addedItems.AddRange(targetItemList.Skip(unmodifiedCount).Select(x => x.StepItem));
-
-                    targetItemCounts.Remove(refItem.Key);
-                }
-                else
-                {
-                    removedItems.AddRange(refItem.Value.Select(x => x.StepItem));
-                }
-            }
-
-            foreach (var targetItem in targetItemCounts)
-            {
-                addedItems.AddRange(targetItem.Value.Select(x => x.StepItem));
-            }
-
-            // TODO: DETECT RECOLOR based on Add/Remove
-
-
-            return new PartComparison(unmodifiedItems, removedItems, addedItems, modifiedItems);
-        }
-
-        private static IEnumerable<ComparisonItem> CreateComparisonList(IndexedStep step)
-        {
-            if (step == null)
-            {
-                return Array.Empty<ComparisonItem>();
-            }
-
-            var comparisonItems = step.Items.Select(item => item switch
-            {
-                IndexedStepSubmodel submodel => new ComparisonItem(submodel.SimplifiedHash, submodel.ModelName, 0, submodel),
-                IndexedStepPart part => new ComparisonItem(part.SimplifiedHash, part.Part.BLItemNo, part.Color.BLColorCode.Value, part),
-                IndexedStepCustomPart customPart => new ComparisonItem(customPart.SimplifiedHash, customPart.Part.PartName, customPart.Color.BLColorCode.Value, customPart),
-                _ => null
-            }).Where(item => item != null);
-
-            return comparisonItems.OrderBy(x => x.Hash);
-        }
+        // private static IEnumerable<ComparisonItem> CreateComparisonList(IndexedStep step)
+        // {
+        //     if (step == null)
+        //     {
+        //         return Array.Empty<ComparisonItem>();
+        //     }
+        // 
+        //     var comparisonItems = step.Items.Select(item => item switch
+        //     {
+        //         IndexedStepSubmodel submodel => new ComparisonItem(submodel.SimplifiedHash, submodel.ModelName, 0, submodel),
+        //         IndexedStepPart part => new ComparisonItem(part.SimplifiedHash, part.Part.BLItemNo, part.Color.BLColorCode.Value, part),
+        //         IndexedStepCustomPart customPart => new ComparisonItem(customPart.SimplifiedHash, customPart.Part.PartName, customPart.Color.BLColorCode.Value, customPart),
+        //         _ => null
+        //     }).Where(item => item != null);
+        // 
+        //     return comparisonItems.OrderBy(x => x.Hash);
+        // }
 
         private record PartComparison(
             List<IndexedStepItem> UnmodifiedItems,
@@ -168,5 +203,28 @@ namespace IoEditor.Models.Comparison
             int Color,
             IndexedStepItem StepItem
         );
+    }
+
+    internal static class LDrawPartExtensions
+    {
+        public static bool EqualsWithCoordinates(this LDrawPart a, LDrawPart b)
+        {
+            if (a == null || b == null)
+                return false;
+
+            // Check if the model names are equal
+            if (!string.Equals(a.Model?.Name, b.Model?.Name, StringComparison.OrdinalIgnoreCase))
+                return false;
+
+            // Check if the positions are equal
+            if (a.Position != b.Position)
+                return false;
+
+            // Check if the rotation matrices are equal
+            if (!a.Rotation.Equals(b.Rotation))
+                return false;
+
+            return true;
+        }
     }
 }
