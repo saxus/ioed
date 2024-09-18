@@ -19,6 +19,7 @@ using IoEditor.UI.Utils;
 using Microsoft.Extensions.Options;
 using Microsoft.Win32;
 using System.Diagnostics;
+using IoEditor.Models.Merging;
 
 namespace IoEditor.UI.MainWindow
 {
@@ -157,6 +158,11 @@ namespace IoEditor.UI.MainWindow
                 var comparisonResult = stepComparer.Compare(Project.Reference, Project.Target); 
 
                 Project.ComparisonResult = comparisonResult;
+
+                var mergeBuilder = new MergeModelBuilder();
+                var mergeResult = mergeBuilder.Build(comparisonResult, Project.Reference.Instruction);
+
+                Project.MergeModel = mergeResult;
 
                 Console.WriteLine("Done loading project");
             }

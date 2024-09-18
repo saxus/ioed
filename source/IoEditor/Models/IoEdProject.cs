@@ -1,4 +1,5 @@
 ﻿using IoEditor.Models.Comparison;
+using IoEditor.Models.Merging;
 using IoEditor.Models.Studio;
 
 using System;
@@ -19,7 +20,7 @@ namespace IoEditor.Model
         public StudioFile Reference { get; }
         public StudioFile Target { get; }
 
-        public ComparisonResult _comparisonResult;
+        private ComparisonResult _comparisonResult;
         public ComparisonResult ComparisonResult
         {
             get => _comparisonResult;
@@ -29,6 +30,20 @@ namespace IoEditor.Model
                 {
                     _comparisonResult = value;
                     RaisePropertyChanged(nameof(ComparisonResult));
+                }
+            }
+        }
+
+        private MergeModel _mergeModel;
+        public MergeModel MergeModel
+        {
+            get => _mergeModel;
+            set
+            {
+                if (_mergeModel != value)
+                {
+                    _mergeModel = value;
+                    RaisePropertyChanged(nameof(MergeModel));
                 }
             }
         }

@@ -127,7 +127,7 @@ namespace IoEditor.Models.Comparison
                 for (int i = 0; i < diff.insertedB; i++)
                 {
                     Console.WriteLine($"+++ {targetNames[idxTarget]}");
-                    result.Add(new InstructionSegmentComparison(InstructionSegmentEquality.RemovedSegment,
+                    result.Add(new InstructionSegmentComparison(InstructionSegmentEquality.NewSegment,
                                                                 null, 
                                                                 targetSections[idxTarget],
                                                                 null));
@@ -165,7 +165,7 @@ namespace IoEditor.Models.Comparison
 
                 if (refStep.Items.Count != targetStep.Items.Count)
                 {
-                    sb.AppendLine($"Step #{index}: different part count in step: {refStep.Items.Count} -> {refStep.Items.Count}");
+                    sb.AppendLine($"Step #{index}: different part count in step: {refStep.Items.Count} -> {targetStep.Items.Count}");
                     result = InstructionSegmentEquality.Modified;
                 }
                 else
