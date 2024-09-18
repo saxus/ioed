@@ -8,7 +8,7 @@ namespace IoEditor.Models.Comparison
 {
     internal class ComparisonResult
     {
-        public List<ComparisonStep> Steps { get; } 
-            = new List<ComparisonStep>();
+        public List<InstructionSegmentComparison> InstructionSegments { get; }
+             = new List<InstructionSegmentComparison>();
     }
 }

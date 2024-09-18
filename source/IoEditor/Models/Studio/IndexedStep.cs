@@ -21,5 +21,10 @@ namespace IoEditor.Models.Studio
         public IEnumerable<IndexedStepSubmodel> Submodels => Items.OfType<IndexedStepSubmodel>();
         public IEnumerable<IndexedStepPart> Parts => Items.OfType<IndexedStepPart>();
         public IEnumerable<IndexedStepCustomPart> CustomParts => Items.OfType<IndexedStepCustomPart>();
+
+        public override string ToString()
+        {
+            return $"#{Index} mdl={Model}, elements={Items.Count}";
+        }
     }
 }

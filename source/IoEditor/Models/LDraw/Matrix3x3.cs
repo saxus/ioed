@@ -53,6 +53,26 @@
                    M33 == other.M33;
         }
 
+        public float this[int row, int col]
+        {
+            get
+            {
+                return (row, col) switch
+                {
+                    (0, 0) => M11,
+                    (0, 1) => M12,
+                    (0, 2) => M13,
+                    (1, 0) => M21,
+                    (1, 1) => M22,
+                    (1, 2) => M23,
+                    (2, 0) => M31,
+                    (2, 1) => M32,
+                    (2, 2) => M33,
+                    _ => throw new IndexOutOfRangeException("Invalid matrix index")
+                };
+            }
+        }
+
         public override int GetHashCode()
         {
             var hash1 = HashCode.Combine(M11, M12, M13, M21, M22, M23);

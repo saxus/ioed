@@ -5,6 +5,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Numerics;
 using System.Printing;
 using System.Runtime.CompilerServices;
 using System.Text;
@@ -51,180 +52,223 @@ namespace IoEditor.Models.Comparison
 
                 return string.Equals(referenceModel, targetModel, StringComparison.OrdinalIgnoreCase);
             }
-
-            var refStepIndex = 0;
             
-            foreach (var targetStep in indexedTargetSteps)
-            {
-                Console.WriteLine($"COMPARING STEP #{targetStep.Index}, model: {targetStep.LDrawStep}");
+            Console.WriteLine($"==== COMPARING CONTINOUS MODEL SECTIONS  ==========================");
 
-                var comparisonResult = new ComparisonStep()
-                {
-                    Index = targetStep.Index,
-                    TargetStep = targetStep,
-                };
+            var referenceSections = SplitToSections(reference.MainModel.Name, indexedReferenceSteps);
+            var targetSections = SplitToSections(target.MainModel.Name, indexedTargetSteps);
 
-                var refStep = indexedReferenceSteps[refStepIndex];
-
-                foreach (var targetPart in targetStep.Items)
-                {
-                    Console.WriteLine($"  Looking for part {targetPart.LDrawPartName} @ {targetPart.LDrawPart.Position} x {targetPart.LDrawPart.TransformationMatrix}");
-
-                    var equalParts = allParts.Where(x => AreModelsEquals(x.ParentModel, targetStep.Model)
-                                            && x.LDrawPart.EqualsWithCoordinates(targetPart.LDrawPart))
-                                            .ToList();
-
-                    if (equalParts.Count > 1)
-                    {
-                        Console.WriteLine($"    !!! Possible duplicated parts found {equalParts.Count}");                        
-                    }
-                    else if (equalParts.Count > 0)
-                    {
-                        var equalPart = equalParts.FirstOrDefault();
-
-                        Console.WriteLine($"    Part found: {equalPart.LDrawPartName} @ {equalPart.StepIndex}");
-
-                        comparisonResult.UnmodifiedItems.Add(targetPart);
-                    }
-                    else
-                    {
-                        Console.WriteLine($"    Part not found.");
-
-                        comparisonResult.UnmodifiedItems.Add(targetPart);
-                    }
-                }
-
-
-                result.Steps.Add(comparisonResult);
-               
-            }
+            var comparedSections = CompareSections(referenceSections, targetSections);
 
             Console.WriteLine($"==== DONE  ==========================");
 
-
-
-            // while (true)
-            // {
-            //     var refStep = indexRef < countRef ? indexedReferenceSteps[indexRef] : null;
-            //     var targetStep = indexTarget < countTarget ? indexedTargetSteps[indexTarget] : null;
-            // 
-            //     if (refStep == null && targetStep == null)
-            //     {
-            //         break;
-            //     }
-            // 
-            //     // === EQUALITY DETERMINATION ====
-            //     var comparisonResult = new ComparisonStep()
-            //     {
-            //         Index = result.Steps.Count,
-            //     };
-            // 
-            //     // TODO: current model model check to detect that are we in the same subassembly
-            // 
-            //     var comparedSteps = CompareSteps(refStep, targetStep);
-            // 
-            //     if (AreTheTwoStepExactlyTheSame(comparedSteps))
-            //     {
-            //         comparisonResult.Equality = StepEquality.Equal;
-            //     }
-            //     else
-            //     {
-            //         comparisonResult.Equality = StepEquality.ModifiedStep;
-            //     }
-            // 
-            //     comparisonResult.ReferenceStep = refStep;
-            //     comparisonResult.TargetStep = targetStep;
-            //     comparisonResult.UnmodifiedItems.AddRange(comparedSteps.UnmodifiedItems);
-            //     comparisonResult.RemovedItems.AddRange(comparedSteps.RemovedItems);
-            //     comparisonResult.AddedItems.AddRange(comparedSteps.AddedItems);
-            //     comparisonResult.ModifiedItems.AddRange(comparedSteps.ModifiedItems);
-            // 
-            //     // === END OF EQUALITY DETERMINATION ===
-            //     result.Steps.Add(comparisonResult);
-            // 
-            //     indexRef++;
-            //     indexTarget++;
-            // }
+            result.InstructionSegments.AddRange(comparedSections);
 
             return result;
         }
 
-        private bool AreTheTwoStepExactlyTheSame(PartComparison comparedSteps)
+        private List<InstructionSegmentComparison> 
+            CompareSections(List<InstructionSegment> referenceSections, List<InstructionSegment> targetSections)
         {
-            return !comparedSteps.RemovedItems.Any()
-                && !comparedSteps.AddedItems.Any()
-                && !comparedSteps.ModifiedItems.Any();
+            var referenceNames = referenceSections.Select(x => x.ModelName).ToArray();
+            var targetNames = targetSections.Select(x => x.ModelName).ToArray();
+
+            var diffResult = Differ.Diff(referenceNames, targetNames);
+
+            var idxTarget = 0;
+            var idxReference = 0;
+
+            var result = new List<InstructionSegmentComparison>();
+
+            void HandlePotentiallySymmetricSegment()
+            {
+                var (segmentEquality, diffMessage) = CompareSegments(referenceSections[idxReference], targetSections[idxTarget]);
+                var prefix = (segmentEquality == InstructionSegmentEquality.Equivalent)
+                    ? "   "
+                    : " ? ";
+
+                Console.WriteLine($"{prefix} {targetNames[idxTarget]}");
+                if (segmentEquality == InstructionSegmentEquality.Modified)
+                {
+                    foreach (var line in diffMessage.Split('\n'))
+                    {
+                        Console.WriteLine($"    | {line}");
+                    }
+                }
+
+                result.Add(new InstructionSegmentComparison(segmentEquality, 
+                                                            referenceSections[idxReference], 
+                                                            targetSections[idxTarget],
+                                                            diffMessage));
+
+                idxTarget++;
+                idxReference++;
+            }
+
+            foreach (var diff in diffResult)
+            {
+                while (idxTarget < diff.StartB)
+                {
+                    HandlePotentiallySymmetricSegment();
+                }
+
+                for (int i = 0; i < diff.deletedA; i++)
+                {
+                    Console.WriteLine($"--- {referenceNames[diff.StartA + i]}");
+
+                    result.Add(new InstructionSegmentComparison(InstructionSegmentEquality.RemovedSegment, 
+                                                                referenceSections[diff.StartA + i], 
+                                                                null,
+                                                                null));
+                    idxReference++;
+
+                }
+
+                for (int i = 0; i < diff.insertedB; i++)
+                {
+                    Console.WriteLine($"+++ {targetNames[idxTarget]}");
+                    result.Add(new InstructionSegmentComparison(InstructionSegmentEquality.RemovedSegment,
+                                                                null, 
+                                                                targetSections[idxTarget],
+                                                                null));
+
+                    idxTarget++;
+                }
+            }
+
+            while (idxTarget < targetNames.Length)
+            {
+                HandlePotentiallySymmetricSegment();
+            }
+
+            return result;
         }
 
-        // private static PartComparison CompareSteps(IndexedStep refStep, IndexedStep targetStep)
-        // {
-        //     var refItems = CreateComparisonList(refStep).ToList();
-        //     var targetItems = CreateComparisonList(targetStep).ToList();
-        // 
-        //     var unmodifiedItems = new List<IndexedStepItem>();
-        //     var removedItems = new List<IndexedStepItem>();
-        //     var addedItems = new List<IndexedStepItem>();
-        //     var modifiedItems = new List<IndexedStepItem>();
-        // 
-        //     
-        // 
-        // 
-        //     return new PartComparison(unmodifiedItems, removedItems, addedItems, modifiedItems);
-        // }
-
-        // private static IEnumerable<ComparisonItem> CreateComparisonList(IndexedStep step)
-        // {
-        //     if (step == null)
-        //     {
-        //         return Array.Empty<ComparisonItem>();
-        //     }
-        // 
-        //     var comparisonItems = step.Items.Select(item => item switch
-        //     {
-        //         IndexedStepSubmodel submodel => new ComparisonItem(submodel.SimplifiedHash, submodel.ModelName, 0, submodel),
-        //         IndexedStepPart part => new ComparisonItem(part.SimplifiedHash, part.Part.BLItemNo, part.Color.BLColorCode.Value, part),
-        //         IndexedStepCustomPart customPart => new ComparisonItem(customPart.SimplifiedHash, customPart.Part.PartName, customPart.Color.BLColorCode.Value, customPart),
-        //         _ => null
-        //     }).Where(item => item != null);
-        // 
-        //     return comparisonItems.OrderBy(x => x.Hash);
-        // }
-
-        private record PartComparison(
-            List<IndexedStepItem> UnmodifiedItems,
-            List<IndexedStepItem> RemovedItems,
-            List<IndexedStepItem> AddedItems,
-            List<IndexedStepItem> ModifiedItems
-        );
-
-        private record ComparisonItem(
-            string Hash,
-            string Uncolored,
-            int Color,
-            IndexedStepItem StepItem
-        );
-    }
-
-    internal static class LDrawPartExtensions
-    {
-        public static bool EqualsWithCoordinates(this LDrawPart a, LDrawPart b)
+        private (InstructionSegmentEquality equality, string debugResult) 
+            CompareSegments(InstructionSegment reference, InstructionSegment target)
         {
-            if (a == null || b == null)
-                return false;
+            var sb = new StringBuilder();
 
-            // Check if the model names are equal
-            if (!string.Equals(a.Model?.Name, b.Model?.Name, StringComparison.OrdinalIgnoreCase))
-                return false;
+            if (reference.Steps.Count != target.Steps.Count)
+            {
+                sb.AppendLine($"Step count difference: {reference.Steps.Count} -> {target.Steps.Count}");
 
-            // Check if the positions are equal
-            if (a.Position != b.Position)
-                return false;
+                return (InstructionSegmentEquality.Modified, sb.ToString());
+            }
 
-            // Check if the rotation matrices are equal
-            if (!a.Rotation.Equals(b.Rotation))
-                return false;
+            var result = InstructionSegmentEquality.Equivalent;
+            var index = 0;
 
-            return true;
+            foreach (var (refStep, targetStep) in reference.Steps.Zip(target.Steps))
+            {
+                index++;
+
+                if (refStep.Items.Count != targetStep.Items.Count)
+                {
+                    sb.AppendLine($"Step #{index}: different part count in step: {refStep.Items.Count} -> {refStep.Items.Count}");
+                    result = InstructionSegmentEquality.Modified;
+                }
+                else
+                {
+                    sb.AppendLine($"Step #{index}");
+
+                    var orderedRefStep = refStep.Items.OrderBy(item => item, new IndexedStepItemComparer());
+                    var orderedTargetStep = targetStep.Items.OrderBy(item => item, new IndexedStepItemComparer());
+
+                    foreach (var (refItem, targetItem) in orderedRefStep.Zip(orderedTargetStep))
+                    {
+                        sb.Append($"  {refItem.LDrawPartName} ");
+
+                        if (!StepItemsAreEquivalent(refItem, targetItem))
+                        {
+                            result = InstructionSegmentEquality.Modified;
+                            
+                            sb.AppendLine($"[{refItem.LDrawPart.Position}] -> {targetItem.LDrawPartName} [{targetItem.LDrawPart.Position}]");
+                        }
+                        else
+                        {
+                            sb.AppendLine();
+                        }
+                    }
+                }
+            }
+
+            return (result, sb.ToString());
+
+        }
+
+        private bool StepItemsAreEquivalent(IndexedStepItem refItem, IndexedStepItem targetItem)
+        {
+            const double tolerance = 0.01;
+
+            bool ArePositionsEqual(Vector3 refPosition, Vector3 targetPosition)
+            {
+                return Math.Abs(refPosition.X - targetPosition.X) < tolerance &&
+                       Math.Abs(refPosition.Y - targetPosition.Y) < tolerance &&
+                       Math.Abs(refPosition.Z - targetPosition.Z) < tolerance;
+            }
+
+            bool AreRotationsEqual(Matrix3x3 refRotation, Matrix3x3 targetRotation)
+            {
+                // Assuming Matrix3x3 has a method to get individual elements or a way to compare with tolerance
+                for (int i = 0; i < 3; i++)
+                {
+                    for (int j = 0; j < 3; j++)
+                    {
+                        if (Math.Abs(refRotation[i, j] - targetRotation[i, j]) >= tolerance)
+                        {
+                            return false;
+                        }
+                    }
+                }
+                return true;
+            }
+
+            return refItem.LDrawPartName == targetItem.LDrawPartName
+                   && ArePositionsEqual(refItem.LDrawPart.Position, targetItem.LDrawPart.Position)
+                   && AreRotationsEqual(refItem.LDrawPart.Rotation, targetItem.LDrawPart.Rotation);
+        }
+
+        private List<InstructionSegment> SplitToSections(string mainModel, List<IndexedStep> indexedTargetSteps)
+        {
+            var result = new List<InstructionSegment>();
+            if (indexedTargetSteps == null || indexedTargetSteps.Count == 0)
+            {
+                return result;
+            }
+
+            List<IndexedStep> currentSegmentSteps = new List<IndexedStep>();
+            string currentModelName = null;
+
+            const string mainModelPlaceholder = "**[main]**";
+
+            foreach (var step in indexedTargetSteps)
+            {
+                if (currentModelName == null || step.Model != currentModelName)
+                {
+                    if (currentSegmentSteps.Count > 0)
+                    {
+                        result.Add(new InstructionSegment(
+                            currentModelName == mainModel ? mainModelPlaceholder : currentModelName,
+                            new List<IndexedStep>(currentSegmentSteps)
+                        ));
+                        currentSegmentSteps.Clear();
+                    }
+                    currentModelName = step.Model;
+                }
+                currentSegmentSteps.Add(step);
+            }
+
+            // Add the last segment
+            if (currentSegmentSteps.Count > 0)
+            {
+                result.Add(new InstructionSegment(
+                    currentModelName == mainModel ? mainModelPlaceholder : currentModelName,
+                    new List<IndexedStep>(currentSegmentSteps)
+                ));
+            }
+
+            return result;
         }
     }
 }
