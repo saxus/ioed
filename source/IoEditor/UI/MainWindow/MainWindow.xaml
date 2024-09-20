@@ -110,57 +110,44 @@
             </MenuItem>
         </Menu>
 
-        <Grid Grid.Row="1">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="30*" />
-                <ColumnDefinition Width="Auto" />
-                <ColumnDefinition Width="70*" />
-            </Grid.ColumnDefinitions>
-
-            <GridSplitter Grid.Column="1"
-                          VerticalAlignment="Stretch"
-                          ShowsPreview="True"
-                          Background="Transparent"
-                          Width="10" />
-
-        </Grid>
-
-        <ListBox ItemsSource="{Binding Project.MergeModel.Segments}"
+        <TabControl Grid.Row="1">
+            <TabItem Header="Segments">
+                <ListBox ItemsSource="{Binding Project.MergeModel.Segments}"
                  HorizontalContentAlignment="Stretch"
                  Grid.Row="1" Grid.Column="2" >
-            <ListBox.ItemTemplate>
-                <DataTemplate>
-                        <StackPanel>
+                    <ListBox.ItemTemplate>
+                        <DataTemplate>
+                            <StackPanel>
 
-                            <CheckBox IsChecked="{Binding IsExpanded}">
-                                <TextBlock >
+                                <CheckBox IsChecked="{Binding IsExpanded}">
+                                    <TextBlock >
                                     <Run Foreground="{Binding Equality, Mode=OneWay, Converter={StaticResource EqualityToBrushConverter}}" Text="{Binding Equality, Mode=OneWay}"></Run>
                                     <Run Foreground="White" Text="{Binding SegmentName, Mode=OneWay}"></Run>
                                     <Run Foreground="lime" Text="{Binding ReferenceSegment.Steps.Count, Mode=OneWay, StringFormat=({0})}"></Run>
-                                </TextBlock>
-                            </CheckBox>
-                            <ScrollViewer MaxHeight="600" 
+                                    </TextBlock>
+                                </CheckBox>
+                                <ScrollViewer MaxHeight="600" 
                                           Visibility="{Binding IsExpanded, Converter={StaticResource BoolToVisConverter}}">
-                                <Grid 
+                                    <Grid 
                                       Margin="40,6,0,6"
                                       x:Name="grid">
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="1*"  />
-                                        <ColumnDefinition Width="1*" />
-                                        <ColumnDefinition Width="1*" />
-                                    </Grid.ColumnDefinitions>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="1*"  />
+                                            <ColumnDefinition Width="1*" />
+                                            <ColumnDefinition Width="1*" />
+                                        </Grid.ColumnDefinitions>
 
-                                    <ItemsControl Grid.Column="0"
+                                        <ItemsControl Grid.Column="0"
                                                   ItemsSource="{Binding ReferenceSegment.Steps}"
-                                                  ItemTemplate="{StaticResource InstructionSegmentTmpl}">   
-                                    </ItemsControl>
+                                                  ItemTemplate="{StaticResource InstructionSegmentTmpl}">
+                                        </ItemsControl>
 
-                                    <ItemsControl Grid.Column="1"
+                                        <ItemsControl Grid.Column="1"
                                                   ItemsSource="{Binding TargetSegment.Steps}"
                                                   ItemTemplate="{StaticResource InstructionSegmentTmpl}">
-                                    </ItemsControl>
+                                        </ItemsControl>
 
-                                    <TextBox Grid.Column="2"
+                                        <TextBox Grid.Column="2"
                                              IsReadOnly="True"
                                              Height="{Binding ActualHeight, ElementName=grid, Mode=OneWay}"
                                              HorizontalScrollBarVisibility="Auto"
@@ -168,14 +155,19 @@
                                              Text="{Binding Differences, Mode=OneWay}"
                                              MinHeight="100"
                                              />
-                            </Grid>
-                        </ScrollViewer>
-                    </StackPanel>
-                </DataTemplate>
-            </ListBox.ItemTemplate>
-            
-        </ListBox>
-        
+                                    </Grid>
+                                </ScrollViewer>
+                            </StackPanel>
+                        </DataTemplate>
+                    </ListBox.ItemTemplate>
+
+                </ListBox>
+            </TabItem>
+
+            <TabItem Header="Pages">
+            </TabItem>
+        </TabControl>
+
         <!-- ScrollViewer Grid.Row="1" Grid.Column="2" >
             <ItemsControl ItemsSource="{Binding Project.ComparisonResult.Steps}">
                 <ItemsControl.ItemTemplate>
