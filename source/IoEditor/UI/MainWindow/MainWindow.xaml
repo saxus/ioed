@@ -166,122 +166,49 @@
 
             <TabItem Header="Pages">
             </TabItem>
-        </TabControl>
 
-        <!-- ScrollViewer Grid.Row="1" Grid.Column="2" >
-            <ItemsControl ItemsSource="{Binding Project.ComparisonResult.Steps}">
-                <ItemsControl.ItemTemplate>
-                    <DataTemplate>
-                        <Border BorderBrush="Black" BorderThickness="1" Margin="3">
+            <TabItem Header="Reference Xml">
+                <TextBox AcceptsReturn="True" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto"
+                         IsReadOnly="True"
+                         FontFamily="Consolas"
+                         Text="{Binding Project.Reference.Instruction.Document, Mode=OneWay}"
+                         />
+            </TabItem>
 
-                            <StackPanel>
-                                <StackPanel Grid.Row="0" Orientation="Horizontal" >
-                                    <Label Foreground="White">
-                                        <TextBlock>
-                                            <Run Text="{Binding Index, StringFormat=#{0}}"></Run>
-                                            <Run Text="{Binding ReferenceStep.Index, StringFormat=RefIndex\={0}}"></Run>
-                                            <Run Text="{Binding TargetStep.Index, StringFormat=TargetIndex\={0}}"></Run>
-                                            <Run Text="{Binding Equality, StringFormat=Equality: {0}}"></Run>
-                                        </TextBlock>
-                                    </Label>
+            <TabItem Header="Generated Xml">
+                <TextBox AcceptsReturn="True" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto"
+                         IsReadOnly="True"
+                         FontFamily="Consolas"
+                         Text="{Binding Project.Target.Instruction.Document, Mode=OneWay}"
+                         />
+            </TabItem>
+
+            <TabItem Header="Step dictionary">
+                <ScrollViewer VerticalScrollBarVisibility="Auto">
+
+                    <ItemsControl ItemsSource="{Binding Project.InterimData.StepDictionary.Values, Mode=OneWay}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <StackPanel Margin="0,6,0,0">
+                                    <TextBlock>
+                                        <Run Text="{Binding SerializedStepIndex, StringFormat=#{0}}" 
+                                               Foreground="Wheat"
+                                               FontWeight="Bold" />
+                                        <Run Text="{Binding IsCallout, StringFormat=IsCallout: {0}}"
+                                             Foreground="White" />
+                                    </TextBlock>
+                                    <TextBox AcceptsReturn="True" HorizontalScrollBarVisibility="Auto"
+                                            IsReadOnly="True"
+                                            FontFamily="Consolas"
+                                            Text="{Binding Element, Mode=OneWay}"
+                                    />
                                 </StackPanel>
-
-                                <ScrollViewer VerticalScrollBarVisibility="Disabled" HorizontalScrollBarVisibility="Auto">
-                                    <Grid>
-                                        <Grid.ColumnDefinitions>
-                                            <ColumnDefinition Width="Auto" />
-                                            <ColumnDefinition Width="6" />
-                                            <ColumnDefinition Width="Auto" />
-                                            <ColumnDefinition Width="6" />
-                                            <ColumnDefinition Width="Auto" />
-                                            <ColumnDefinition Width="6" />
-                                            <ColumnDefinition Width="Auto" />
-                                        </Grid.ColumnDefinitions>
-
-                                        <Grid.RowDefinitions>
-                                            <RowDefinition Height="Auto" />
-                                            <RowDefinition Height="Auto" />
-                                        </Grid.RowDefinitions>
-                                    
-                                        <Label Grid.Row="0" Grid.Column="0" Background="Wheat">Unmodified items</Label>
-                                        <Border Grid.Row="1" Grid.Column="0" Margin="0,6,6,0">
-                                            <ItemsControl ItemsSource="{Binding UnmodifiedItems}" 
-                                                      ItemTemplateSelector="{StaticResource IndexedStepItemTemplateSelector}"
-                                                      ItemsPanel="{StaticResource ItemsPanelTemplate}">
-                                            </ItemsControl>
-                                        </Border>
-
-                                        <Label Grid.Row="0" Grid.Column="2" Background="Wheat">Modified items</Label>
-                                        <Border Grid.Row="1" Grid.Column="2" Margin="0,6,6,0">
-                                            <ItemsControl ItemsSource="{Binding ModifiedItems}" 
-                                                          ItemTemplateSelector="{StaticResource IndexedStepItemTemplateSelector}"
-                                                          ItemsPanel="{StaticResource ItemsPanelTemplate}">
-                                            </ItemsControl>
-                                        </Border>
-
-                                        <Label Grid.Row="0" Grid.Column="4" Background="Wheat">Removed items</Label>
-                                        <Border Grid.Row="1" Grid.Column="4" Margin="0,6,6,0">
-                                            <ItemsControl ItemsSource="{Binding RemovedItems}" 
-                                                          ItemTemplateSelector="{StaticResource IndexedStepItemTemplateSelector}"
-                                                          ItemsPanel="{StaticResource ItemsPanelTemplate}"> 
-                                            </ItemsControl>
-                                        </Border>
-
-                                        <Label Grid.Row="0" Grid.Column="6" Background="Wheat">Added items</Label>
-                                        <Border Grid.Row="1" Grid.Column="6" Margin="0,6,6,0">
-                                            <ItemsControl ItemsSource="{Binding AddedItems}" 
-                                                          ItemTemplateSelector="{StaticResource IndexedStepItemTemplateSelector}"
-                                                          ItemsPanel="{StaticResource ItemsPanelTemplate}">
-                                            </ItemsControl>
-                                        </Border>
-
-                                    </Grid>
-                                </ScrollViewer>
-                            </StackPanel>
-                        </Border>
-                    </DataTemplate>
-                </ItemsControl.ItemTemplate>            
-            </ItemsControl>
-        </ScrollViewer -->
-
-        <!-- StackPanel Grid.Row="1" Grid.Column="2" Orientation="Vertical">
-            <Image Source="{Binding Project.Target.ThumbnailContent, Converter={StaticResource ByteArrayToImageConverter}}" Height="300" Width="300" />
-            <Label Foreground="Wheat" Content="{Binding Project.Target.FileName}" />
-            <ListView ItemsSource="{Binding Project.Target.MainModel.Steps}" Height="400">
-                <ListView.ItemTemplate>
-                    <DataTemplate>
-                        <StackPanel>
-                            <TextBlock>
-                                STEP
-                                <Run Text="{Binding Parts.Count, Mode=OneWay}"></Run>
-                                <Run Text="{Binding Description}"></Run>
-                            </TextBlock>
-                            <ItemsControl ItemsSource="{Binding Parts}">
-                                <ItemsControl.ItemTemplate>
-                                    <DataTemplate>
-                                        <StackPanel Orientation="Vertical">
-                                            <Image Source="{Binding Image}" Height="64" Width="64" />
-                                            <TextBlock Text="{Binding LDrawColorId}" />
-                                            <TextBlock Text="{Binding PartName}" Margin="6" Background="Yellow" />
-                                        </StackPanel>
-                                    </DataTemplate>
-                                </ItemsControl.ItemTemplate>
-                                <ItemsControl.ItemsPanel>
-                                    <ItemsPanelTemplate>
-                                        <StackPanel Orientation="Horizontal" />
-                                    </ItemsPanelTemplate>
-                                </ItemsControl.ItemsPanel>
-                            </ItemsControl>
-
-                        </StackPanel>
-                    </DataTemplate>
-                </ListView.ItemTemplate>
-            </ListView>
-            
-
-            <Image Source="{Binding Project.Reference.ThumbnailContent, Converter={StaticResource ByteArrayToImageConverter}}" Height="300" Width="300" />
-            <Label Foreground="Wheat" Content="{Binding Project.Reference.FileName}" />
-        </StackPanel -->
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </ScrollViewer>
+            </TabItem>
+        </TabControl>
 
         <StatusBar Grid.Row="2">
             <StatusBarItem>Done.</StatusBarItem>

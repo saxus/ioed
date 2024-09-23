@@ -9,6 +9,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Xml.Linq;
 
 namespace IoEditor.Model
 {
@@ -47,6 +48,9 @@ namespace IoEditor.Model
                 }
             }
         }
+
+        public InterimData InterimData { get; } = new InterimData();
+        
 
         public IoEdProject(string referenceFileName, string targetFileName, StudioFile reference, StudioFile target)
         {

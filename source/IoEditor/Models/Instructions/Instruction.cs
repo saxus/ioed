@@ -5,18 +5,20 @@ using System.Linq;
 using System.Security.Policy;
 using System.Text;
 using System.Threading.Tasks;
-using System.Xml;
+using System.Xml.Linq;
 
 namespace IoEditor.Models.Instructions
 {
     internal class Instruction
     {
-        public XmlDocument Document { get; }
-
-        public XmlNode GlobalSettings { get; }
-        public XmlNode CustomLayouts { get; }
+        public XDocument Document { get; }
 
         public List<Page> Pages { get; } = new List<Page>();
+
+        public Instruction(XDocument document)
+        {
+            Document = document;
+        }
     }
 
     internal class Page : INotifyPropertyChanged
@@ -31,8 +33,7 @@ namespace IoEditor.Models.Instructions
 
     internal class Slot
     {
-        public XmlNode XmlFragment { get; }
-
+        public XNode XmlFragment { get; set; }
     }
 
 

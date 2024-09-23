@@ -20,6 +20,7 @@ using Microsoft.Extensions.Options;
 using Microsoft.Win32;
 using System.Diagnostics;
 using IoEditor.Models.Merging;
+using IoEditor.Models.Instructions;
 
 namespace IoEditor.UI.MainWindow
 {
@@ -145,7 +146,8 @@ namespace IoEditor.UI.MainWindow
             {
                 Console.WriteLine("==== Loading project ====");
 
-                Project = IoEdProjectLoader.Load(reference, target);
+                var project = IoEdProjectLoader.Load(reference, target);
+                this.Project = project;
 
                 // Console.WriteLine("Updating image cache");
                 // UpdateImageCache(Project.Target);
@@ -162,7 +164,11 @@ namespace IoEditor.UI.MainWindow
                 var mergeBuilder = new MergeModelBuilder();
                 var mergeResult = mergeBuilder.Build(comparisonResult, Project.Reference.Instruction);
 
-                Project.MergeModel = mergeResult;
+                project.MergeModel = mergeResult;
+
+                Console.WriteLine("Merging instructions");
+
+                InstructionMerger.Merge(project);
 
                 Console.WriteLine("Done loading project");
             }

@@ -1,4 +1,5 @@
-﻿using IoEditor.Models.Studio;
+﻿using IoEditor.Models.Instructions;
+using IoEditor.Models.Studio;
 
 using System.IO;
 
@@ -16,6 +17,13 @@ namespace IoEditor.Model
 
             var referenceStudioFile = StudioFileLoader.Load(referenceFilePath);
             var targetStudioFile = StudioFileLoader.Load(targetFilePath);
+
+            if (referenceStudioFile.Instruction == null)
+            {
+                throw new InvalidOperationException("Reference file does not contain an instruction file.");
+            }
+
+            targetStudioFile.Instruction = InstructionCreator.CreateEmptyInstructionFromTemplate(referenceStudioFile.Instruction);
 
             return new IoEdProject(referenceFilePath, targetFilePath, referenceStudioFile, targetStudioFile);
         }

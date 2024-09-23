@@ -63,7 +63,7 @@ namespace IoEditor.Models.Studio
 
         public Dictionary<string, LDrawModel> Models { get; } = new Dictionary<string, LDrawModel>();
 
-        public Instruction Instruction { get; }
+        public Instruction Instruction { get; set; }
 
         public byte[] ThumbnailContent { get; }
 

@@ -182,10 +182,13 @@ namespace IoEditor.Models.Studio
 
         private static Instruction ReadInstructionFile(ZipArchiveEntry zipEntryInstruction)
         {
-            if (zipEntryInstruction == null) throw new ArgumentNullException(nameof(zipEntryInstruction));
+            if (zipEntryInstruction == null)
+            {
+                return null;
+            }
 
             using var instructionStream = zipEntryInstruction.Open();
-            return InstructionLoader.LoadFromStream(instructionStream);
+            return InstructionCreator.LoadFromStream(instructionStream);
         }
     }
 }
