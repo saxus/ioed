@@ -91,6 +91,7 @@
         <KeyBinding Key="O" Modifiers="Ctrl" Command="{Binding OpenFilesCommand}" />
         <KeyBinding Key="S" Modifiers="Ctrl" Command="{Binding SaveFileCommand}" />
         <KeyBinding Key="S" Modifiers="Control+Shift" Command="{Binding SaveAsCommand}" />
+        <KeyBinding Key="F5" Command="{Binding RefreshMergeCommand}" />
     </Window.InputBindings>
 
     <!-- == MAIN XAML CODE ==================================================== -->
@@ -107,6 +108,9 @@
                 <MenuItem Header="_Save" Command="{Binding SaveFileCommand}" InputGestureText="Ctrl+S" />
                 <Separator />
                 <MenuItem Header="E_xit" Command="{Binding ExitCommand}"></MenuItem>
+            </MenuItem>
+            <MenuItem Header="Merge">
+                <MenuItem Header="_Refresh" Command="{Binding RefreshMergeCommand}" InputGestureText="F5" />
             </MenuItem>
         </Menu>
 
@@ -175,12 +179,20 @@
                          />
             </TabItem>
 
-            <TabItem Header="Generated Xml">
+            <TabItem Header="Target Xml">
                 <TextBox AcceptsReturn="True" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto"
                          IsReadOnly="True"
                          FontFamily="Consolas"
                          Text="{Binding Project.Target.Instruction.Document, Mode=OneWay}"
                          />
+            </TabItem>
+
+            <TabItem Header="Generated Xml">
+                <TextBox AcceptsReturn="True" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto"
+                         IsReadOnly="True"
+                         FontFamily="Consolas"
+                         Text="{Binding Project.MergedInstruction, Mode=OneWay}"
+                         />     
             </TabItem>
 
             <TabItem Header="Step dictionary">

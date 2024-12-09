@@ -9,6 +9,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Xml;
 using System.Xml.Linq;
 
 namespace IoEditor.Model
@@ -45,6 +46,20 @@ namespace IoEditor.Model
                 {
                     _mergeModel = value;
                     RaisePropertyChanged(nameof(MergeModel));
+                }
+            }
+        }
+
+        private XDocument _mergedInstruction;
+        public XDocument MergedInstruction
+        {
+            get => _mergedInstruction;
+            set
+            {
+                if (_mergedInstruction != value)
+                {
+                    _mergedInstruction = value;
+                    RaisePropertyChanged(nameof(MergedInstruction));
                 }
             }
         }

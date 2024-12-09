@@ -23,7 +23,7 @@ namespace IoEditor.Model
                 throw new InvalidOperationException("Reference file does not contain an instruction file.");
             }
 
-            targetStudioFile.Instruction = InstructionCreator.CreateEmptyInstructionFromTemplate(referenceStudioFile.Instruction);
+            // targetStudioFile.Instruction = InstructionCreator.CreateEmptyInstructionFromTemplate(referenceStudioFile.Instruction);
 
             return new IoEdProject(referenceFilePath, targetFilePath, referenceStudioFile, targetStudioFile);
         }

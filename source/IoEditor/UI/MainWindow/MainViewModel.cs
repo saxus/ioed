@@ -38,6 +38,8 @@ namespace IoEditor.UI.MainWindow
         public ICommand SaveAsCommand { get; }
         public ICommand ExitCommand { get; }
 
+        public ICommand RefreshMergeCommand { get; }
+
         #endregion
 
 
@@ -69,6 +71,8 @@ namespace IoEditor.UI.MainWindow
             SaveFileCommand = new DelegateCommand(SaveFileCmd);
             SaveAsCommand = new DelegateCommand(SaveAsCmd);
             ExitCommand = new DelegateCommand(ExitCmd);
+
+            RefreshMergeCommand = new DelegateCommand(RefreshMergeCmd);
         }
 
         #region Command handlers
@@ -135,6 +139,39 @@ namespace IoEditor.UI.MainWindow
             }
         }
 
+        private void RefreshMergeCmd(object obj)
+        {
+            var sw = Stopwatch.StartNew();
+
+            try
+                
+            {
+                var project = this.Project;
+
+                if (project is null)
+                {
+                    Console.WriteLine("No project is loaded");
+                    return;
+                }
+
+                project.MergedInstruction = InstructionMerger.Merge(project);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error opening files!");
+                Console.WriteLine("=============================================================");
+                Console.WriteLine(ex.Message);
+                Console.WriteLine(ex.StackTrace);
+                Console.WriteLine("=============================================================");
+
+                throw;
+            }
+            finally
+            {
+                Console.WriteLine($"Done. Elapsed: {sw.Elapsed}");
+            }
+        }
+
         #endregion
 
 
@@ -168,7 +205,7 @@ namespace IoEditor.UI.MainWindow
 
                 Console.WriteLine("Merging instructions");
 
-                InstructionMerger.Merge(project);
+                project.MergedInstruction = InstructionMerger.Merge(project);
 
                 Console.WriteLine("Done loading project");
             }
