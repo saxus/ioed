@@ -21,6 +21,7 @@ using Microsoft.Win32;
 using System.Diagnostics;
 using IoEditor.Models.Merging;
 using IoEditor.Models.Instructions;
+using ICSharpCode.AvalonEdit.Document;
 
 namespace IoEditor.UI.MainWindow
 {
@@ -58,6 +59,7 @@ namespace IoEditor.UI.MainWindow
                 }
             }
         }
+
 
         #endregion
 

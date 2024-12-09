@@ -5,6 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:IoEditor.UI.MainWindow"
         xmlns:conv="clr-namespace:IoEditor.UI.Converters"
+        xmlns:avalon="http://icsharpcode.net/sharpdevelop/avalonedit"
         ResizeMode="CanResizeWithGrip"
         Style="{StaticResource StandardWindow}"
         mc:Ignorable="d"
@@ -13,7 +14,8 @@
     <Window.Resources>
         <conv:ByteArrayToImageConverter x:Key="ByteArrayToImageConverter" />
         <conv:InstructionSegmentEqualityToBrushConverter x:Key="EqualityToBrushConverter"/>
-
+        <conv:XDocumentToTextDocumentConverter x:Key="XDocumentToTextDocumentConverter" />
+        
         <BooleanToVisibilityConverter x:Key="BoolToVisConverter" />
         
    
@@ -172,26 +174,44 @@
             </TabItem>
 
             <TabItem Header="Reference Xml">
-                <TextBox AcceptsReturn="True" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto"
-                         IsReadOnly="True"
-                         FontFamily="Consolas"
-                         Text="{Binding Project.Reference.Instruction.Document, Mode=OneWay}"
-                         />
+                <avalon:TextEditor
+                        x:Name="referenceXmlViewer"
+                        Background="#3f3f46"
+                        Foreground="White"
+                        HorizontalScrollBarVisibility="Auto" 
+                        VerticalScrollBarVisibility="Auto"
+                        SyntaxHighlighting="XML"
+                        IsReadOnly="True"
+                        FontFamily="Consolas"
+                        Document="{Binding Project.Reference.Instruction.Document,  Converter={StaticResource XDocumentToTextDocumentConverter}, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}"       
+                    />
             </TabItem>
 
             <TabItem Header="Target Xml">
-                <TextBox AcceptsReturn="True" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto"
-                         IsReadOnly="True"
-                         FontFamily="Consolas"
-                         Text="{Binding Project.Target.Instruction.Document, Mode=OneWay}"
-                         />
+                <avalon:TextEditor 
+                        x:Name="targetXmlViewer"
+                        Background="#3f3f46"
+                        Foreground="White"
+                        HorizontalScrollBarVisibility="Auto" 
+                        VerticalScrollBarVisibility="Auto"
+                        SyntaxHighlighting="XML"
+                        IsReadOnly="True"
+                        FontFamily="Consolas"
+                        Document="{Binding Project.Target.Instruction.Document,  Converter={StaticResource XDocumentToTextDocumentConverter}, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}"       
+                />      
             </TabItem>
 
             <TabItem Header="Generated Xml">
-                <TextBox AcceptsReturn="True" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto"
+                <avalon:TextEditor 
+                         Background="#3f3f46"
+                         Foreground="White"
+                         x:Name="generatedXmlViewer"
+                         HorizontalScrollBarVisibility="Auto" 
+                         VerticalScrollBarVisibility="Auto"
+                         SyntaxHighlighting="XML"
                          IsReadOnly="True"
                          FontFamily="Consolas"
-                         Text="{Binding Project.MergedInstruction, Mode=OneWay}"
+                         Document="{Binding Project.MergedInstruction, Converter={StaticResource XDocumentToTextDocumentConverter}, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}"                         
                          />     
             </TabItem>
 
