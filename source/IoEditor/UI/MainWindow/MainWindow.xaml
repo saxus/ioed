@@ -108,6 +108,7 @@
             <MenuItem Header="File">
                 <MenuItem Header="_Open" Command="{Binding OpenFilesCommand}" InputGestureText="Ctrl+O" />
                 <MenuItem Header="_Save" Command="{Binding SaveFileCommand}" InputGestureText="Ctrl+S" />
+                <MenuItem Header="Sa_ve as..." Command="{Binding SaveAsCommand}" InputGestureText="Ctrl+Shift+S" />
                 <Separator />
                 <MenuItem Header="E_xit" Command="{Binding ExitCommand}"></MenuItem>
             </MenuItem>

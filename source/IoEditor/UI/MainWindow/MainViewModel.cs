@@ -114,7 +114,9 @@ namespace IoEditor.UI.MainWindow
 
             try
             {
-                throw new NotImplementedException("Save not implemented");
+                StudioFileSaver.Save(filePath, Project);
+
+                MessageBox.Show($"Done.");
             }
             catch (Exception ex)
             {
