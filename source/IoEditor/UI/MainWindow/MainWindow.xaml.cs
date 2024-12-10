@@ -21,8 +21,8 @@ namespace IoEditor.UI.MainWindow
     /// </summary>
     public partial class MainWindow : Window
     {
-        private FoldingManager _foldingManager;
-        private XmlFoldingStrategy _xmlFoldingStrategy;
+        private Dictionary<TextEditor, FoldingManager> _foldingManagers = new Dictionary<TextEditor, FoldingManager>();
+        private XmlFoldingStrategy _xmlFoldingStrategy = new XmlFoldingStrategy();
 
 
         public MainWindow()
@@ -56,14 +56,19 @@ namespace IoEditor.UI.MainWindow
         {
             if (textEditor.TextArea.Document != null)
             {
-                _foldingManager = FoldingManager.Install(textEditor.TextArea);
-                _xmlFoldingStrategy = new XmlFoldingStrategy();
+                if (_foldingManagers.TryGetValue(textEditor, out var foldingManager))
+                {
+                    FoldingManager.Uninstall(foldingManager);
+                }
+
+                foldingManager = FoldingManager.Install(textEditor.TextArea);
+                _foldingManagers[textEditor] = foldingManager;
 
                 textEditor.TextChanged += (s, e) =>
                 {
                     if (textEditor.Document != null)
                     {
-                        _xmlFoldingStrategy.UpdateFoldings(_foldingManager, textEditor.Document);
+                        _xmlFoldingStrategy.UpdateFoldings(foldingManager, textEditor.Document);
                     }
                 };
             }
