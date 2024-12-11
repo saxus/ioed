@@ -18,7 +18,8 @@ namespace IoEditor.Models.Studio
             LDrawModel mainModel, 
             List<LDrawModel> models,
             Instruction instruction,
-            byte[] thumbnailContent)
+            byte[] thumbnailContent,
+            Dictionary<string, byte[]> imageResources)
         {
             this.FileName = fileName;
             this.Name = name;
@@ -26,6 +27,7 @@ namespace IoEditor.Models.Studio
             this.MainModel = mainModel;
             this.Instruction = instruction;
             this.ThumbnailContent = thumbnailContent;
+            this.ImageResources = imageResources;
 
             foreach (var model in models)
             {
@@ -66,6 +68,8 @@ namespace IoEditor.Models.Studio
         public Instruction Instruction { get; set; }
 
         public byte[] ThumbnailContent { get; }
+
+        public Dictionary<string, byte[]> ImageResources { get; }
 
         internal LDrawModel GetModel(string partName)
         {

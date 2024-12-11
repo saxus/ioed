@@ -80,6 +80,8 @@ namespace IoEditor.Models.Studio
             var instruction = ReadInstructionFile(zipEntryInstruction);
             var thumbnailContent = ReadThumbnailContent(zipEntryThumbnail);
 
+            var imageResources = ReadImageResources(zipEntryImages);
+
             var studioFile = new StudioFile(
                filePath,
                fileName,
@@ -87,9 +89,26 @@ namespace IoEditor.Models.Studio
                mainModel,
                models,
                instruction,
-               thumbnailContent);
+               thumbnailContent,
+               imageResources);
 
             return studioFile;
+        }
+
+        private static Dictionary<string, byte[]> ReadImageResources(List<ZipArchiveEntry> zipEntryImages)
+        {
+            var result = new Dictionary<string, byte[]>();
+
+            foreach (var entry in zipEntryImages)
+            {
+                using var stream = entry.Open();
+                using var ms = new MemoryStream();
+                stream.CopyTo(ms);
+
+                result.Add(entry.FullName, ms.ToArray());
+            }
+
+            return result;
         }
 
         private static List<LDrawCustomPart> ReadCustomParts(List<ZipArchiveEntry> customPartEntries)
@@ -108,7 +127,12 @@ namespace IoEditor.Models.Studio
         private static LDrawCustomPart ReadCustomPart(ZipArchiveEntry entry)
         {
             using var stream = entry.Open();
-            using var reader = new StreamReader(stream);
+            using var ms = new MemoryStream();
+            stream.CopyTo(ms);
+            var bytes = ms.ToArray();
+            var filename = entry.FullName;
+
+            using var reader = new StreamReader(ms);
 
             string partName = null;
             string description = null;
@@ -147,7 +171,9 @@ namespace IoEditor.Models.Studio
             return new LDrawCustomPart()
             {
                 PartName = partName,
-                Description = description
+                Description = description,
+                Bytes = bytes,
+                Filename = filename,
             };
         }
 

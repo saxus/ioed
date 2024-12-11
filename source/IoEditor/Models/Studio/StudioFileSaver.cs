@@ -2,6 +2,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Drawing.Text;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
@@ -25,7 +26,33 @@ namespace IoEditor.Models.Studio
             using (var entryStream = entry.Open())
             using (var streamWriter = new StreamWriter(entryStream, Encoding.UTF8))
             {
+                Console.WriteLine("Save: model.ins");
                 project.MergedInstruction.Save(streamWriter);
+            }
+
+            RemoveOldImages(zipFile);
+            foreach (var images in project.MergedImageResources)
+            {
+                Console.WriteLine($"Save: {images.Key}");
+
+                var imgEntry = zipFile.CreateEntry(images.Key, CompressionLevel.Optimal);
+                using var es = imgEntry.Open();
+                es.Write(images.Value, 0, images.Value.Length);
+            }
+
+            Console.WriteLine("Done");
+        }
+
+        private static void RemoveOldImages(ZipArchive zipFile)
+        {
+            foreach (var entry in zipFile.Entries)
+            {
+                if (entry.FullName.StartsWith("ImageResource/", StringComparison.OrdinalIgnoreCase))
+                {
+                    Console.WriteLine($"Remove: {entry.FullName}");
+
+                    entry.Delete();
+                }
             }
         }
 
@@ -43,6 +70,8 @@ namespace IoEditor.Models.Studio
 
             if (zipEntryInstruction != null)
             {
+                Console.WriteLine($"Remove: {zipEntryInstruction.FullName}");
+
                 zipEntryInstruction.Delete();
             }
         }

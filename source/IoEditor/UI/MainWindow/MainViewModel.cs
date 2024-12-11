@@ -158,7 +158,9 @@ namespace IoEditor.UI.MainWindow
                     return;
                 }
 
-                project.MergedInstruction = InstructionMerger.Merge(project);
+                (var instruction, var imageResources) = InstructionMerger.Merge(project);
+                project.MergedInstruction = instruction;
+                project.MergedImageResources = imageResources;
             }
             catch (Exception ex)
             {
@@ -209,7 +211,10 @@ namespace IoEditor.UI.MainWindow
 
                 Console.WriteLine("Merging instructions");
 
-                project.MergedInstruction = InstructionMerger.Merge(project);
+                (var instruction, var imageResources) = InstructionMerger.Merge(project);
+
+                project.MergedInstruction = instruction;
+                project.MergedImageResources = imageResources;
 
                 Console.WriteLine("Done loading project");
             }

@@ -64,6 +64,21 @@ namespace IoEditor.Model
             }
         }
 
+        private Dictionary<string, byte[]> _mergedImageResources;
+        public Dictionary<string, byte[]> MergedImageResources
+        {
+            get => _mergedImageResources;
+            set
+            {
+                if (_mergedImageResources != value)
+                {
+                    _mergedImageResources = value;
+                    RaisePropertyChanged(nameof(MergedImageResources));
+                }
+            }
+        }
+
+
         public InterimData InterimData { get; } = new InterimData();
         
 
