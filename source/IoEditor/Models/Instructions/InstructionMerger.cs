@@ -1,5 +1,4 @@
 ﻿using IoEditor.Model;
-using IoEditor.Models.Comparison;
 using IoEditor.Models.Merging;
 
 using System;
@@ -27,7 +26,7 @@ namespace IoEditor.Models.Instructions
 
         private class MergeLogic
         {
-            private bool writeDebugInfo = true;
+            private bool writeDebugInfo = false;
 
             private readonly IoEdProject project;
             private Instruction referenceInstruction => project.Reference.Instruction;
@@ -111,11 +110,13 @@ namespace IoEditor.Models.Instructions
                             {
                                 if (segment.TargetSegment.Steps.Count == segment.ReferenceSegment.Steps.Count)
                                 {
+                                    AddDebugComment("Segment step counter is equivalent, copying as is");
                                     CopySegmentAsIs(segment);
                                 }
                                 else
                                 {
-                                    AddDebugComment("MODIFIED SEGMENT GOES HERE");
+                                    AddDebugComment("Segment step counter is different, handling as new page");
+                                    AddNewSegmentAsIs(segment);
                                 }
                             }
 
@@ -247,7 +248,11 @@ namespace IoEditor.Models.Instructions
 
                         // TODO: copy slot and step attributes
                         var newStep = newSlot.Element("Step");
-                        newStep.AddBeforeSelf(new XComment($"SerializedIndex: {referenceStep.Index} = {targetStep.Index}"));
+
+                        if (writeDebugInfo)
+                        {
+                            newStep.AddBeforeSelf(new XComment($"SerializedIndex: {referenceStep.Index} = {targetStep.Index}"));
+                        }
                         newStep.SetAttributeValue("SerializedIndex", targetStep.Index);
 
                         var callout = newStep.Element("CallOut");
@@ -268,7 +273,10 @@ namespace IoEditor.Models.Instructions
                                     {
                                         var targetIndex = _serializedIndexLookupTable[cstepSerializedIndex];
 
-                                        cstep.AddBeforeSelf(new XComment($"SerializedIndex: {cstepSerializedIndex} = {targetIndex}"));
+                                        if (writeDebugInfo)
+                                        {
+                                            cstep.AddBeforeSelf(new XComment($"SerializedIndex: {cstepSerializedIndex} = {targetIndex}"));
+                                        }
                                         cstep.SetAttributeValue("SerializedIndex", targetIndex);
                                     }
                                 }

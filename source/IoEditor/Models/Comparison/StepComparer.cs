@@ -1,6 +1,4 @@
-﻿using ICSharpCode.AvalonEdit.Document;
-
-using IoEditor.Models.Model;
+﻿using IoEditor.Models.Model;
 using IoEditor.Models.Studio;
 
 using System;
@@ -8,11 +6,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
-using System.Printing;
-using System.Runtime.CompilerServices;
 using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Ink;
 
 namespace IoEditor.Models.Comparison
 {
