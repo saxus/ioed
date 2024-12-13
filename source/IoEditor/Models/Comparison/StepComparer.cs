@@ -1,4 +1,6 @@
-﻿using IoEditor.Models.Model;
+﻿using ICSharpCode.AvalonEdit.Document;
+
+using IoEditor.Models.Model;
 using IoEditor.Models.Studio;
 
 using System;
@@ -55,20 +57,20 @@ namespace IoEditor.Models.Comparison
             
             Console.WriteLine($"==== COMPARING CONTINOUS MODEL SECTIONS  ==========================");
 
-            var referenceSections = SplitToSections(reference.MainModel.Name, indexedReferenceSteps);
-            var targetSections = SplitToSections(target.MainModel.Name, indexedTargetSteps);
+            var referenceSegments = SplitToSegments(reference.MainModel.Name, indexedReferenceSteps);
+            var targetSegments = SplitToSegments(target.MainModel.Name, indexedTargetSteps);
 
-            var comparedSections = CompareSections(referenceSections, targetSections);
+            var comparedSegments = CompareSegments(referenceSegments, targetSegments);         
 
             Console.WriteLine($"==== DONE  ==========================");
 
-            result.InstructionSegments.AddRange(comparedSections);
+            result.InstructionSegments.AddRange(comparedSegments);
 
             return result;
         }
 
-        private List<InstructionSegmentComparison> 
-            CompareSections(List<InstructionSegment> referenceSections, List<InstructionSegment> targetSections)
+        private List<InstructionSegmentComparison>
+            CompareSegments(List<InstructionSegment> referenceSections, List<InstructionSegment> targetSections)
         {
             var referenceNames = referenceSections.Select(x => x.ModelName).ToArray();
             var targetNames = targetSections.Select(x => x.ModelName).ToArray();
@@ -229,7 +231,7 @@ namespace IoEditor.Models.Comparison
                    && AreRotationsEqual(refItem.LDrawPart.Rotation, targetItem.LDrawPart.Rotation);
         }
 
-        private List<InstructionSegment> SplitToSections(string mainModel, List<IndexedStep> indexedTargetSteps)
+        private List<InstructionSegment> SplitToSegments(string mainModel, List<IndexedStep> indexedTargetSteps)
         {
             var result = new List<InstructionSegment>();
             if (indexedTargetSteps == null || indexedTargetSteps.Count == 0)

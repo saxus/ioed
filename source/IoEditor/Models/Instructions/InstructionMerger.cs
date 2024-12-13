@@ -1,4 +1,6 @@
 ﻿using IoEditor.Model;
+using IoEditor.Models.Comparison;
+using IoEditor.Models.Merging;
 
 using System;
 using System.Collections.Generic;
@@ -21,7 +23,7 @@ namespace IoEditor.Models.Instructions
 
             return mergeLogic.Merge();
         }
-
+        
 
         private class MergeLogic
         {
@@ -39,7 +41,13 @@ namespace IoEditor.Models.Instructions
             private readonly XDocument xdoc;            
             private readonly XElement xResultPages;
 
-            private int pageNumber = 0;
+            private int _pageNumber = 0;
+            private Dictionary<int, int> _serializedIndexLookupTable = new Dictionary<int, int>();
+            private HashSet<int> _removedSerializedSteps = new HashSet<int>();
+
+
+            private XElement? _xlastProcessedPage;
+            private XElement? _xlastCreatedPage;
 
             public MergeLogic(IoEdProject project)
             {
@@ -62,123 +70,56 @@ namespace IoEditor.Models.Instructions
                 var globalSettings = xdoc.Element("Instruction").Element("GlobalSetting");
                 FindAndRegisterImages(globalSettings, ImageSource.Reference);
 
-                // var xPages = project.Reference.Instruction.Document.Element("Instruction").Element("Pages").Elements("Page").ToList();
-                var writeDebugInfo = true;
+                _serializedIndexLookupTable.Clear();
+                _removedSerializedSteps.Clear();
 
-                
-
-                var serializedIndexLookupTable = new Dictionary<int, int>();
 
                 foreach ((var segment, var segmentIndex) in project.MergeModel.Segments.Select((x, i) => (x, i)))
                 {
-                    var xlastProcessedPage = (XElement)null;
-                    var xlastCreatedPage = (XElement)null;
+                    _xlastProcessedPage = null;
+                    _xlastCreatedPage = null;
 
                     switch (segment.Equality)
                     {
                         case Models.Comparison.InstructionSegmentEquality.RemovedSegment:
-                            WriteDebug($"REMOVED Segment #{segmentIndex}, {segment.SegmentName}");
-                            continue;
+                            AddDebugComment($"REMOVED Segment #{segmentIndex}, {segment.SegmentName}");
+                            HandleRemovedSegment(segment);
+                            break;
 
                         case Models.Comparison.InstructionSegmentEquality.NewSegment:
-                            WriteDebug($"NEW segment #{segmentIndex}, {segment.SegmentName}");
-
-                            foreach (var (idx, targetStep) in segment.TargetSegment.Steps.Select((x, i) => (i, x)))
-                            {
-                                var refStepData = targetStepLookupTable[idx];
-                                if (refStepData.IsCallout)
-                                {
-                                    //AddPredecessorPagesIfNecessary(predecessorPages, imageResourcesMerger, ImageSource.Target, xResultPages, refStepData.Page);
-
-                                    continue;
-                                }
-                                else
-                                {
-                                    if (xlastProcessedPage != refStepData.Page)
-                                    {
-                                        //AddPredecessorPagesIfNecessary(predecessorPages, imageResourcesMerger, ImageSource.Target, xResultPages, refStepData.Page);
-
-                                        xlastProcessedPage = refStepData.Page;
-                                        xlastCreatedPage = new XElement("Page");
-                                        xlastCreatedPage.SetAttributeValue("template", refStepData.Page.Attribute("template")?.Value ?? "OneByOne");
-                                        xlastCreatedPage.SetAttributeValue("IsLocked", refStepData.Page.Attribute("IsLocked")?.Value ?? "false");
-                                        AddPage(xlastCreatedPage);
-                                    }
-
-                                    FindAndRegisterImages(refStepData.Slot, ImageSource.Reference);
-
-                                    xlastCreatedPage.Add(new XElement(refStepData.Slot));
-                                }
-                            }
-
-                            continue;
+                            AddDebugComment($"NEW segment #{segmentIndex}, {segment.SegmentName}");
+                            AddNewSegmentAsIs(segment);
+                            break;
 
                         case Models.Comparison.InstructionSegmentEquality.Equivalent:
-                            WriteDebug($"EQUIVALENT segment #{segmentIndex}, {segment.SegmentName}");
+                            AddDebugComment($"EQUIVALENT segment #{segmentIndex}, {segment.SegmentName}");
+                            CopySegmentAsIs(segment);
+                            break;
 
-                            foreach (var (idx, targetStep) in segment.TargetSegment.Steps.Select((x, i) => (i, x)))
+                        case Models.Comparison.InstructionSegmentEquality.Modified:
+                            AddDebugComment($"MODIFIED segment #{segmentIndex}, {segment.SegmentName}");
+
+                            // There are modified segments which contains submodels removed in the previous segments
+                            // and potentially replaced by a new one. It should potentially handled as a replaced
+                            // segments.
+                            if (SegmentRefersToRemovedSegments(segment))
                             {
-                                var referenceStep = segment.ReferenceSegment.Steps[idx];
-
-                                var refStepData = referenceStepLookupTable[referenceStep.Index];
-                                if (refStepData.IsCallout)
+                                AddDebugComment("Refered segments removed in previous steps, handled as a new segment");
+                                AddNewSegmentAsIs(segment);
+                            }
+                            else
+                            {
+                                if (segment.TargetSegment.Steps.Count == segment.ReferenceSegment.Steps.Count)
                                 {
-                                    AddPredecessorPagesIfNecessary(ImageSource.Reference, refStepData.Page);
-
-                                    serializedIndexLookupTable[referenceStep.Index] = targetStep.Index;
-                                    continue;
+                                    CopySegmentAsIs(segment);
                                 }
                                 else
                                 {
-                                    if (xlastProcessedPage != refStepData.Page)
-                                    {
-                                        AddPredecessorPagesIfNecessary(ImageSource.Reference, refStepData.Page);
-
-                                        xlastProcessedPage = refStepData.Page;
-                                        xlastCreatedPage = new XElement("Page");
-                                        xlastCreatedPage.SetAttributeValue("template", refStepData.Page.Attribute("template")?.Value ?? "OneByOne");
-                                        xlastCreatedPage.SetAttributeValue("IsLocked", refStepData.Page.Attribute("IsLocked")?.Value ?? "false");
-                                        CopyAttribute(refStepData.Page, "resizeBars", xlastCreatedPage);
-                                        AddPage(xlastCreatedPage);
-                                    }
-
-                                    var newSlot = new XElement(refStepData.Slot);
-                                    CopyAttributes(refStepData.Slot, newSlot);
-
-                                    // TODO: copy slot and step attributes
-                                    var newStep = newSlot.Element("Step");
-                                    newStep.AddBeforeSelf(new XComment($"SerializedIndex: {referenceStep.Index} = {targetStep.Index}"));
-                                    newStep.SetAttributeValue("SerializedIndex", targetStep.Index);
-
-                                    var callout = newStep.Element("CallOut");
-                                    if (callout != null)
-                                    {
-                                        foreach (var cid in callout.Elements("CallOutItemData"))
-                                        {
-                                            foreach (var csd in cid.Elements("CallOutStepItemData"))
-                                            {
-                                                var cstep = csd.Element("Step");
-                                                var cstepSerializedIndex = Convert.ToInt32(cstep.Attribute("SerializedIndex").Value);
-
-                                                var targetIndex = serializedIndexLookupTable[cstepSerializedIndex];
-
-                                                cstep.AddBeforeSelf(new XComment($"SerializedIndex: {cstepSerializedIndex} = {targetIndex}"));
-                                                cstep.SetAttributeValue("SerializedIndex", targetIndex);
-                                            }
-                                        }
-                                    }
-
-                                    FindAndRegisterImages(newSlot, ImageSource.Reference);
-
-                                    xlastCreatedPage.Add(newSlot);
+                                    AddDebugComment("MODIFIED SEGMENT GOES HERE");
                                 }
                             }
 
-                            continue;
-
-                        case Models.Comparison.InstructionSegmentEquality.Modified:
-                            WriteDebug($"MODIFIED segment #{segmentIndex}, {segment.SegmentName}");
-                            continue;
+                            break;
                     }
                 }
 
@@ -195,6 +136,150 @@ namespace IoEditor.Models.Instructions
                 }
 
                 return (xdoc, imageResourcesMerger.GetMergedDictionary());
+            }
+
+            private void HandleRemovedSegment(MergedSegment segment)
+            {
+                foreach (var step in segment.ReferenceSegment.Steps)
+                {
+                    _removedSerializedSteps.Add(step.Index);
+                }
+            }
+
+            private bool SegmentRefersToRemovedSegments(MergedSegment segment)
+            {
+                foreach (var step in segment.ReferenceSegment.Steps)
+                {
+                    if (_removedSerializedSteps.Contains(step.Index))
+                    {
+                        return true;
+                    }
+
+                    // Check inside a callout box's reference
+                    var refStepData = referenceStepLookupTable[step.Index];
+
+                    var callout = refStepData.Step.Element("CallOut");
+                    if (callout != null)
+                    {
+                        foreach (var cid in callout.Elements("CallOutItemData"))
+                        {
+                            foreach (var csd in cid.Elements("CallOutStepItemData"))
+                            {
+                                var cstep = csd.Element("Step");
+                                var cstepSerializedIndex = Convert.ToInt32(cstep.Attribute("SerializedIndex").Value);
+
+                                if (_removedSerializedSteps.Contains(cstepSerializedIndex))
+                                {
+                                    return true;
+                                }
+                            }
+                        }
+                    }
+                }
+
+                return false;
+            }
+
+            private void AddNewSegmentAsIs(MergedSegment segment)
+            {
+                foreach (var targetStep in segment.TargetSegment.Steps)
+                {
+                    var refStepData = targetStepLookupTable[targetStep.Index];
+                    if (refStepData.IsCallout)
+                    {
+                        //AddPredecessorPagesIfNecessary(predecessorPages, imageResourcesMerger, ImageSource.Target, xResultPages, refStepData.Page);
+                        // _serializedIndexLookupTable[referenceStep.Index] = targetStep.Index;
+
+                        continue;
+                    }
+                    else
+                    {
+                        if (_xlastProcessedPage != refStepData.Page)
+                        {
+                            //AddPredecessorPagesIfNecessary(predecessorPages, imageResourcesMerger, ImageSource.Target, xResultPages, refStepData.Page);
+
+                            _xlastProcessedPage = refStepData.Page;
+                            _xlastCreatedPage = new XElement("Page");
+                            _xlastCreatedPage.SetAttributeValue("template", refStepData.Page.Attribute("template")?.Value ?? "OneByOne");
+                            _xlastCreatedPage.SetAttributeValue("IsLocked", refStepData.Page.Attribute("IsLocked")?.Value ?? "false");
+                            AddPage(_xlastCreatedPage);
+                        }
+
+                        FindAndRegisterImages(refStepData.Slot, ImageSource.Reference);
+
+                        _xlastCreatedPage.Add(new XElement(refStepData.Slot));
+                    }
+                }
+            }
+
+            private void CopySegmentAsIs(MergedSegment segment)
+            {
+                foreach (var (idx, targetStep) in segment.TargetSegment.Steps.Select((x, i) => (i, x)))
+                {
+                    var referenceStep = segment.ReferenceSegment.Steps[idx];
+
+                    var refStepData = referenceStepLookupTable[referenceStep.Index];
+                    if (refStepData.IsCallout)
+                    {
+                        AddPredecessorPagesIfNecessary(ImageSource.Reference, refStepData.Page);
+
+                        _serializedIndexLookupTable[referenceStep.Index] = targetStep.Index;
+
+                        AddDebugComment($"  SerializedIndex {referenceStep.Index} is a callout, skipped");
+                        continue;
+                    }
+                    else
+                    {
+                        if (_xlastProcessedPage != refStepData.Page)
+                        {
+                            AddPredecessorPagesIfNecessary(ImageSource.Reference, refStepData.Page);
+
+                            _xlastProcessedPage = refStepData.Page;
+                            _xlastCreatedPage = new XElement("Page");
+                            _xlastCreatedPage.SetAttributeValue("template", refStepData.Page.Attribute("template")?.Value ?? "OneByOne");
+                            _xlastCreatedPage.SetAttributeValue("IsLocked", refStepData.Page.Attribute("IsLocked")?.Value ?? "false");
+                            CopyAttribute(refStepData.Page, "resizeBars", _xlastCreatedPage);
+                            AddPage(_xlastCreatedPage);
+                        }
+
+                        var newSlot = new XElement(refStepData.Slot);
+                        CopyAttributes(refStepData.Slot, newSlot);
+
+                        // TODO: copy slot and step attributes
+                        var newStep = newSlot.Element("Step");
+                        newStep.AddBeforeSelf(new XComment($"SerializedIndex: {referenceStep.Index} = {targetStep.Index}"));
+                        newStep.SetAttributeValue("SerializedIndex", targetStep.Index);
+
+                        var callout = newStep.Element("CallOut");
+                        if (callout != null)
+                        {
+                            foreach (var cid in callout.Elements("CallOutItemData"))
+                            {
+                                foreach (var csd in cid.Elements("CallOutStepItemData"))
+                                {
+                                    var cstep = csd.Element("Step");
+                                    var cstepSerializedIndex = Convert.ToInt32(cstep.Attribute("SerializedIndex").Value);
+
+                                    if (!_serializedIndexLookupTable.ContainsKey(cstepSerializedIndex))
+                                    {
+                                        Console.WriteLine($"MISSING ID: {cstepSerializedIndex}");
+                                    }
+                                    else
+                                    {
+                                        var targetIndex = _serializedIndexLookupTable[cstepSerializedIndex];
+
+                                        cstep.AddBeforeSelf(new XComment($"SerializedIndex: {cstepSerializedIndex} = {targetIndex}"));
+                                        cstep.SetAttributeValue("SerializedIndex", targetIndex);
+                                    }
+                                }
+                            }
+                        }
+
+                        FindAndRegisterImages(newSlot, ImageSource.Reference);
+
+                        _xlastCreatedPage.Add(newSlot);
+                    }
+                }
             }
 
             private void AddPredecessorPagesIfNecessary(
@@ -363,9 +448,8 @@ namespace IoEditor.Models.Instructions
                 => xPage.Elements("Slot").Any(x => x.Element("Step") != null);
 
             
-            private void WriteDebug(string msg)
+            private void AddDebugComment(string msg)
             {
-                Console.WriteLine(msg);
                 if (writeDebugInfo)
                 {
                     xResultPages.Add(new XComment(msg));
@@ -373,12 +457,11 @@ namespace IoEditor.Models.Instructions
             }
 
             private void AddPage(XElement element)
-            {
-                if (writeDebugInfo)
-                {
-                    xResultPages.Add(new XComment($"Page #{pageNumber}"));
-                }
-                pageNumber++;
+            { 
+                _pageNumber++;
+
+                AddDebugComment($"Page #{_pageNumber}");
+
                 xResultPages.Add(element);
             }
 

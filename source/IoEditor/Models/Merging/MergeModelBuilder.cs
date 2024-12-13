@@ -13,7 +13,7 @@ namespace IoEditor.Models.Merging
     {
         internal MergeModel Build(ComparisonResult comparisonResult, Instruction instruction)
         {
-            var mergedSegments = comparisonResult.InstructionSegments.Select(x => new MergedSegment(x)).ToList();
+            var mergedSegments = comparisonResult.InstructionSegments.Select((x, i) => new MergedSegment(x, i)).ToList();
 
             var model = new MergeModel();
             model.Segments.AddRange(mergedSegments);

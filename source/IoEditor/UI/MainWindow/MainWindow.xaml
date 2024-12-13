@@ -128,9 +128,10 @@
 
                                 <CheckBox IsChecked="{Binding IsExpanded}">
                                     <TextBlock >
-                                    <Run Foreground="{Binding Equality, Mode=OneWay, Converter={StaticResource EqualityToBrushConverter}}" Text="{Binding Equality, Mode=OneWay}"></Run>
-                                    <Run Foreground="White" Text="{Binding SegmentName, Mode=OneWay}"></Run>
-                                    <Run Foreground="lime" Text="{Binding ReferenceSegment.Steps.Count, Mode=OneWay, StringFormat=({0})}"></Run>
+                                        <Run Foreground="White" Text="{Binding SegmentIndex, StringFormat=#{0}, Mode=OneWay}" />
+                                        <Run Foreground="{Binding Equality, Mode=OneWay, Converter={StaticResource EqualityToBrushConverter}}" Text="{Binding Equality, Mode=OneWay}"></Run>
+                                        <Run Foreground="White" Text="{Binding SegmentName, Mode=OneWay}"></Run>
+                                        <Run Foreground="lime" Text="{Binding ReferenceSegment.Steps.Count, Mode=OneWay, StringFormat=({0})}"></Run>
                                     </TextBlock>
                                 </CheckBox>
                                 <ScrollViewer MaxHeight="600" 
@@ -171,8 +172,8 @@
                 </ListBox>
             </TabItem>
 
-            <TabItem Header="Pages">
-            </TabItem>
+            <!-- TabItem Header="Pages">
+            </TabItem -->
 
             <TabItem Header="Reference Xml">
                 <avalon:TextEditor

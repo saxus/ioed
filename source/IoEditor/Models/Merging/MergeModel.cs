@@ -22,6 +22,7 @@ namespace IoEditor.Models.Merging
         public string Differences => InstructionSegmentComparison.diff;
 
         public string SegmentName => TargetSegment?.ModelName ?? ReferenceSegment?.ModelName;
+        public int SegmentIndex { get; init; }
 
 
         private bool _isExpanded;
@@ -39,9 +40,10 @@ namespace IoEditor.Models.Merging
         }
 
 
-        public MergedSegment(InstructionSegmentComparison instructionSegment)
+        public MergedSegment(InstructionSegmentComparison instructionSegment, int segmentIndex)
         {
             this.InstructionSegmentComparison = instructionSegment;
+            this.SegmentIndex = segmentIndex;
         }
 
         public InstructionSegmentComparison InstructionSegmentComparison { get; }
