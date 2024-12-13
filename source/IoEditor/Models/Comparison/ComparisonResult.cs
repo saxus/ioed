@@ -1,4 +1,6 @@
-﻿using System;
+﻿using IoEditor.Models.Studio;
+
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -10,5 +12,8 @@ namespace IoEditor.Models.Comparison
     {
         public List<InstructionSegmentComparison> InstructionSegments { get; }
              = new List<InstructionSegmentComparison>();
+
+        public List<IndexedStep> IndexedReferenceSteps { get; internal set; }
+        public List<IndexedStep> IndexedTargetSteps { get; internal set; }
     }
 }

@@ -20,13 +20,32 @@ namespace IoEditor.Models.Instructions
         {
             var mergeLogic = new MergeLogic(project);
 
-            return mergeLogic.Merge();
+            var mergedDocument =  mergeLogic.Merge();
+
+            CheckAllSequenceIndexesPresentInResult(project, mergedDocument.instruction);
+
+            return mergedDocument;
         }
-        
+
+        private static void CheckAllSequenceIndexesPresentInResult(IoEdProject project, XDocument instruction)
+        {
+            var descendants = instruction.Descendants();
+            var steps = descendants.Where(x => x.Name == "Step");
+
+            var allSteps = steps.Select(x => Convert.ToInt32(x.Attribute("SerializedIndex").Value)).ToHashSet();
+
+            foreach (var step in project.ComparisonResult.IndexedTargetSteps)
+            {
+                if (!allSteps.Contains(step.Index))
+                {
+                    Console.WriteLine($"Validation failed, {step.Index} is missing from the result!");
+                }
+            }
+        }
 
         private class MergeLogic
         {
-            private bool writeDebugInfo = false;
+            private bool writeDebugInfo = true;
 
             private readonly IoEdProject project;
             private Instruction referenceInstruction => project.Reference.Instruction;
@@ -72,12 +91,11 @@ namespace IoEditor.Models.Instructions
                 _serializedIndexLookupTable.Clear();
                 _removedSerializedSteps.Clear();
 
+                _xlastProcessedPage = null;
+                _xlastCreatedPage = null;
 
                 foreach ((var segment, var segmentIndex) in project.MergeModel.Segments.Select((x, i) => (x, i)))
-                {
-                    _xlastProcessedPage = null;
-                    _xlastCreatedPage = null;
-
+                {                   
                     switch (segment.Equality)
                     {
                         case Models.Comparison.InstructionSegmentEquality.RemovedSegment:
@@ -115,6 +133,7 @@ namespace IoEditor.Models.Instructions
                                 }
                                 else
                                 {
+                                    // BUGBUG: if the segment refers to a submodel which was added previously, it will be skipped
                                     AddDebugComment("Segment step counter is different, handling as new page");
                                     AddNewSegmentAsIs(segment);
                                 }
@@ -238,8 +257,8 @@ namespace IoEditor.Models.Instructions
                             _xlastProcessedPage = refStepData.Page;
                             _xlastCreatedPage = new XElement("Page");
                             _xlastCreatedPage.SetAttributeValue("template", refStepData.Page.Attribute("template")?.Value ?? "OneByOne");
-                            _xlastCreatedPage.SetAttributeValue("IsLocked", refStepData.Page.Attribute("IsLocked")?.Value ?? "false");
                             CopyAttribute(refStepData.Page, "resizeBars", _xlastCreatedPage);
+                            _xlastCreatedPage.SetAttributeValue("IsLocked", refStepData.Page.Attribute("IsLocked")?.Value ?? "false");
                             AddPage(_xlastCreatedPage);
                         }
 

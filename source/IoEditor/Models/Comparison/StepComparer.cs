@@ -23,13 +23,13 @@ namespace IoEditor.Models.Comparison
         {
             var result = new ComparisonResult();
 
-            var indexedReferenceSteps = this._stepBuilder.CreateIndexedSteps(reference.MainModel, reference);
-            var indexedTargetSteps = this._stepBuilder.CreateIndexedSteps(target.MainModel, target);
+            result.IndexedReferenceSteps = this._stepBuilder.CreateIndexedSteps(reference.MainModel, reference);
+            result.IndexedTargetSteps = this._stepBuilder.CreateIndexedSteps(target.MainModel, target);
 
-            var allParts = indexedReferenceSteps.SelectMany(x => x.Items).ToList();
+            var allParts = result.IndexedReferenceSteps.SelectMany(x => x.Items).ToList();
 
-            var countRef = indexedReferenceSteps.Count;
-            var countTarget = indexedTargetSteps.Count; 
+            var countRef = result.IndexedReferenceSteps.Count;
+            var countTarget = result.IndexedTargetSteps.Count; 
 
             var indexRef = 0;
             var indexTarget = 0;
@@ -38,8 +38,8 @@ namespace IoEditor.Models.Comparison
 
             bool AreModelsEquals(string referenceModel, string targetModel)
             {
-                var isBaseReferenceModel = indexedReferenceSteps.FirstOrDefault()?.Model == referenceModel;
-                var isBaseTargetModel = indexedTargetSteps.FirstOrDefault()?.Model == targetModel;
+                var isBaseReferenceModel = result.IndexedReferenceSteps.FirstOrDefault()?.Model == referenceModel;
+                var isBaseTargetModel = result.IndexedTargetSteps.FirstOrDefault()?.Model == targetModel;
 
                 if (isBaseReferenceModel && isBaseTargetModel)
                 {
@@ -51,8 +51,8 @@ namespace IoEditor.Models.Comparison
             
             Console.WriteLine($"==== COMPARING CONTINOUS MODEL SECTIONS  ==========================");
 
-            var referenceSegments = SplitToSegments(reference.MainModel.Name, indexedReferenceSteps);
-            var targetSegments = SplitToSegments(target.MainModel.Name, indexedTargetSteps);
+            var referenceSegments = SplitToSegments(reference.MainModel.Name, result.IndexedReferenceSteps);
+            var targetSegments = SplitToSegments(target.MainModel.Name, result.IndexedTargetSteps);
 
             var comparedSegments = CompareSegments(referenceSegments, targetSegments);         
 

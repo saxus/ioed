@@ -30,6 +30,13 @@ namespace IoEditor.Models.Studio
                 project.MergedInstruction.Save(streamWriter);
             }
 
+#if DEBUG
+            // TODO: REMOVE
+            using var ms = new MemoryStream();
+            project.MergedInstruction.Save(ms);
+            File.WriteAllBytes(filePath + ".ins.xml", ms.ToArray());
+#endif
+
             RemoveOldImages(zipFile);
             foreach (var images in project.MergedImageResources)
             {
