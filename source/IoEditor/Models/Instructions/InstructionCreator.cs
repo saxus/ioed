@@ -6,6 +6,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Xml;
 using System.Xml.Linq;
 
 namespace IoEditor.Models.Instructions
@@ -14,7 +15,17 @@ namespace IoEditor.Models.Instructions
     {
         internal static Instruction LoadFromStream(Stream modelStream)
         {
-            var xdoc = XDocument.Load(modelStream);
+            // This is important. One of Bricklink studio author
+            // was an idiot who put a complete TSV file into an XML Attribute
+            // in a non-standard way. The XDocument.Load wouldn't read it properly
+            // so we have to use XmlDocument to load the stream and then convert it
+            // to XDocument
+            var xmlDocument = new XmlDocument();
+            xmlDocument.Load(modelStream);
+
+            using var nodeReader = new XmlNodeReader(xmlDocument);
+            nodeReader.MoveToContent();
+            var xdoc = XDocument.Load(nodeReader);
 
             return new Instruction(xdoc);
         }

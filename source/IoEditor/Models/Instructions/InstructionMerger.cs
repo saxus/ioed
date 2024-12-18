@@ -220,6 +220,7 @@ namespace IoEditor.Models.Instructions
 
                             _xlastProcessedPage = refStepData.Page;
                             _xlastCreatedPage = new XElement("Page");
+                            CopyAttributes(refStepData.Page, _xlastCreatedPage);
                             _xlastCreatedPage.SetAttributeValue("template", refStepData.Page.Attribute("template")?.Value ?? "OneByOne");
                             _xlastCreatedPage.SetAttributeValue("IsLocked", refStepData.Page.Attribute("IsLocked")?.Value ?? "false");
                             AddPage(_xlastCreatedPage);
@@ -256,8 +257,8 @@ namespace IoEditor.Models.Instructions
 
                             _xlastProcessedPage = refStepData.Page;
                             _xlastCreatedPage = new XElement("Page");
-                            _xlastCreatedPage.SetAttributeValue("template", refStepData.Page.Attribute("template")?.Value ?? "OneByOne");
-                            CopyAttribute(refStepData.Page, "resizeBars", _xlastCreatedPage);
+                            CopyAttributes(refStepData.Page, _xlastCreatedPage);
+                            _xlastCreatedPage.SetAttributeValue("template", refStepData.Page.Attribute("template")?.Value ?? "OneByOne");                            
                             _xlastCreatedPage.SetAttributeValue("IsLocked", refStepData.Page.Attribute("IsLocked")?.Value ?? "false");
                             AddPage(_xlastCreatedPage);
                         }
