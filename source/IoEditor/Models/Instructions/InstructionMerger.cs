@@ -128,6 +128,7 @@ namespace IoEditor.Models.Instructions
                             {
                                 if (segment.TargetSegment.Steps.Count == segment.ReferenceSegment.Steps.Count)
                                 {
+                                    // TODO this could be misleading
                                     AddDebugComment("Segment step counter is equivalent, copying as is");
                                     CopySegmentAsIs(segment);
                                 }

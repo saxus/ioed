@@ -2,7 +2,7 @@
   "profiles": {
     "IoEditor": {
       "commandName": "Project",
-      "commandLineArgs": "/openfiles ..\\..\\..\\..\\..\\TestData\\Apollo.io ..\\..\\..\\..\\..\\TestData\\Skylab.io"
+      "commandLineArgs": "/openfiles ..\\..\\..\\..\\..\\TestData\\Apollo.io ..\\..\\..\\..\\..\\TestData\\IB.io"
     }
   }
 }

@@ -192,6 +192,8 @@ namespace IoEditor.UI.MainWindow
             {
                 Console.WriteLine("==== Loading project ====");
 
+                this.Project = null;
+
                 var project = IoEdProjectLoader.Load(reference, target);
                 this.Project = project;
 

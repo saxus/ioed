@@ -29,6 +29,15 @@ namespace IoEditor.UI.MainWindow
         {
             InitializeComponent();
 
+            SetupFoldings();
+        }
+
+
+        private void SetupFoldings()
+        {
+            _foldingManagers = new Dictionary<TextEditor, FoldingManager>();
+            _xmlFoldingStrategy = new XmlFoldingStrategy();
+
             SetupEditor(generatedXmlViewer);
             SetupEditor(referenceXmlViewer);
             SetupEditor(targetXmlViewer);
@@ -58,7 +67,7 @@ namespace IoEditor.UI.MainWindow
             {
                 if (_foldingManagers.TryGetValue(textEditor, out var foldingManager))
                 {
-                    FoldingManager.Uninstall(foldingManager);
+                    return;
                 }
 
                 foldingManager = FoldingManager.Install(textEditor.TextArea);
@@ -71,6 +80,14 @@ namespace IoEditor.UI.MainWindow
                         _xmlFoldingStrategy.UpdateFoldings(foldingManager, textEditor.Document);
                     }
                 };
+            }
+            else
+            {
+                if (_foldingManagers.TryGetValue(textEditor, out var foldingManager))
+                {
+                    FoldingManager.Uninstall(foldingManager);
+                    _foldingManagers.Remove(textEditor);
+                }
             }
         }
     }
