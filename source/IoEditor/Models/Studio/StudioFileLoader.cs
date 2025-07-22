@@ -88,6 +88,7 @@ namespace IoEditor.Models.Studio
                infoFileSchema.Version,
                mainModel,
                models,
+               customParts,
                instruction,
                thumbnailContent,
                imageResources);

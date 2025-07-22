@@ -64,7 +64,18 @@ namespace IoEditor.Models.Studio
                         }
                         else
                         {
-                            throw new InvalidOperationException($"Not an official part without model: {ldrawPart.PartName}");
+                            // hack for flexible bricks
+                            if (studioFile.CustomParts.TryGetValue(ldrawPart.PartName, out var customPart))
+                            {
+                                if (customPart.SpecialModel != null)
+                                {
+                                    AddPartToIndexedStep(ldrawPart, indexedStep);
+                                }
+                            }
+                            else
+                            {
+                                throw new InvalidOperationException($"Not an official part without model: {ldrawPart.PartName}");
+                            }
                         }
                     }
 
@@ -92,10 +103,19 @@ namespace IoEditor.Models.Studio
             }
             else
             {
-
-                Part part = ldrawPart.IsOfficialPart
-                    ? _partLibrary.GetPartByLDrawItemNo(ldrawPart.PartName)
-                    : null;
+                Part part = null;
+                
+                if (ldrawPart.IsOfficialPart)
+                {
+                    // Try to find the part by its name first
+                    part = _partLibrary.GetPartByLDrawItemNo(ldrawPart.PartName);
+                    
+                    // If not found and it's a flexible brick, use the BL_Item_No to find the base part
+                    if (part == null && ldrawPart.IsFlexibleBrick && !string.IsNullOrEmpty(ldrawPart.Model.BLItemNo))
+                    {
+                        part = _partLibrary.GetPartByBLItemNo(ldrawPart.Model.BLItemNo);
+                    }
+                }
 
                 if (part == null)
                 {

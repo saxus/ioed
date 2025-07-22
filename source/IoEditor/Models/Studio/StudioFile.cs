@@ -17,6 +17,7 @@ namespace IoEditor.Models.Studio
             string version,
             LDrawModel mainModel, 
             List<LDrawModel> models,
+            List<LDrawCustomPart> customParts,
             Instruction instruction,
             byte[] thumbnailContent,
             Dictionary<string, byte[]> imageResources)
@@ -32,6 +33,11 @@ namespace IoEditor.Models.Studio
             foreach (var model in models)
             {
                 this.Models[model.Name.ToLower()] = model;
+            }
+
+            foreach (var customPart in customParts)
+            {
+                this.CustomParts[customPart.PartName.ToLower()] = customPart;
             }
 
             UpdateModelReferences();
@@ -64,6 +70,8 @@ namespace IoEditor.Models.Studio
         public LDrawModel MainModel { get; }
 
         public Dictionary<string, LDrawModel> Models { get; } = new Dictionary<string, LDrawModel>();
+
+        public Dictionary<string, LDrawCustomPart> CustomParts { get; } = new Dictionary<string, LDrawCustomPart>();
 
         public Instruction Instruction { get; set; }
 

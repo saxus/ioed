@@ -1,9 +1,10 @@
 ﻿using System.ComponentModel;
+using System.Diagnostics;
 using System.Numerics;
-using System.Windows.Media.Imaging;
 
 namespace IoEditor.Models.Model
 {
+    [DebuggerDisplay("Part {PartName}")]
     internal class LDrawPart: INotifyPropertyChanged
     {
         public int LineInFile { get; set; }
@@ -66,8 +67,9 @@ namespace IoEditor.Models.Model
 
 
 
-        public bool IsOfficialPart => !IsCustomPart && PartName.EndsWith(".dat", StringComparison.OrdinalIgnoreCase);
+        public bool IsOfficialPart => !IsCustomPart && (PartName.EndsWith(".dat", StringComparison.OrdinalIgnoreCase) || IsFlexibleBrick);
         public bool IsCustomPart => CustomPart != null;
+        public bool IsFlexibleBrick => Model != null && !string.IsNullOrEmpty(Model.FlexibleBrick);
 
 
         public LDrawPart()

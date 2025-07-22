@@ -63,6 +63,23 @@ namespace IoEditor.Models.LDraw
                 models.Add(currentModel);
             }
 
+            // Add flexible bricks to custom parts - process all models after parsing is finished
+            foreach (var model in models)
+            {
+                if (model.FlexibleBrick != null)
+                {
+                    var customPart = new LDrawCustomPart()
+                    {
+                        PartName = model.File,
+                        Description = model.Description,
+                        Filename = model.File,
+                        SpecialModel = model,
+                    };
+                    Console.WriteLine("Special custom part: " + customPart.PartName);
+                    customParts.Add(customPart);
+                }
+            }
+
             foreach (var model in models)
             {
                 FixModelsLastStep(model);
@@ -111,7 +128,7 @@ namespace IoEditor.Models.LDraw
                     var s = SplitLine(nextLine);
                     if (s.type == "0")
                     {
-                        currentModel.Descrption = s.content;
+                        currentModel.Description = s.content;
                     }
                 }
                 else if (content.StartsWith("Name: "))
@@ -130,6 +147,15 @@ namespace IoEditor.Models.LDraw
                 else if (content.StartsWith("STUDIOSTEPDESC"))
                 {
                     currentStep.Description = content.Substring(15);
+                }
+                // Flexible brick metadata - just the essentials to identify it as a part
+                else if (content.StartsWith("FlexibleBrick: "))
+                {
+                    currentModel.FlexibleBrick = content.Substring(15).Trim();
+                }
+                else if (content.StartsWith("BL_Item_No "))
+                {
+                    currentModel.BLItemNo = content.Substring(11).Trim();
                 }
             }
 
