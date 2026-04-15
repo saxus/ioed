@@ -20,10 +20,13 @@ namespace IoEditor.Model
 
             if (referenceStudioFile.Instruction == null)
             {
-                throw new InvalidOperationException("Reference file does not contain an instruction file.");
+                throw new InvalidOperationException("Reference file does not contain an instruction file. Nothing to merge.");
             }
 
-            // targetStudioFile.Instruction = InstructionCreator.CreateEmptyInstructionFromTemplate(referenceStudioFile.Instruction);
+            if (targetStudioFile.Instruction == null)
+            {
+                throw new InvalidOperationException("Target file does not contain an instruction file. Please open the file, open the layout editor and save the io file first!");
+            }
 
             return new IoEdProject(referenceFilePath, targetFilePath, referenceStudioFile, targetStudioFile);
         }
