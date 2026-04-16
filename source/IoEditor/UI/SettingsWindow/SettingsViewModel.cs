@@ -58,13 +58,13 @@ namespace IoEditor.UI.SettingsWindow
             if (folderDialog.ShowDialog() == true)
             {
                 string selectedPath = Path.GetDirectoryName(folderDialog.FileName);
-                if (File.Exists(Path.Combine(selectedPath, "studio.exe")))
+                if (StudioInstallationProbe.IsValidStudioRoot(selectedPath, out var error))
                 {
                     StudioFolderPath = selectedPath;
                 }
                 else
                 {
-                    MessageBox.Show("The selected folder does not contain studio.exe.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                    MessageBox.Show(error ?? "Invalid LEGO Studio installation folder.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
                 }
             }
         }

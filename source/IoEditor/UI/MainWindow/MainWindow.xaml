@@ -28,7 +28,7 @@
                         <RowDefinition Height="Auto" />
                         <RowDefinition Height="Auto" />
                     </Grid.RowDefinitions>
-                    <Image Grid.Row="0" Source="{Binding Image}" Height="64" Width="64" />
+                    <Image Grid.Row="0" Source="{Binding Image, Converter={StaticResource ByteArrayToImageConverter}}" Height="64" Width="64" />
                     <TextBlock Grid.Row="1" Text="{Binding Color}" />
                     <TextBlock Grid.Row="2" Text="{Binding Part}" Background="WhiteSmoke" />
                 </Grid>

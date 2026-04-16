@@ -30,7 +30,7 @@ namespace IoEditor.UI.MainWindow
         private readonly PartImageCache _partImageCache = new PartImageCache();
         private readonly PartLibrary _partLibrary;
         private readonly ColorLibrary _colorLibrary;
-        private readonly BitmapImageProxyFactory _imageProxyFactory;
+        private readonly IPartImageProxyFactory _imageProxyFactory;
 
 
         #region Commands
@@ -63,7 +63,7 @@ namespace IoEditor.UI.MainWindow
 
         #endregion
 
-        public MainViewModel(PartLibrary partLibrary, ColorLibrary colorLibrary, BitmapImageProxyFactory imageProxyFactory)
+        public MainViewModel(PartLibrary partLibrary, ColorLibrary colorLibrary, IPartImageProxyFactory imageProxyFactory)
         {
             _partLibrary = partLibrary;
             _colorLibrary = colorLibrary;
