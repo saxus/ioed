@@ -43,12 +43,31 @@ internal sealed class MainViewModel : INotifyPropertyChanged
         {
             if (_project != value)
             {
+                if (_project is not null)
+                {
+                    _project.PropertyChanged -= OnProjectPropertyChanged;
+                }
+
                 _project = value;
+
+                if (_project is not null)
+                {
+                    _project.PropertyChanged += OnProjectPropertyChanged;
+                }
+
                 RaisePropertyChanged(nameof(Project));
                 RaisePropertyChanged(nameof(MergeSegments));
                 RaisePropertyChanged(nameof(WindowTitle));
                 RaisePropertyChanged(nameof(StepDictionaryRows));
             }
+        }
+    }
+
+    private void OnProjectPropertyChanged(object? sender, PropertyChangedEventArgs e)
+    {
+        if (e.PropertyName == nameof(IoEdProject.MergeModel))
+        {
+            RaisePropertyChanged(nameof(MergeSegments));
         }
     }
 

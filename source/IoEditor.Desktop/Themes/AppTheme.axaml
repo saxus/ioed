@@ -1,5 +1,17 @@
 <ResourceDictionary xmlns="https://github.com/avaloniaui"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+  <!-- Matches legacy WPF StandardWindow / LightBackground (#2D2D30) -->
+  <SolidColorBrush x:Key="IoEditorChromeBackground" Color="#2D2D30" />
+  <SolidColorBrush x:Key="IoEditorChromeForeground" Color="White" />
+  <SolidColorBrush x:Key="IoEditorAccentLime" Color="Lime" />
+  <SolidColorBrush x:Key="IoEditorAccentWheat" Color="Wheat" />
+
   <SolidColorBrush x:Key="IoEditorXmlEditorBackground" Color="#3f3f46" />
   <SolidColorBrush x:Key="IoEditorXmlEditorForeground" Color="White" />
+
+  <!-- Segments list: rows and expanded block (Fluent defaults are light-themed) -->
+  <SolidColorBrush x:Key="IoEditorSegmentRowBackground" Color="#323238" />
+  <SolidColorBrush x:Key="IoEditorSegmentRowBackgroundPointerOver" Color="#3a3a42" />
+  <SolidColorBrush x:Key="IoEditorSegmentRowBackgroundSelected" Color="#3f3f46" />
+  <SolidColorBrush x:Key="IoEditorSegmentExpandedBackground" Color="#252528" />
 </ResourceDictionary>

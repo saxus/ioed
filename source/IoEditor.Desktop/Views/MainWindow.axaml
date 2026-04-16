@@ -8,7 +8,9 @@
         x:DataType="vm:MainViewModel"
         Title="{Binding WindowTitle}"
         Width="900" Height="600"
-        WindowStartupLocation="CenterScreen">
+        WindowStartupLocation="CenterScreen"
+        Background="{DynamicResource IoEditorChromeBackground}"
+        Foreground="{DynamicResource IoEditorChromeForeground}">
   <Window.Resources>
     <conv:ByteArrayToImageConverter x:Key="ByteArrayToImageConverter" />
     <conv:InstructionSegmentEqualityToBrushConverter x:Key="EqualityToBrushConverter" />
@@ -32,19 +34,49 @@
       </MenuItem>
     </Menu>
 
-    <TabControl Grid.Row="1">
+    <TabControl Grid.Row="1" Background="{DynamicResource IoEditorChromeBackground}">
       <TabItem Header="Segments">
-        <ListBox ItemsSource="{Binding MergeSegments}">
+        <ListBox ItemsSource="{Binding MergeSegments}"
+                 Background="Transparent">
+          <ListBox.Styles>
+            <Style Selector="ListBoxItem">
+              <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+              <Setter Property="Padding" Value="10,8" />
+              <Setter Property="Margin" Value="0,0,0,6" />
+              <Setter Property="CornerRadius" Value="4" />
+              <Setter Property="Background" Value="{DynamicResource IoEditorSegmentRowBackground}" />
+              <Setter Property="Foreground" Value="{DynamicResource IoEditorChromeForeground}" />
+            </Style>
+            <Style Selector="ListBoxItem:pointerover">
+              <Setter Property="Background" Value="{DynamicResource IoEditorSegmentRowBackgroundPointerOver}" />
+            </Style>
+            <Style Selector="ListBoxItem:selected">
+              <Setter Property="Background" Value="{DynamicResource IoEditorSegmentRowBackgroundSelected}" />
+            </Style>
+            <Style Selector="ListBoxItem CheckBox">
+              <Setter Property="Foreground" Value="{DynamicResource IoEditorChromeForeground}" />
+              <Setter Property="Background" Value="Transparent" />
+            </Style>
+            <Style Selector="ListBoxItem ScrollViewer">
+              <Setter Property="Background" Value="{DynamicResource IoEditorSegmentExpandedBackground}" />
+            </Style>
+            <Style Selector="ListBoxItem Grid">
+              <Setter Property="Background" Value="{DynamicResource IoEditorSegmentExpandedBackground}" />
+            </Style>
+            <Style Selector="ListBoxItem ItemsControl">
+              <Setter Property="Background" Value="Transparent" />
+            </Style>
+          </ListBox.Styles>
           <ListBox.ItemTemplate>
             <DataTemplate>
-              <StackPanel>
+              <StackPanel Background="Transparent">
                 <CheckBox IsChecked="{Binding IsExpanded}">
                   <StackPanel Orientation="Horizontal">
-                    <TextBlock Foreground="White" Text="#" />
-                    <TextBlock Foreground="White" Text="{Binding SegmentIndex}" FontWeight="Bold" />
+                    <TextBlock Foreground="{DynamicResource IoEditorChromeForeground}" Text="#" />
+                    <TextBlock Foreground="{DynamicResource IoEditorChromeForeground}" Text="{Binding SegmentIndex}" FontWeight="Bold" />
                     <TextBlock Margin="6,0,0,0" Text="{Binding Equality}" Foreground="{Binding Equality, Converter={StaticResource EqualityToBrushConverter}}" />
-                    <TextBlock Margin="6,0,0,0" Foreground="White" Text="{Binding SegmentName}" />
-                    <TextBlock Margin="6,0,0,0" Foreground="Lime" Text="{Binding ReferenceSegment.Steps.Count, StringFormat='({0})'}" />
+                    <TextBlock Margin="6,0,0,0" Foreground="{DynamicResource IoEditorChromeForeground}" Text="{Binding SegmentName}" />
+                    <TextBlock Margin="6,0,0,0" Foreground="{DynamicResource IoEditorAccentLime}" Text="{Binding ReferenceSegment.Steps.Count, StringFormat='({0})'}" />
                   </StackPanel>
                 </CheckBox>
                 <ScrollViewer MaxHeight="{Binding IsExpanded, Converter={StaticResource BoolToMaxHeightConverter}}"
@@ -63,6 +95,8 @@
                                MinHeight="100"
                                TextWrapping="Wrap"
                                AcceptsReturn="True"
+                               Background="{DynamicResource IoEditorXmlEditorBackground}"
+                               Foreground="{DynamicResource IoEditorXmlEditorForeground}"
                                Text="{Binding Differences}" />
                     </ScrollViewer>
                   </Grid>
@@ -110,19 +144,21 @@
       </TabItem>
 
       <TabItem Header="Step dictionary">
-        <ScrollViewer VerticalScrollBarVisibility="Auto">
+        <ScrollViewer VerticalScrollBarVisibility="Auto" Background="Transparent">
           <ItemsControl ItemsSource="{Binding StepDictionaryRows}">
             <ItemsControl.ItemTemplate>
               <DataTemplate>
                 <StackPanel Margin="0,6,0,0">
-                  <TextBlock Foreground="White">
+                  <TextBlock Foreground="{DynamicResource IoEditorChromeForeground}">
                     <Run Text="#" />
-                    <Run Text="{Binding SerializedStepIndex}" Foreground="Wheat" FontWeight="Bold" />
+                    <Run Text="{Binding SerializedStepIndex}" Foreground="{DynamicResource IoEditorAccentWheat}" FontWeight="Bold" />
                     <Run Text=" " />
                     <Run Text="{Binding IsCallout, StringFormat='IsCallout: {0}'}" />
                   </TextBlock>
                   <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto">
                     <TextBox IsReadOnly="True" AcceptsReturn="True" FontFamily="Consolas, Menlo, Courier New, monospace"
+                             Background="{DynamicResource IoEditorXmlEditorBackground}"
+                             Foreground="{DynamicResource IoEditorXmlEditorForeground}"
                              Text="{Binding Element, Converter={StaticResource XElementToStringConverter}}" />
                   </ScrollViewer>
                 </StackPanel>
@@ -133,8 +169,8 @@
       </TabItem>
     </TabControl>
 
-    <Border Grid.Row="2" Padding="8,4">
-      <TextBlock Text="Ready." />
+    <Border Grid.Row="2" Padding="8,4" Background="{DynamicResource IoEditorChromeBackground}">
+      <TextBlock Text="Ready." Foreground="{DynamicResource IoEditorChromeForeground}" />
     </Border>
   </Grid>
 </Window>
