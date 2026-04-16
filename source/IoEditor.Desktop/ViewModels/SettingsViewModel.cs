@@ -4,6 +4,7 @@ using System.IO;
 using System.Text.Json;
 using System.Windows.Input;
 using IoEditor.Desktop.Services;
+using IoEditor.Platform;
 using IoEditor.Desktop.Utils;
 using IoEditor.Models.Configuration;
 using Microsoft.Extensions.Options;

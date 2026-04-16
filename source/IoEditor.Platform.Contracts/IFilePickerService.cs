@@ -1,8 +1,8 @@
 using Avalonia.Controls;
 
-namespace IoEditor.Desktop.Services;
+namespace IoEditor.Platform;
 
-internal interface IFilePickerService
+public interface IFilePickerService
 {
     /// <summary>Pick a .io stud.io file.</summary>
     Task<string?> PickOpenIoFileAsync(Window owner, string title = "Open stud.io file");

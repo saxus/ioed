@@ -1,6 +1,7 @@
 using Avalonia.Controls;
 using IoEditor.Desktop.ViewModels;
 using IoEditor.Desktop.Views;
+using IoEditor.Platform;
 
 namespace IoEditor.Desktop.Services;
 

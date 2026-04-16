@@ -1,11 +1,9 @@
 using Avalonia.Controls;
 using Avalonia.Platform.Storage;
-using IoEditor.Models.Configuration;
-using System.Runtime.InteropServices;
 
-namespace IoEditor.Desktop.Services;
+namespace IoEditor.Platform;
 
-internal sealed class AvaloniaFilePickerService : IFilePickerService
+public sealed class LinuxFilePickerService : IFilePickerService
 {
     public async Task<string?> PickOpenIoFileAsync(Window owner, string title = "Open stud.io file")
     {
@@ -50,25 +48,6 @@ internal sealed class AvaloniaFilePickerService : IFilePickerService
         if (top?.StorageProvider is null)
         {
             return null;
-        }
-
-        if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-        {
-            var exeType = new FilePickerFileType("Studio Executable") { Patterns = new[] { "studio.exe" } };
-            var files = await top.StorageProvider.OpenFilePickerAsync(new FilePickerOpenOptions
-            {
-                Title = "Select studio.exe (in your LEGO Studio folder)",
-                AllowMultiple = false,
-                FileTypeFilter = new[] { exeType }
-            });
-
-            if (files.Count == 0)
-            {
-                return null;
-            }
-
-            var path = files[0].TryGetLocalPath();
-            return string.IsNullOrEmpty(path) ? null : Path.GetDirectoryName(path);
         }
 
         var folders = await top.StorageProvider.OpenFolderPickerAsync(new FolderPickerOpenOptions

@@ -1,7 +1,7 @@
 using Avalonia.Controls;
 using Avalonia.Layout;
 
-namespace IoEditor.Desktop.Services;
+namespace IoEditor.Platform;
 
 internal static class SimpleMessageBox
 {

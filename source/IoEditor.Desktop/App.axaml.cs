@@ -3,7 +3,7 @@ using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Markup.Xaml;
 using IoEditor.Desktop.Hosting;
-using IoEditor.Desktop.Services;
+using IoEditor.Platform;
 using IoEditor.Desktop.ViewModels;
 using IoEditor.Desktop.Views;
 using IoEditor.Models.Configuration;

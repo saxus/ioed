@@ -1,5 +1,6 @@
 using IoEditor.Desktop.Services;
 using IoEditor.Desktop.ViewModels;
+using IoEditor.Platform;
 
 using Microsoft.Extensions.DependencyInjection;
 
@@ -9,8 +10,7 @@ internal static class DesktopServiceConfiguration
 {
     public static void AddDesktopUiServices(this IServiceCollection services)
     {
-        services.AddSingleton<IDialogService, AvaloniaDialogService>();
-        services.AddSingleton<IFilePickerService, AvaloniaFilePickerService>();
+        PlatformUiRegistration.AddPlatformUi(services);
         services.AddSingleton<IAppLifetime, AvaloniaAppLifetime>();
         services.AddSingleton<ILoaderDialogPresenter, LoaderDialogPresenter>();
         services.AddSingleton<MainViewModel>();

@@ -5,6 +5,7 @@ using System.Windows.Input;
 using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
 using IoEditor.Desktop.Services;
+using IoEditor.Platform;
 using IoEditor.Desktop.Utils;
 using IoEditor.Model;
 using System.Collections.Generic;

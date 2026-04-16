@@ -2,7 +2,7 @@ using Avalonia.Controls;
 using System.ComponentModel;
 using System.IO;
 using System.Windows.Input;
-using IoEditor.Desktop.Services;
+using IoEditor.Platform;
 using IoEditor.Desktop.Utils;
 
 namespace IoEditor.Desktop.ViewModels;

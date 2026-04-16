@@ -1,0 +1,8 @@
+<Project>
+  <PropertyGroup>
+    <IoEditorTargetPlatform Condition="'$(IoEditorTargetPlatform)' != ''">$(IoEditorTargetPlatform)</IoEditorTargetPlatform>
+    <IoEditorTargetPlatform Condition="'$(IoEditorTargetPlatform)' == '' and '$(OS)' == 'Windows_NT'">windows</IoEditorTargetPlatform>
+    <IoEditorTargetPlatform Condition="'$(IoEditorTargetPlatform)' == '' and Exists('/usr/bin/sw_vers')">macos</IoEditorTargetPlatform>
+    <IoEditorTargetPlatform Condition="'$(IoEditorTargetPlatform)' == ''">linux</IoEditorTargetPlatform>
+  </PropertyGroup>
+</Project>

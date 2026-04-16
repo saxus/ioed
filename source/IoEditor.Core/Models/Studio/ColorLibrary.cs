@@ -122,7 +122,7 @@ namespace IoEditor.Models.Studio
                     studioColorCode, 
                     blColorCode, 
                     lDrawColorCode, 
-                    LDDColorCode,
+                    LDDColorCode ?? 0,
                     studioColorName, 
                     blColorName, 
                     lDrawColorName, 

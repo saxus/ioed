@@ -1,9 +1,9 @@
 using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
 
-namespace IoEditor.Desktop.Services;
+namespace IoEditor.Platform;
 
-internal sealed class AvaloniaDialogService : IDialogService
+public sealed class LinuxDialogService : IDialogService
 {
     private static Window? GetOwner()
         => (Avalonia.Application.Current?.ApplicationLifetime as IClassicDesktopStyleApplicationLifetime)?.MainWindow as Window;

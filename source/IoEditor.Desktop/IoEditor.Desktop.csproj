@@ -24,5 +24,9 @@
 
   <ItemGroup>
     <ProjectReference Include="..\IoEditor.Core\IoEditor.Core.csproj" />
+    <ProjectReference Include="..\IoEditor.Platform.Contracts\IoEditor.Platform.Contracts.csproj" />
+    <ProjectReference Include="..\IoEditor.Platform.Windows\IoEditor.Platform.Windows.csproj" Condition="'$(IoEditorTargetPlatform)' == 'windows'" />
+    <ProjectReference Include="..\IoEditor.Platform.macOS\IoEditor.Platform.macOS.csproj" Condition="'$(IoEditorTargetPlatform)' == 'macos'" />
+    <ProjectReference Include="..\IoEditor.Platform.Linux\IoEditor.Platform.Linux.csproj" Condition="'$(IoEditorTargetPlatform)' == 'linux'" />
   </ItemGroup>
 </Project>

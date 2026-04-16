@@ -1,6 +1,6 @@
-namespace IoEditor.Desktop.Services;
+namespace IoEditor.Platform;
 
-internal interface IDialogService
+public interface IDialogService
 {
     Task ShowErrorAsync(string message, string title = "Error");
     Task ShowInfoAsync(string message, string title = "");
