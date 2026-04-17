@@ -21,7 +21,7 @@
   </Window.Resources>
 
   <Grid RowDefinitions="Auto,*,Auto">
-    <Menu Grid.Row="0">
+    <Menu Name="MainMenu" Grid.Row="0">
       <MenuItem Header="File">
         <MenuItem Header="_Open" Command="{Binding OpenFilesCommand}" HotKey="Ctrl+O" />
         <MenuItem Header="_Save" Command="{Binding SaveFileCommand}" HotKey="Ctrl+S" />
@@ -29,8 +29,8 @@
         <Separator />
         <MenuItem Header="E_xit" Command="{Binding ExitCommand}" />
       </MenuItem>
-      <MenuItem Header="Merge">
-        <MenuItem Header="_Refresh" Command="{Binding RefreshMergeCommand}" HotKey="F5" />
+      <MenuItem Header="_Edit">
+        <MenuItem Header="_Settings…" Command="{Binding OpenSettingsCommand}" HotKey="Ctrl+OemComma" />
       </MenuItem>
     </Menu>
 

@@ -1,11 +1,12 @@
+using System;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Markup.Xaml;
 using IoEditor.Desktop.Hosting;
-using IoEditor.Platform;
 using IoEditor.Desktop.ViewModels;
 using IoEditor.Desktop.Views;
+using IoEditor.Platform;
 using IoEditor.Models.Configuration;
 using IoEditor.Models.ImageCache;
 using Microsoft.Extensions.DependencyInjection;
@@ -31,9 +32,11 @@ public partial class App : Application
             return;
         }
 
-        var (host, configPath) = DesktopHostFactory.CreateHost();
+        var (host, _) = DesktopHostFactory.CreateHost();
         _host = host;
         var services = host.Services;
+
+        WireAboutNativeMenu(services.GetRequiredService<IDialogService>());
 
         var bg = services.GetRequiredService<BackgroundPartImageLoader>();
         _ = Task.Run(() => bg.StartAsync(CancellationToken.None));
@@ -41,33 +44,21 @@ public partial class App : Application
         var options = services.GetRequiredService<IOptions<StudioOptions>>().Value;
         if (!ConfigurationValidator.Validate(options))
         {
-            var settingsVm = new SettingsViewModel(
-                services.GetRequiredService<IOptions<StudioOptions>>(),
-                configPath,
-                services.GetRequiredService<IFilePickerService>(),
-                services.GetRequiredService<IDialogService>());
-            var settingsWin = new SettingsWindow { DataContext = settingsVm };
-            settingsVm.SetOwner(settingsWin);
-            var settingsClosed = new TaskCompletionSource();
-            settingsWin.Closed += (_, _) => settingsClosed.TrySetResult();
-            settingsVm.RequestClose += () => settingsWin.Close();
-            settingsWin.Show();
-            settingsClosed.Task.GetAwaiter().GetResult();
-            if (!settingsVm.WasSaved)
+            var saved = services.GetRequiredService<ISettingsUiPresenter>().ShowAsync(null).GetAwaiter().GetResult();
+            if (!saved)
             {
                 desktop.Shutdown();
                 base.OnFrameworkInitializationCompleted();
                 return;
             }
-
-            DesktopHostFactory.ReloadConfiguration(host);
         }
 
-        var main = new MainWindow
+        var main = new MainWindow(services.GetRequiredService<IMainWindowMenuIntegration>())
         {
             DataContext = services.GetRequiredService<MainViewModel>()
         };
         desktop.MainWindow = main;
+        WireSettingsNativeMenu(services.GetRequiredService<ISettingsUiPresenter>(), main);
 
         desktop.ShutdownRequested += async (_, _) =>
         {
@@ -122,5 +113,39 @@ public partial class App : Application
         };
 
         base.OnFrameworkInitializationCompleted();
+    }
+
+    private void WireSettingsNativeMenu(ISettingsUiPresenter settings, Window ownerWindow)
+    {
+        if (NativeMenu.GetMenu(this) is not NativeMenu appMenu)
+        {
+            return;
+        }
+
+        foreach (var o in appMenu.Items)
+        {
+            if (o is NativeMenuItem item && string.Equals(item.Header?.ToString(), "Settings…", StringComparison.Ordinal))
+            {
+                item.Click += (_, _) => _ = settings.ShowAsync(ownerWindow);
+                break;
+            }
+        }
+    }
+
+    private void WireAboutNativeMenu(IDialogService dialogs)
+    {
+        if (NativeMenu.GetMenu(this) is not NativeMenu appMenu)
+        {
+            return;
+        }
+
+        foreach (var o in appMenu.Items)
+        {
+            if (o is NativeMenuItem about && string.Equals(about.Header?.ToString(), "About IoEditor", StringComparison.Ordinal))
+            {
+                about.Click += (_, _) => _ = dialogs.ShowInfoAsync("IO instruction merge editor.", "About IoEditor");
+                break;
+            }
+        }
     }
 }

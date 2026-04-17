@@ -13,6 +13,7 @@ internal static class DesktopServiceConfiguration
         PlatformUiRegistration.AddPlatformUi(services);
         services.AddSingleton<IAppLifetime, AvaloniaAppLifetime>();
         services.AddSingleton<ILoaderDialogPresenter, LoaderDialogPresenter>();
+        services.AddSingleton<ISettingsUiPresenter, SettingsUiPresenter>();
         services.AddSingleton<MainViewModel>();
     }
 }

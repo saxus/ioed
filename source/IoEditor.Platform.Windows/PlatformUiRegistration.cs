@@ -8,5 +8,6 @@ public static class PlatformUiRegistration
     {
         services.AddSingleton<IDialogService, WindowsDialogService>();
         services.AddSingleton<IFilePickerService, WindowsFilePickerService>();
+        services.AddSingleton<IMainWindowMenuIntegration>(_ => NullMainWindowMenuIntegration.Instance);
     }
 }

@@ -28,12 +28,13 @@ internal sealed class MainViewModel : INotifyPropertyChanged
     private readonly IFilePickerService _filePicker;
     private readonly IDialogService _dialogs;
     private readonly IAppLifetime _appLifetime;
+    private readonly ISettingsUiPresenter _settingsUi;
 
     public ICommand OpenFilesCommand { get; }
     public ICommand SaveFileCommand { get; }
     public ICommand SaveAsCommand { get; }
     public ICommand ExitCommand { get; }
-    public ICommand RefreshMergeCommand { get; }
+    public ICommand OpenSettingsCommand { get; }
 
     private IoEdProject? _project;
     public IoEdProject? Project
@@ -77,8 +78,8 @@ internal sealed class MainViewModel : INotifyPropertyChanged
 
     public string WindowTitle
         => !string.IsNullOrEmpty(Project?.Target?.FileName)
-            ? $"IO Editor - {Project!.Target.FileName}"
-            : "IO Editor";
+            ? $"IoEditor - {Project!.Target.FileName}"
+            : "IoEditor";
 
     public IEnumerable<InterimStepData> StepDictionaryRows
         => Project?.InterimData?.StepDictionary?.Values ?? Enumerable.Empty<InterimStepData>();
@@ -90,7 +91,8 @@ internal sealed class MainViewModel : INotifyPropertyChanged
         ILoaderDialogPresenter loaderDialog,
         IFilePickerService filePicker,
         IDialogService dialogs,
-        IAppLifetime appLifetime)
+        IAppLifetime appLifetime,
+        ISettingsUiPresenter settingsUi)
     {
         _partLibrary = partLibrary;
         _colorLibrary = colorLibrary;
@@ -99,18 +101,25 @@ internal sealed class MainViewModel : INotifyPropertyChanged
         _filePicker = filePicker;
         _dialogs = dialogs;
         _appLifetime = appLifetime;
+        _settingsUi = settingsUi;
 
         OpenFilesCommand = new DelegateCommand(OpenFilesCmd);
         SaveFileCommand = new DelegateCommand(SaveFileCmd);
         SaveAsCommand = new DelegateCommand(SaveAsCmd);
         ExitCommand = new DelegateCommand(ExitCmd);
-        RefreshMergeCommand = new DelegateCommand(RefreshMergeCmd);
+        OpenSettingsCommand = new DelegateCommand(OpenSettingsCmd);
     }
 
     private static Window? GetMainWindow()
         => (Avalonia.Application.Current?.ApplicationLifetime as IClassicDesktopStyleApplicationLifetime)?.MainWindow as Window;
 
     private void ExitCmd(object? _) => _appLifetime.Shutdown();
+
+    private async void OpenSettingsCmd(object? _)
+    {
+        var owner = GetMainWindow();
+        _ = await _settingsUi.ShowAsync(owner);
+    }
 
     private void SaveFileCmd(object? _)
     {
@@ -171,33 +180,6 @@ internal sealed class MainViewModel : INotifyPropertyChanged
         catch (Exception ex)
         {
             await _dialogs.ShowErrorAsync($"Error opening files: {ex.Message}");
-        }
-    }
-
-    private async void RefreshMergeCmd(object? _)
-    {
-        var sw = Stopwatch.StartNew();
-        try
-        {
-            var project = Project;
-            if (project is null)
-            {
-                Console.WriteLine("No project is loaded");
-                return;
-            }
-
-            (var instruction, var imageResources) = InstructionMerger.Merge(project);
-            project.MergedInstruction = instruction;
-            project.MergedImageResources = imageResources;
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine(ex);
-            await _dialogs.ShowErrorAsync($"Merge failed: {ex.Message}");
-        }
-        finally
-        {
-            Console.WriteLine($"Done. Elapsed: {sw.Elapsed}");
         }
     }
 

@@ -8,5 +8,6 @@ public static class PlatformUiRegistration
     {
         services.AddSingleton<IDialogService, MacosDialogService>();
         services.AddSingleton<IFilePickerService, MacosFilePickerService>();
+        services.AddSingleton<IMainWindowMenuIntegration, MacosMainWindowMenuIntegration>();
     }
 }
