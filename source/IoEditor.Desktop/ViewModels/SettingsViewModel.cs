@@ -26,12 +26,27 @@ internal sealed class SettingsViewModel : INotifyPropertyChanged
         _files = files;
         _dialogs = dialogs;
         _studioFolderPath = _options.StudioFolder ?? string.Empty;
+        _showXmlDebugTabs = _options.ShowXmlDebugTabs;
         BrowseStudioFolderCommand = new DelegateCommand(BrowseStudioFolder);
         SaveCommand = new DelegateCommand(Save);
         CancelCommand = new DelegateCommand(Cancel);
     }
 
     public void SetOwner(Window owner) => _owner = owner;
+
+    private bool _showXmlDebugTabs;
+    public bool ShowXmlDebugTabs
+    {
+        get => _showXmlDebugTabs;
+        set
+        {
+            if (_showXmlDebugTabs != value)
+            {
+                _showXmlDebugTabs = value;
+                RaisePropertyChanged(nameof(ShowXmlDebugTabs));
+            }
+        }
+    }
 
     private string _studioFolderPath;
     public string StudioFolderPath
@@ -81,6 +96,7 @@ internal sealed class SettingsViewModel : INotifyPropertyChanged
     private void Save(object? _)
     {
         _options.StudioFolder = StudioFolderPath;
+        _options.ShowXmlDebugTabs = ShowXmlDebugTabs;
         var config = new { StudioOptions = _options };
         var json = JsonSerializer.Serialize(config, new JsonSerializerOptions { WriteIndented = true });
         File.WriteAllText(_configFilePath, json);

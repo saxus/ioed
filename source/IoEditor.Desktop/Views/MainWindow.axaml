@@ -91,15 +91,18 @@
                                   ItemsSource="{Binding TargetSegment.Steps}"
                                   ItemTemplate="{StaticResource InstructionStepTmpl}" />
                     <ScrollViewer Grid.Column="2"
+                                  MinHeight="100"
                                   HorizontalScrollBarVisibility="Auto"
-                                  VerticalScrollBarVisibility="Auto">
-                      <TextBox IsReadOnly="True"
-                               MinHeight="100"
-                               TextWrapping="Wrap"
-                               AcceptsReturn="True"
-                               Background="{DynamicResource IoEditorXmlEditorBackground}"
-                               Foreground="{DynamicResource IoEditorXmlEditorForeground}"
-                               Text="{Binding Differences}" />
+                                  VerticalScrollBarVisibility="Auto"
+                                  Background="{DynamicResource IoEditorXmlEditorBackground}">
+                      <SelectableTextBlock Text="{Binding Differences}"
+                                         TextWrapping="Wrap"
+                                         Padding="6"
+                                         FontFamily="Consolas, Menlo, Courier New, monospace"
+                                         Background="Transparent"
+                                         Foreground="{DynamicResource IoEditorXmlEditorForeground}"
+                                         SelectionBrush="{DynamicResource IoEditorTextSelectionBrush}"
+                                         SelectionForegroundBrush="{DynamicResource IoEditorTextSelectionForegroundBrush}" />
                     </ScrollViewer>
                   </Grid>
                 </ScrollViewer>
@@ -109,76 +112,86 @@
         </ListBox>
       </TabItem>
 
-      <TabItem Header="Reference Xml">
+      <TabItem Header="Reference Xml"
+               IsVisible="{Binding ShowXmlDebugTabs}">
         <Grid RowDefinitions="*">
-          <TextBox Grid.Row="0"
-                   Name="ReferenceXmlViewer"
-                   HorizontalAlignment="Stretch"
-                   VerticalAlignment="Stretch"
-                   HorizontalContentAlignment="Left"
-                   VerticalContentAlignment="Top"
-                   AcceptsReturn="True"
-                   TextWrapping="NoWrap"
-                   CaretBrush="{DynamicResource IoEditorXmlEditorForeground}"
-                   Background="{DynamicResource IoEditorXmlEditorBackground}"
-                   Foreground="{DynamicResource IoEditorXmlEditorForeground}"
-                   BorderThickness="1"
-                   FontFamily="Consolas, Menlo, Courier New, monospace"
-                   FontSize="12"
-                   IsReadOnly="True"
-                   ScrollViewer.HorizontalScrollBarVisibility="Auto"
-                   ScrollViewer.VerticalScrollBarVisibility="Auto"
-                   Text="{Binding ReferenceInstructionXml, Mode=OneWay}" />
+          <Border Grid.Row="0"
+                  HorizontalAlignment="Stretch"
+                  VerticalAlignment="Stretch"
+                  Background="{DynamicResource IoEditorXmlEditorBackground}"
+                  BorderBrush="{DynamicResource IoEditorXmlReadOnlyBorderBrush}"
+                  BorderThickness="1">
+          <ScrollViewer HorizontalScrollBarVisibility="Auto"
+                        VerticalScrollBarVisibility="Auto">
+            <SelectableTextBlock Name="ReferenceXmlViewer"
+                                 Text="{Binding ReferenceInstructionXml, Mode=OneWay}"
+                                 TextWrapping="NoWrap"
+                                 Padding="8"
+                                 FontFamily="Consolas, Menlo, Courier New, monospace"
+                                 FontSize="12"
+                                 Background="Transparent"
+                                 Foreground="{DynamicResource IoEditorXmlEditorForeground}"
+                                 SelectionBrush="{DynamicResource IoEditorTextSelectionBrush}"
+                                 SelectionForegroundBrush="{DynamicResource IoEditorTextSelectionForegroundBrush}" />
+          </ScrollViewer>
+          </Border>
         </Grid>
       </TabItem>
 
-      <TabItem Header="Target Xml">
+      <TabItem Header="Target Xml"
+               IsVisible="{Binding ShowXmlDebugTabs}">
         <Grid RowDefinitions="*">
-          <TextBox Grid.Row="0"
-                   Name="TargetXmlViewer"
-                   HorizontalAlignment="Stretch"
-                   VerticalAlignment="Stretch"
-                   HorizontalContentAlignment="Left"
-                   VerticalContentAlignment="Top"
-                   AcceptsReturn="True"
-                   TextWrapping="NoWrap"
-                   CaretBrush="{DynamicResource IoEditorXmlEditorForeground}"
-                   Background="{DynamicResource IoEditorXmlEditorBackground}"
-                   Foreground="{DynamicResource IoEditorXmlEditorForeground}"
-                   BorderThickness="1"
-                   FontFamily="Consolas, Menlo, Courier New, monospace"
-                   FontSize="12"
-                   IsReadOnly="True"
-                   ScrollViewer.HorizontalScrollBarVisibility="Auto"
-                   ScrollViewer.VerticalScrollBarVisibility="Auto"
-                   Text="{Binding TargetInstructionXml, Mode=OneWay}" />
+          <Border Grid.Row="0"
+                  HorizontalAlignment="Stretch"
+                  VerticalAlignment="Stretch"
+                  Background="{DynamicResource IoEditorXmlEditorBackground}"
+                  BorderBrush="{DynamicResource IoEditorXmlReadOnlyBorderBrush}"
+                  BorderThickness="1">
+          <ScrollViewer HorizontalScrollBarVisibility="Auto"
+                        VerticalScrollBarVisibility="Auto">
+            <SelectableTextBlock Name="TargetXmlViewer"
+                                 Text="{Binding TargetInstructionXml, Mode=OneWay}"
+                                 TextWrapping="NoWrap"
+                                 Padding="8"
+                                 FontFamily="Consolas, Menlo, Courier New, monospace"
+                                 FontSize="12"
+                                 Background="Transparent"
+                                 Foreground="{DynamicResource IoEditorXmlEditorForeground}"
+                                 SelectionBrush="{DynamicResource IoEditorTextSelectionBrush}"
+                                 SelectionForegroundBrush="{DynamicResource IoEditorTextSelectionForegroundBrush}" />
+          </ScrollViewer>
+          </Border>
         </Grid>
       </TabItem>
 
-      <TabItem Header="Generated Xml">
+      <TabItem Header="Generated Xml"
+               IsVisible="{Binding ShowXmlDebugTabs}">
         <Grid RowDefinitions="*">
-          <TextBox Grid.Row="0"
-                   Name="GeneratedXmlViewer"
-                   HorizontalAlignment="Stretch"
-                   VerticalAlignment="Stretch"
-                   HorizontalContentAlignment="Left"
-                   VerticalContentAlignment="Top"
-                   AcceptsReturn="True"
-                   TextWrapping="NoWrap"
-                   CaretBrush="{DynamicResource IoEditorXmlEditorForeground}"
-                   Background="{DynamicResource IoEditorXmlEditorBackground}"
-                   Foreground="{DynamicResource IoEditorXmlEditorForeground}"
-                   BorderThickness="1"
-                   FontFamily="Consolas, Menlo, Courier New, monospace"
-                   FontSize="12"
-                   IsReadOnly="True"
-                   ScrollViewer.HorizontalScrollBarVisibility="Auto"
-                   ScrollViewer.VerticalScrollBarVisibility="Auto"
-                   Text="{Binding MergedInstructionXml, Mode=OneWay}" />
+          <Border Grid.Row="0"
+                  HorizontalAlignment="Stretch"
+                  VerticalAlignment="Stretch"
+                  Background="{DynamicResource IoEditorXmlEditorBackground}"
+                  BorderBrush="{DynamicResource IoEditorXmlReadOnlyBorderBrush}"
+                  BorderThickness="1">
+          <ScrollViewer HorizontalScrollBarVisibility="Auto"
+                        VerticalScrollBarVisibility="Auto">
+            <SelectableTextBlock Name="GeneratedXmlViewer"
+                                 Text="{Binding MergedInstructionXml, Mode=OneWay}"
+                                 TextWrapping="NoWrap"
+                                 Padding="8"
+                                 FontFamily="Consolas, Menlo, Courier New, monospace"
+                                 FontSize="12"
+                                 Background="Transparent"
+                                 Foreground="{DynamicResource IoEditorXmlEditorForeground}"
+                                 SelectionBrush="{DynamicResource IoEditorTextSelectionBrush}"
+                                 SelectionForegroundBrush="{DynamicResource IoEditorTextSelectionForegroundBrush}" />
+          </ScrollViewer>
+          </Border>
         </Grid>
       </TabItem>
 
-      <TabItem Header="Step dictionary">
+      <TabItem Header="Step dictionary"
+               IsVisible="{Binding ShowXmlDebugTabs}">
         <ScrollViewer VerticalScrollBarVisibility="Auto"
                       HorizontalAlignment="Stretch"
                       VerticalAlignment="Stretch"
@@ -193,11 +206,18 @@
                     <Run Text=" " />
                     <Run Text="{Binding IsCallout, StringFormat='IsCallout: {0}'}" />
                   </TextBlock>
-                  <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto">
-                    <TextBox IsReadOnly="True" AcceptsReturn="True" FontFamily="Consolas, Menlo, Courier New, monospace"
-                             Background="{DynamicResource IoEditorXmlEditorBackground}"
-                             Foreground="{DynamicResource IoEditorXmlEditorForeground}"
-                             Text="{Binding Element, Converter={StaticResource XElementToStringConverter}}" />
+                  <ScrollViewer HorizontalScrollBarVisibility="Auto"
+                                VerticalScrollBarVisibility="Auto"
+                                Background="{DynamicResource IoEditorXmlEditorBackground}">
+                    <SelectableTextBlock Padding="6"
+                                         FontFamily="Consolas, Menlo, Courier New, monospace"
+                                         FontSize="12"
+                                         TextWrapping="NoWrap"
+                                         Background="Transparent"
+                                         Foreground="{DynamicResource IoEditorXmlEditorForeground}"
+                                         SelectionBrush="{DynamicResource IoEditorTextSelectionBrush}"
+                                         SelectionForegroundBrush="{DynamicResource IoEditorTextSelectionForegroundBrush}"
+                                         Text="{Binding Element, Converter={StaticResource XElementToStringConverter}}" />
                   </ScrollViewer>
                 </StackPanel>
               </DataTemplate>

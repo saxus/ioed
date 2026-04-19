@@ -16,6 +16,7 @@ using IoEditor.Models.ImageCache;
 using IoEditor.Models.Merging;
 using IoEditor.Models.Model;
 using IoEditor.Models.Studio;
+using IoEditor.Models.Configuration;
 using Microsoft.Extensions.Options;
 
 namespace IoEditor.Desktop.ViewModels;
@@ -37,6 +38,7 @@ internal sealed class MainViewModel : INotifyPropertyChanged
     private readonly IDialogService _dialogs;
     private readonly IAppLifetime _appLifetime;
     private readonly ISettingsUiPresenter _settingsUi;
+    private readonly IOptionsMonitor<StudioOptions> _studioOptions;
 
     public ICommand OpenFilesCommand { get; }
     public ICommand SaveFileCommand { get; }
@@ -145,6 +147,9 @@ internal sealed class MainViewModel : INotifyPropertyChanged
         => Project?.InterimData?.StepDictionary?.OrderBy(static kv => kv.Key).Select(static kv => kv.Value)
            ?? Enumerable.Empty<InterimStepData>();
 
+    /// <summary>From settings: show Reference / Target / Generated XML and Step dictionary tabs.</summary>
+    public bool ShowXmlDebugTabs => _studioOptions.CurrentValue.ShowXmlDebugTabs;
+
     public MainViewModel(
         PartLibrary partLibrary,
         ColorLibrary colorLibrary,
@@ -153,7 +158,8 @@ internal sealed class MainViewModel : INotifyPropertyChanged
         IFilePickerService filePicker,
         IDialogService dialogs,
         IAppLifetime appLifetime,
-        ISettingsUiPresenter settingsUi)
+        ISettingsUiPresenter settingsUi,
+        IOptionsMonitor<StudioOptions> studioOptions)
     {
         _partLibrary = partLibrary;
         _colorLibrary = colorLibrary;
@@ -163,6 +169,8 @@ internal sealed class MainViewModel : INotifyPropertyChanged
         _dialogs = dialogs;
         _appLifetime = appLifetime;
         _settingsUi = settingsUi;
+        _studioOptions = studioOptions;
+        _ = _studioOptions.OnChange(_ => RaisePropertyChanged(nameof(ShowXmlDebugTabs)));
 
         OpenFilesCommand = new DelegateCommand(OpenFilesCmd);
         SaveFileCommand = new DelegateCommand(SaveFileCmd);
