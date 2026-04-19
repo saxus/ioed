@@ -1,11 +1,11 @@
 <Window xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:conv="using:IoEditor.Desktop.Converters"
-        xmlns:ae="using:AvaloniaEdit"
         xmlns:views="using:IoEditor.Desktop.Views"
         xmlns:vm="using:IoEditor.Desktop.ViewModels"
         x:Class="IoEditor.Desktop.Views.MainWindow"
         x:DataType="vm:MainViewModel"
+        x:CompileBindings="False"
         Title="{Binding WindowTitle}"
         Width="900" Height="600"
         WindowStartupLocation="CenterScreen"
@@ -14,7 +14,6 @@
   <Window.Resources>
     <conv:ByteArrayToImageConverter x:Key="ByteArrayToImageConverter" />
     <conv:InstructionSegmentEqualityToBrushConverter x:Key="EqualityToBrushConverter" />
-    <conv:XDocumentToTextDocumentConverter x:Key="XDocumentToTextDocumentConverter" />
     <conv:BoolToMaxHeightConverter x:Key="BoolToMaxHeightConverter" ExpandedHeight="600" />
     <conv:XElementToStringConverter x:Key="XElementToStringConverter" />
     <views:IndexedStepDataTemplate x:Key="InstructionStepTmpl" />
@@ -34,7 +33,10 @@
       </MenuItem>
     </Menu>
 
-    <TabControl Grid.Row="1" Background="{DynamicResource IoEditorChromeBackground}">
+    <TabControl Grid.Row="1"
+                Background="{DynamicResource IoEditorChromeBackground}"
+                HorizontalContentAlignment="Stretch"
+                VerticalContentAlignment="Stretch">
       <TabItem Header="Segments">
         <ListBox ItemsSource="{Binding MergeSegments}"
                  Background="Transparent">
@@ -108,43 +110,79 @@
       </TabItem>
 
       <TabItem Header="Reference Xml">
-        <ae:TextEditor Name="ReferenceXmlViewer"
-                       Loaded="XmlEditor_Loaded"
-                       Background="{DynamicResource IoEditorXmlEditorBackground}"
-                       Foreground="{DynamicResource IoEditorXmlEditorForeground}"
-                       HorizontalScrollBarVisibility="Auto"
-                       VerticalScrollBarVisibility="Auto"
-                       IsReadOnly="True"
-                       FontFamily="Consolas, Menlo, Courier New, monospace"
-                       Document="{Binding Project.Reference.Instruction.Document, Converter={StaticResource XDocumentToTextDocumentConverter}}" />
+        <Grid RowDefinitions="*">
+          <TextBox Grid.Row="0"
+                   Name="ReferenceXmlViewer"
+                   HorizontalAlignment="Stretch"
+                   VerticalAlignment="Stretch"
+                   HorizontalContentAlignment="Left"
+                   VerticalContentAlignment="Top"
+                   AcceptsReturn="True"
+                   TextWrapping="NoWrap"
+                   CaretBrush="{DynamicResource IoEditorXmlEditorForeground}"
+                   Background="{DynamicResource IoEditorXmlEditorBackground}"
+                   Foreground="{DynamicResource IoEditorXmlEditorForeground}"
+                   BorderThickness="1"
+                   FontFamily="Consolas, Menlo, Courier New, monospace"
+                   FontSize="12"
+                   IsReadOnly="True"
+                   ScrollViewer.HorizontalScrollBarVisibility="Auto"
+                   ScrollViewer.VerticalScrollBarVisibility="Auto"
+                   Text="{Binding ReferenceInstructionXml, Mode=OneWay}" />
+        </Grid>
       </TabItem>
 
       <TabItem Header="Target Xml">
-        <ae:TextEditor Name="TargetXmlViewer"
-                       Loaded="XmlEditor_Loaded"
-                       Background="{DynamicResource IoEditorXmlEditorBackground}"
-                       Foreground="{DynamicResource IoEditorXmlEditorForeground}"
-                       HorizontalScrollBarVisibility="Auto"
-                       VerticalScrollBarVisibility="Auto"
-                       IsReadOnly="True"
-                       FontFamily="Consolas, Menlo, Courier New, monospace"
-                       Document="{Binding Project.Target.Instruction.Document, Converter={StaticResource XDocumentToTextDocumentConverter}}" />
+        <Grid RowDefinitions="*">
+          <TextBox Grid.Row="0"
+                   Name="TargetXmlViewer"
+                   HorizontalAlignment="Stretch"
+                   VerticalAlignment="Stretch"
+                   HorizontalContentAlignment="Left"
+                   VerticalContentAlignment="Top"
+                   AcceptsReturn="True"
+                   TextWrapping="NoWrap"
+                   CaretBrush="{DynamicResource IoEditorXmlEditorForeground}"
+                   Background="{DynamicResource IoEditorXmlEditorBackground}"
+                   Foreground="{DynamicResource IoEditorXmlEditorForeground}"
+                   BorderThickness="1"
+                   FontFamily="Consolas, Menlo, Courier New, monospace"
+                   FontSize="12"
+                   IsReadOnly="True"
+                   ScrollViewer.HorizontalScrollBarVisibility="Auto"
+                   ScrollViewer.VerticalScrollBarVisibility="Auto"
+                   Text="{Binding TargetInstructionXml, Mode=OneWay}" />
+        </Grid>
       </TabItem>
 
       <TabItem Header="Generated Xml">
-        <ae:TextEditor Name="GeneratedXmlViewer"
-                       Loaded="XmlEditor_Loaded"
-                       Background="{DynamicResource IoEditorXmlEditorBackground}"
-                       Foreground="{DynamicResource IoEditorXmlEditorForeground}"
-                       HorizontalScrollBarVisibility="Auto"
-                       VerticalScrollBarVisibility="Auto"
-                       IsReadOnly="True"
-                       FontFamily="Consolas, Menlo, Courier New, monospace"
-                       Document="{Binding Project.MergedInstruction, Converter={StaticResource XDocumentToTextDocumentConverter}}" />
+        <Grid RowDefinitions="*">
+          <TextBox Grid.Row="0"
+                   Name="GeneratedXmlViewer"
+                   HorizontalAlignment="Stretch"
+                   VerticalAlignment="Stretch"
+                   HorizontalContentAlignment="Left"
+                   VerticalContentAlignment="Top"
+                   AcceptsReturn="True"
+                   TextWrapping="NoWrap"
+                   CaretBrush="{DynamicResource IoEditorXmlEditorForeground}"
+                   Background="{DynamicResource IoEditorXmlEditorBackground}"
+                   Foreground="{DynamicResource IoEditorXmlEditorForeground}"
+                   BorderThickness="1"
+                   FontFamily="Consolas, Menlo, Courier New, monospace"
+                   FontSize="12"
+                   IsReadOnly="True"
+                   ScrollViewer.HorizontalScrollBarVisibility="Auto"
+                   ScrollViewer.VerticalScrollBarVisibility="Auto"
+                   Text="{Binding MergedInstructionXml, Mode=OneWay}" />
+        </Grid>
       </TabItem>
 
       <TabItem Header="Step dictionary">
-        <ScrollViewer VerticalScrollBarVisibility="Auto" Background="Transparent">
+        <ScrollViewer VerticalScrollBarVisibility="Auto"
+                      HorizontalAlignment="Stretch"
+                      VerticalAlignment="Stretch"
+                      Background="Transparent">
           <ItemsControl ItemsSource="{Binding StepDictionaryRows}">
             <ItemsControl.ItemTemplate>
               <DataTemplate>
