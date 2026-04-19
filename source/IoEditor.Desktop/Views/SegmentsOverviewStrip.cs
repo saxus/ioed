@@ -212,24 +212,45 @@ internal sealed class SegmentsOverviewStrip : Control
         if (sum <= 0)
         {
             var eh = h / count;
-            for (var i = 0; i < count; i++)
-            {
-                DrawSegmentBand(context, segments[i].Equality, i * eh, eh, w);
-            }
+            DrawMergedEqualityBands(context, segments, count, w, _ => eh);
         }
         else
         {
-            var acc = 0.0;
-            for (var i = 0; i < count; i++)
-            {
-                var frac = heights[i] / sum;
-                var bandH = h * frac;
-                DrawSegmentBand(context, segments[i].Equality, acc, bandH, w);
-                acc += bandH;
-            }
+            DrawMergedEqualityBands(context, segments, count, w, i => h * heights[i] / sum);
         }
 
         DrawViewportThumb(context, w, h);
+    }
+
+    /// <summary>Merges consecutive segments with the same equality into one <see cref="DrawingContext.FillRectangle"/> call.</summary>
+    private void DrawMergedEqualityBands(
+        DrawingContext context,
+        IReadOnlyList<MergedSegment> segments,
+        int count,
+        double w,
+        Func<int, double> bandHeightAtIndex)
+    {
+        var acc = 0.0;
+        var i = 0;
+        while (i < count)
+        {
+            var equality = segments[i].Equality;
+            var y0 = acc;
+            var piece = bandHeightAtIndex(i);
+            var runH = piece;
+            acc += piece;
+            i++;
+
+            while (i < count && segments[i].Equality == equality)
+            {
+                piece = bandHeightAtIndex(i);
+                runH += piece;
+                acc += piece;
+                i++;
+            }
+
+            DrawSegmentBand(context, equality, y0, runH, w);
+        }
     }
 
     private void DrawSegmentBand(DrawingContext context, InstructionSegmentEquality equality, double y, double bandH, double w)
