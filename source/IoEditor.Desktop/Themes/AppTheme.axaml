@@ -21,4 +21,9 @@
   <SolidColorBrush x:Key="IoEditorSegmentsOverviewTrackBackground" Color="#1e1e22" />
   <SolidColorBrush x:Key="IoEditorSegmentsOverviewThumbFill" Color="#AAFFFFFF" />
   <SolidColorBrush x:Key="IoEditorSegmentsOverviewThumbBorder" Color="#FFFFFFFF" />
+
+  <SolidColorBrush x:Key="IoEditorNavRailBackground" Color="#252526" />
+  <SolidColorBrush x:Key="IoEditorNavRailSelectionAccent" Color="#007ACC" />
+  <SolidColorBrush x:Key="IoEditorNavButtonBackground" Color="Transparent" />
+  <SolidColorBrush x:Key="IoEditorNavButtonBackgroundPointerOver" Color="#2a2d2e" />
 </ResourceDictionary>

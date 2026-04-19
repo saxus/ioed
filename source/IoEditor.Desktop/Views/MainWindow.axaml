@@ -3,6 +3,7 @@
         xmlns:conv="using:IoEditor.Desktop.Converters"
         xmlns:views="using:IoEditor.Desktop.Views"
         xmlns:vm="using:IoEditor.Desktop.ViewModels"
+        xmlns:svg="clr-namespace:Avalonia.Svg;assembly=Svg.Controls.Avalonia"
         x:Class="IoEditor.Desktop.Views.MainWindow"
         x:DataType="vm:MainViewModel"
         x:CompileBindings="False"
@@ -33,11 +34,119 @@
       </MenuItem>
     </Menu>
 
-    <TabControl Grid.Row="1"
-                Background="{DynamicResource IoEditorChromeBackground}"
-                HorizontalContentAlignment="Stretch"
-                VerticalContentAlignment="Stretch">
-      <TabItem Header="Segments">
+    <Grid Grid.Row="1"
+          ColumnDefinitions="52,*"
+          Background="{DynamicResource IoEditorChromeBackground}">
+      <Border Grid.Column="0"
+              Background="{DynamicResource IoEditorNavRailBackground}"
+              BorderBrush="#3e3e42"
+              BorderThickness="0,0,1,0">
+        <ScrollViewer HorizontalScrollBarVisibility="Hidden"
+                      VerticalScrollBarVisibility="Auto">
+          <StackPanel>
+            <StackPanel.Styles>
+              <Style Selector="Button.navRailBtn">
+                <Setter Property="Background" Value="{DynamicResource IoEditorNavButtonBackground}" />
+                <Setter Property="BorderThickness" Value="0" />
+                <Setter Property="Padding" Value="0" />
+                <Setter Property="Width" Value="52" />
+                <Setter Property="Height" Value="44" />
+              </Style>
+              <Style Selector="Button.navRailBtn:pointerover">
+                <Setter Property="Background" Value="{DynamicResource IoEditorNavButtonBackgroundPointerOver}" />
+              </Style>
+            </StackPanel.Styles>
+
+            <Grid Height="44">
+              <Border Width="3"
+                      HorizontalAlignment="Left"
+                      Background="{DynamicResource IoEditorNavRailSelectionAccent}"
+                      IsVisible="{Binding IsSegmentsViewActive}" />
+              <Button Classes="navRailBtn"
+                      Command="{Binding SelectNavSectionCommand}"
+                      CommandParameter="Segments"
+                      ToolTip.Tip="Segments">
+                <Image Width="22" Height="22">
+                  <Image.Source>
+                    <svg:SvgImage Source="avares://IoEditor.Desktop/Assets/Icons/nav-segments.svg" />
+                  </Image.Source>
+                </Image>
+              </Button>
+            </Grid>
+
+            <Grid Height="44" IsVisible="{Binding ShowXmlDebugTabs}">
+              <Border Width="3"
+                      HorizontalAlignment="Left"
+                      Background="{DynamicResource IoEditorNavRailSelectionAccent}"
+                      IsVisible="{Binding IsReferenceXmlViewActive}" />
+              <Button Classes="navRailBtn"
+                      Command="{Binding SelectNavSectionCommand}"
+                      CommandParameter="ReferenceXml"
+                      ToolTip.Tip="Reference Xml">
+                <Image Width="22" Height="22">
+                  <Image.Source>
+                    <svg:SvgImage Source="avares://IoEditor.Desktop/Assets/Icons/nav-reference-xml.svg" />
+                  </Image.Source>
+                </Image>
+              </Button>
+            </Grid>
+
+            <Grid Height="44" IsVisible="{Binding ShowXmlDebugTabs}">
+              <Border Width="3"
+                      HorizontalAlignment="Left"
+                      Background="{DynamicResource IoEditorNavRailSelectionAccent}"
+                      IsVisible="{Binding IsTargetXmlViewActive}" />
+              <Button Classes="navRailBtn"
+                      Command="{Binding SelectNavSectionCommand}"
+                      CommandParameter="TargetXml"
+                      ToolTip.Tip="Target Xml">
+                <Image Width="22" Height="22">
+                  <Image.Source>
+                    <svg:SvgImage Source="avares://IoEditor.Desktop/Assets/Icons/nav-target-xml.svg" />
+                  </Image.Source>
+                </Image>
+              </Button>
+            </Grid>
+
+            <Grid Height="44" IsVisible="{Binding ShowXmlDebugTabs}">
+              <Border Width="3"
+                      HorizontalAlignment="Left"
+                      Background="{DynamicResource IoEditorNavRailSelectionAccent}"
+                      IsVisible="{Binding IsGeneratedXmlViewActive}" />
+              <Button Classes="navRailBtn"
+                      Command="{Binding SelectNavSectionCommand}"
+                      CommandParameter="GeneratedXml"
+                      ToolTip.Tip="Generated Xml">
+                <Image Width="22" Height="22">
+                  <Image.Source>
+                    <svg:SvgImage Source="avares://IoEditor.Desktop/Assets/Icons/nav-generated-xml.svg" />
+                  </Image.Source>
+                </Image>
+              </Button>
+            </Grid>
+
+            <Grid Height="44" IsVisible="{Binding ShowXmlDebugTabs}">
+              <Border Width="3"
+                      HorizontalAlignment="Left"
+                      Background="{DynamicResource IoEditorNavRailSelectionAccent}"
+                      IsVisible="{Binding IsStepDictionaryViewActive}" />
+              <Button Classes="navRailBtn"
+                      Command="{Binding SelectNavSectionCommand}"
+                      CommandParameter="StepDictionary"
+                      ToolTip.Tip="Step dictionary">
+                <Image Width="22" Height="22">
+                  <Image.Source>
+                    <svg:SvgImage Source="avares://IoEditor.Desktop/Assets/Icons/nav-step-dictionary.svg" />
+                  </Image.Source>
+                </Image>
+              </Button>
+            </Grid>
+          </StackPanel>
+        </ScrollViewer>
+      </Border>
+
+      <Grid Grid.Column="1">
+        <Panel IsVisible="{Binding IsSegmentsViewActive}">
         <Grid ColumnDefinitions="*,Auto">
         <ListBox x:Name="SegmentsListBox"
                  Grid.Column="0"
@@ -125,10 +234,9 @@
                                      VerticalAlignment="Stretch"
                                      Margin="4,0,0,0" />
         </Grid>
-      </TabItem>
+        </Panel>
 
-      <TabItem Header="Reference Xml"
-               IsVisible="{Binding ShowXmlDebugTabs}">
+        <Panel IsVisible="{Binding IsReferenceXmlViewActive}">
         <Grid RowDefinitions="*">
           <Border Grid.Row="0"
                   HorizontalAlignment="Stretch"
@@ -151,10 +259,9 @@
           </ScrollViewer>
           </Border>
         </Grid>
-      </TabItem>
+        </Panel>
 
-      <TabItem Header="Target Xml"
-               IsVisible="{Binding ShowXmlDebugTabs}">
+        <Panel IsVisible="{Binding IsTargetXmlViewActive}">
         <Grid RowDefinitions="*">
           <Border Grid.Row="0"
                   HorizontalAlignment="Stretch"
@@ -177,10 +284,9 @@
           </ScrollViewer>
           </Border>
         </Grid>
-      </TabItem>
+        </Panel>
 
-      <TabItem Header="Generated Xml"
-               IsVisible="{Binding ShowXmlDebugTabs}">
+        <Panel IsVisible="{Binding IsGeneratedXmlViewActive}">
         <Grid RowDefinitions="*">
           <Border Grid.Row="0"
                   HorizontalAlignment="Stretch"
@@ -203,10 +309,9 @@
           </ScrollViewer>
           </Border>
         </Grid>
-      </TabItem>
+        </Panel>
 
-      <TabItem Header="Step dictionary"
-               IsVisible="{Binding ShowXmlDebugTabs}">
+        <Panel IsVisible="{Binding IsStepDictionaryViewActive}">
         <ScrollViewer VerticalScrollBarVisibility="Auto"
                       HorizontalAlignment="Stretch"
                       VerticalAlignment="Stretch"
@@ -239,8 +344,9 @@
             </ItemsControl.ItemTemplate>
           </ItemsControl>
         </ScrollViewer>
-      </TabItem>
-    </TabControl>
+        </Panel>
+      </Grid>
+    </Grid>
 
     <Border Grid.Row="2" Padding="8,4" Background="{DynamicResource IoEditorChromeBackground}">
       <Grid ColumnDefinitions="*,Auto">

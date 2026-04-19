@@ -46,6 +46,60 @@ internal sealed class MainViewModel : INotifyPropertyChanged
     public ICommand ExitCommand { get; }
     public ICommand OpenSettingsCommand { get; }
 
+    public ICommand SelectNavSectionCommand { get; }
+
+    private MainNavSection _selectedSection = MainNavSection.Segments;
+
+    /// <summary>Currently selected sidebar / content section.</summary>
+    public MainNavSection SelectedSection
+    {
+        get => _selectedSection;
+        set
+        {
+            var v = ClampSection(value);
+            if (_selectedSection == v)
+            {
+                return;
+            }
+
+            _selectedSection = v;
+            RaisePropertyChanged(nameof(SelectedSection));
+            RaiseNavSectionVisualProperties();
+        }
+    }
+
+    private MainNavSection ClampSection(MainNavSection section)
+    {
+        if (!ShowXmlDebugTabs && section is MainNavSection.ReferenceXml
+                             or MainNavSection.TargetXml
+                             or MainNavSection.GeneratedXml
+                             or MainNavSection.StepDictionary)
+        {
+            return MainNavSection.Segments;
+        }
+
+        return section;
+    }
+
+    private void RaiseNavSectionVisualProperties()
+    {
+        RaisePropertyChanged(nameof(IsSegmentsViewActive));
+        RaisePropertyChanged(nameof(IsReferenceXmlViewActive));
+        RaisePropertyChanged(nameof(IsTargetXmlViewActive));
+        RaisePropertyChanged(nameof(IsGeneratedXmlViewActive));
+        RaisePropertyChanged(nameof(IsStepDictionaryViewActive));
+    }
+
+    public bool IsSegmentsViewActive => SelectedSection == MainNavSection.Segments;
+
+    public bool IsReferenceXmlViewActive => SelectedSection == MainNavSection.ReferenceXml;
+
+    public bool IsTargetXmlViewActive => SelectedSection == MainNavSection.TargetXml;
+
+    public bool IsGeneratedXmlViewActive => SelectedSection == MainNavSection.GeneratedXml;
+
+    public bool IsStepDictionaryViewActive => SelectedSection == MainNavSection.StepDictionary;
+
     private IoEdProject? _project;
     public IoEdProject? Project
     {
@@ -170,13 +224,39 @@ internal sealed class MainViewModel : INotifyPropertyChanged
         _appLifetime = appLifetime;
         _settingsUi = settingsUi;
         _studioOptions = studioOptions;
-        _ = _studioOptions.OnChange(_ => RaisePropertyChanged(nameof(ShowXmlDebugTabs)));
+        _ = _studioOptions.OnChange(_ =>
+        {
+            RaisePropertyChanged(nameof(ShowXmlDebugTabs));
+            var clamped = ClampSection(_selectedSection);
+            if (clamped != _selectedSection)
+            {
+                _selectedSection = clamped;
+                RaisePropertyChanged(nameof(SelectedSection));
+            }
+
+            RaiseNavSectionVisualProperties();
+        });
 
         OpenFilesCommand = new DelegateCommand(OpenFilesCmd);
         SaveFileCommand = new DelegateCommand(SaveFileCmd);
         SaveAsCommand = new DelegateCommand(SaveAsCmd);
         ExitCommand = new DelegateCommand(ExitCmd);
         OpenSettingsCommand = new DelegateCommand(OpenSettingsCmd);
+        SelectNavSectionCommand = new DelegateCommand(SelectNavSectionCmd);
+    }
+
+    private void SelectNavSectionCmd(object? parameter)
+    {
+        if (parameter is MainNavSection m)
+        {
+            SelectedSection = m;
+            return;
+        }
+
+        if (parameter is string s && Enum.TryParse<MainNavSection>(s, ignoreCase: true, out var parsed))
+        {
+            SelectedSection = parsed;
+        }
     }
 
     private static Window? GetMainWindow()
