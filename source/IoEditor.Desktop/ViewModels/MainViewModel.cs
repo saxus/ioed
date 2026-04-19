@@ -201,7 +201,7 @@ internal sealed class MainViewModel : INotifyPropertyChanged
         => Project?.InterimData?.StepDictionary?.OrderBy(static kv => kv.Key).Select(static kv => kv.Value)
            ?? Enumerable.Empty<InterimStepData>();
 
-    /// <summary>From settings: show Reference / Target / Generated XML and Step dictionary tabs.</summary>
+    /// <summary>From settings: show Reference / Target / Generated XML and Step dictionary in the sidebar.</summary>
     public bool ShowXmlDebugTabs => _studioOptions.CurrentValue.ShowXmlDebugTabs;
 
     public MainViewModel(

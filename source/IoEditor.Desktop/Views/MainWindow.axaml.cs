@@ -34,6 +34,11 @@ public partial class MainWindow : Window
 
     private void OnMainWindowClosed(object? sender, EventArgs e)
     {
+        if (_segmentsListBox is not null)
+        {
+            _segmentsListBox.SelectionChanged -= OnSegmentsListBoxSelectionChanged;
+        }
+
         DetachSegmentsStatusTracking();
     }
 
@@ -55,9 +60,11 @@ public partial class MainWindow : Window
 
         _segmentsListBox = listBox;
         _segmentsScrollViewer = scrollViewer;
+        listBox.SelectionChanged += OnSegmentsListBoxSelectionChanged;
         AttachSegmentsStatusTracking();
 
         UpdateTopVisibleSegmentStatus();
+        UpdateDifferenceNavigationButtons();
     }
 
     private void AttachSegmentsStatusTracking()
@@ -110,11 +117,71 @@ public partial class MainWindow : Window
         if (_segmentsListBox is null || _segmentsScrollViewer is null || _segmentsListBox.Items.Count == 0)
         {
             statusText.Text = string.Empty;
+            UpdateDifferenceNavigationButtons();
             return;
         }
 
         statusText.Text = SegmentsListScrollMetrics.GetTopVisibleSegmentStatusText(_segmentsListBox, _segmentsScrollViewer)
                           ?? string.Empty;
+        UpdateDifferenceNavigationButtons();
+    }
+
+    private void OnSegmentsListBoxSelectionChanged(object? sender, SelectionChangedEventArgs e)
+    {
+        UpdateDifferenceNavigationButtons();
+    }
+
+    private void UpdateDifferenceNavigationButtons()
+    {
+        if (this.FindControl<Button>("SegmentsPrevDiffButton") is not { } prev ||
+            this.FindControl<Button>("SegmentsNextDiffButton") is not { } next)
+        {
+            return;
+        }
+
+        if (_segmentsListBox is null || _segmentsScrollViewer is null || _segmentsListBox.Items.Count == 0)
+        {
+            prev.IsEnabled = false;
+            next.IsEnabled = false;
+            return;
+        }
+
+        var anchor = SegmentsListScrollMetrics.GetNavigationAnchorIndex(_segmentsListBox, _segmentsScrollViewer);
+        prev.IsEnabled = SegmentsListScrollMetrics.FindPreviousDifferenceListIndex(_segmentsListBox, anchor) is not null;
+        next.IsEnabled = SegmentsListScrollMetrics.FindNextDifferenceListIndex(_segmentsListBox, anchor) is not null;
+    }
+
+    private void OnSegmentsPrevDifferenceClick(object? sender, RoutedEventArgs e)
+    {
+        NavigateAdjacentDifference(goNext: false);
+    }
+
+    private void OnSegmentsNextDifferenceClick(object? sender, RoutedEventArgs e)
+    {
+        NavigateAdjacentDifference(goNext: true);
+    }
+
+    private void NavigateAdjacentDifference(bool goNext)
+    {
+        if (_segmentsListBox is null || _segmentsScrollViewer is null)
+        {
+            return;
+        }
+
+        var anchor = SegmentsListScrollMetrics.GetNavigationAnchorIndex(_segmentsListBox, _segmentsScrollViewer);
+        var target = goNext
+            ? SegmentsListScrollMetrics.FindNextDifferenceListIndex(_segmentsListBox, anchor)
+            : SegmentsListScrollMetrics.FindPreviousDifferenceListIndex(_segmentsListBox, anchor);
+
+        if (target is not int idx)
+        {
+            return;
+        }
+
+        SegmentsListScrollMetrics.TryScrollSegmentIndexToTop(_segmentsListBox, _segmentsScrollViewer, idx);
+        _segmentsListBox.SelectedIndex = idx;
+        UpdateDifferenceNavigationButtons();
+        UpdateTopVisibleSegmentStatus();
     }
 
     private void InitializeComponent() => AvaloniaXamlLoader.Load(this);

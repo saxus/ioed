@@ -389,7 +389,7 @@ internal sealed class SegmentsOverviewStrip : Control
         var ratio = Math.Clamp(localY / h, 0, 1);
         var newY = ratio * scrollable;
 
-        sv.Offset = new Vector(sv.Offset.X, newY);
+        SegmentsListScrollMetrics.SetVerticalScrollOffset(sv, newY);
         InvalidateVisual();
     }
 }

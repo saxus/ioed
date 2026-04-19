@@ -147,7 +147,46 @@
 
       <Grid Grid.Column="1">
         <Panel IsVisible="{Binding IsSegmentsViewActive}">
-        <Grid ColumnDefinitions="*,Auto">
+        <Grid RowDefinitions="Auto,*">
+        <Border Grid.Row="0"
+                Background="{DynamicResource IoEditorSegmentsToolbarBackground}"
+                BorderBrush="{DynamicResource IoEditorSegmentsToolbarBorder}"
+                BorderThickness="0,0,0,1"
+                Padding="8,6">
+          <Grid ColumnDefinitions="*,Auto">
+            <StackPanel Grid.Column="1"
+                        Orientation="Horizontal"
+                        Spacing="8">
+              <Button Name="SegmentsPrevDiffButton"
+                      Click="OnSegmentsPrevDifferenceClick"
+                      Padding="10,6"
+                      Foreground="{DynamicResource IoEditorChromeForeground}">
+                <StackPanel Orientation="Horizontal" Spacing="6">
+                  <TextBlock VerticalAlignment="Center"
+                             Foreground="{DynamicResource IoEditorChromeForeground}"
+                             Text="↑" />
+                  <TextBlock VerticalAlignment="Center"
+                             Foreground="{DynamicResource IoEditorChromeForeground}"
+                             Text="Previous difference" />
+                </StackPanel>
+              </Button>
+              <Button Name="SegmentsNextDiffButton"
+                      Click="OnSegmentsNextDifferenceClick"
+                      Padding="10,6"
+                      Foreground="{DynamicResource IoEditorChromeForeground}">
+                <StackPanel Orientation="Horizontal" Spacing="6">
+                  <TextBlock VerticalAlignment="Center"
+                             Foreground="{DynamicResource IoEditorChromeForeground}"
+                             Text="Next difference" />
+                  <TextBlock VerticalAlignment="Center"
+                             Foreground="{DynamicResource IoEditorChromeForeground}"
+                             Text="↓" />
+                </StackPanel>
+              </Button>
+            </StackPanel>
+          </Grid>
+        </Border>
+        <Grid Grid.Row="1" ColumnDefinitions="*,Auto">
         <ListBox x:Name="SegmentsListBox"
                  Grid.Column="0"
                  ItemsSource="{Binding MergeSegments}"
@@ -233,6 +272,7 @@
                                      ItemsSource="{Binding MergeSegments}"
                                      VerticalAlignment="Stretch"
                                      Margin="4,0,0,0" />
+        </Grid>
         </Grid>
         </Panel>
 
