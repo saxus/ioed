@@ -11,14 +11,7 @@ internal sealed class InstructionSegmentEqualityToBrushConverter : IValueConvert
     {
         if (value is InstructionSegmentEquality equality)
         {
-            return equality switch
-            {
-                InstructionSegmentEquality.Equivalent => Brushes.Wheat,
-                InstructionSegmentEquality.NewSegment => Brushes.Lime,
-                InstructionSegmentEquality.RemovedSegment => Brushes.Red,
-                InstructionSegmentEquality.Modified => Brushes.Orange,
-                _ => Brushes.Black
-            };
+            return InstructionSegmentEqualityBrushes.For(equality);
         }
 
         return Brushes.Black;

@@ -17,4 +17,8 @@
   <SolidColorBrush x:Key="IoEditorSegmentRowBackgroundPointerOver" Color="#3a3a42" />
   <SolidColorBrush x:Key="IoEditorSegmentRowBackgroundSelected" Color="#3f3f46" />
   <SolidColorBrush x:Key="IoEditorSegmentExpandedBackground" Color="#252528" />
+
+  <SolidColorBrush x:Key="IoEditorSegmentsOverviewTrackBackground" Color="#1e1e22" />
+  <SolidColorBrush x:Key="IoEditorSegmentsOverviewThumbFill" Color="#AAFFFFFF" />
+  <SolidColorBrush x:Key="IoEditorSegmentsOverviewThumbBorder" Color="#FFFFFFFF" />
 </ResourceDictionary>

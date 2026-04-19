@@ -38,8 +38,17 @@
                 HorizontalContentAlignment="Stretch"
                 VerticalContentAlignment="Stretch">
       <TabItem Header="Segments">
-        <ListBox ItemsSource="{Binding MergeSegments}"
-                 Background="Transparent">
+        <Grid ColumnDefinitions="*,Auto">
+        <ListBox x:Name="SegmentsListBox"
+                 Grid.Column="0"
+                 ItemsSource="{Binding MergeSegments}"
+                 Background="Transparent"
+                 ScrollViewer.VerticalScrollBarVisibility="Hidden">
+          <ListBox.ItemsPanel>
+            <ItemsPanelTemplate>
+              <StackPanel Orientation="Vertical" />
+            </ItemsPanelTemplate>
+          </ListBox.ItemsPanel>
           <ListBox.Styles>
             <Style Selector="ListBoxItem">
               <Setter Property="HorizontalContentAlignment" Value="Stretch" />
@@ -110,6 +119,12 @@
             </DataTemplate>
           </ListBox.ItemTemplate>
         </ListBox>
+        <views:SegmentsOverviewStrip x:Name="SegmentsOverviewStrip"
+                                     Grid.Column="1"
+                                     ItemsSource="{Binding MergeSegments}"
+                                     VerticalAlignment="Stretch"
+                                     Margin="4,0,0,0" />
+        </Grid>
       </TabItem>
 
       <TabItem Header="Reference Xml"
@@ -228,7 +243,18 @@
     </TabControl>
 
     <Border Grid.Row="2" Padding="8,4" Background="{DynamicResource IoEditorChromeBackground}">
-      <TextBlock Text="Ready." Foreground="{DynamicResource IoEditorChromeForeground}" />
+      <Grid ColumnDefinitions="*,Auto">
+        <TextBlock Grid.Column="0"
+                   Text="Ready."
+                   VerticalAlignment="Center"
+                   Foreground="{DynamicResource IoEditorChromeForeground}" />
+        <TextBlock x:Name="StatusSegmentText"
+                   Grid.Column="1"
+                   VerticalAlignment="Center"
+                   Margin="16,0,0,0"
+                   Text=""
+                   Foreground="{DynamicResource IoEditorChromeForeground}" />
+      </Grid>
     </Border>
   </Grid>
 </Window>
