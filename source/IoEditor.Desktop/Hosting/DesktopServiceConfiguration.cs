@@ -13,7 +13,6 @@ internal static class DesktopServiceConfiguration
         PlatformUiRegistration.AddPlatformUi(services);
         services.AddSingleton<IAppLifetime, AvaloniaAppLifetime>();
         services.AddSingleton<ILoaderDialogPresenter, LoaderDialogPresenter>();
-        services.AddSingleton<ISettingsUiPresenter, SettingsUiPresenter>();
         services.AddSingleton<IConfigurationReloader, DesktopConfigurationReloader>();
         services.AddSingleton<IThemeService, ThemeService>();
         services.AddSingleton<IRecentProjectsStore>(_ => new RecentProjectsStore(ApplicationPaths.GetRecentProjectsFilePath()));

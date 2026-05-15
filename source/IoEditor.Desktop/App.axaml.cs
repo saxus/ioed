@@ -43,16 +43,6 @@ public partial class App : Application
 
         var options = services.GetRequiredService<Microsoft.Extensions.Options.IOptions<StudioOptions>>().Value;
         services.GetRequiredService<IThemeService>().Apply(options.ThemeMode);
-        if (!ConfigurationValidator.Validate(options))
-        {
-            var saved = services.GetRequiredService<ISettingsUiPresenter>().ShowAsync(null).GetAwaiter().GetResult();
-            if (!saved)
-            {
-                desktop.Shutdown();
-                base.OnFrameworkInitializationCompleted();
-                return;
-            }
-        }
 
         var mainVm = services.GetRequiredService<MainViewModel>();
         var main = new MainWindow(services.GetRequiredService<IMainWindowMenuIntegration>())

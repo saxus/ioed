@@ -8,35 +8,23 @@ namespace IoEditor.Models.Configuration
     /// </summary>
     internal static class StudioInstallationProbe
     {
-        public const string MacOSDefaultStudioRoot = "/Applications/Studio 2.0";
-
         private static readonly string[] RequiredDataRelativePaths =
         {
             Path.Combine("data", "StudioPartDefinition2.txt"),
             Path.Combine("data", "StudioColorDefinition.txt")
         };
 
-        public static string? GetSuggestedStudioRoot()
-        {
-            if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX) && Directory.Exists(MacOSDefaultStudioRoot))
-            {
-                return MacOSDefaultStudioRoot;
-            }
-
-            return null;
-        }
-
         /// <summary>
-        /// If <paramref name="options"/>.StudioFolder is empty and a platform default exists and is valid, sets it.
+        /// If <paramref name="options"/>.StudioFolder is empty and the provider returns a valid path, sets it.
         /// </summary>
-        public static bool TryApplySuggestedRootIfEmpty(StudioOptions options)
+        public static bool TryApplySuggestedRootIfEmpty(StudioOptions options, IStudioDefaultPathProvider? provider)
         {
             if (!string.IsNullOrWhiteSpace(options.StudioFolder))
             {
                 return false;
             }
 
-            var suggested = GetSuggestedStudioRoot();
+            var suggested = provider?.GetDefaultStudioRoot();
             if (string.IsNullOrEmpty(suggested) || !IsValidStudioRoot(suggested, out _))
             {
                 return false;

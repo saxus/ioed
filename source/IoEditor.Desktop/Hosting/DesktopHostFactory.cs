@@ -1,5 +1,6 @@
 using System.Text.Json;
 using IoEditor.Models.Configuration;
+using IoEditor.Platform;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -17,7 +18,7 @@ internal static class DesktopHostFactory
         if (!File.Exists(configFile))
         {
             var studioOptions = new StudioOptions { StudioFolder = string.Empty };
-            StudioInstallationProbe.TryApplySuggestedRootIfEmpty(studioOptions);
+            StudioInstallationProbe.TryApplySuggestedRootIfEmpty(studioOptions, PlatformUiRegistration.CreateDefaultPathProvider());
             var defaultConfig = new { StudioOptions = studioOptions };
             File.WriteAllText(configFile, JsonSerializer.Serialize(defaultConfig, new JsonSerializerOptions { WriteIndented = true }));
         }

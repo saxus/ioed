@@ -27,7 +27,6 @@ internal sealed class MainViewModel : INotifyPropertyChanged
     private readonly IFilePickerService _filePicker;
     private readonly IDialogService _dialogs;
     private readonly IAppLifetime _appLifetime;
-    private readonly ISettingsUiPresenter _settingsUi;
     private readonly IOptionsMonitor<StudioOptions> _studioOptions;
     private readonly IOptions<StudioOptions> _optionsSnapshot;
     private readonly IConfigurationReloader _configReloader;
@@ -84,7 +83,6 @@ internal sealed class MainViewModel : INotifyPropertyChanged
         IFilePickerService filePicker,
         IDialogService dialogs,
         IAppLifetime appLifetime,
-        ISettingsUiPresenter settingsUi,
         IOptionsMonitor<StudioOptions> studioOptions,
         IOptions<StudioOptions> optionsSnapshot,
         IConfigurationReloader configReloader,
@@ -98,7 +96,6 @@ internal sealed class MainViewModel : INotifyPropertyChanged
         _filePicker = filePicker;
         _dialogs = dialogs;
         _appLifetime = appLifetime;
-        _settingsUi = settingsUi;
         _studioOptions = studioOptions;
         _optionsSnapshot = optionsSnapshot;
         _configReloader = configReloader;
@@ -125,6 +122,11 @@ internal sealed class MainViewModel : INotifyPropertyChanged
         _startPanel.SetRecentProjects(_recentProjects);
         RegisterPanel(_startPanel);
         SelectedPanel = _startPanel;
+
+        if (!ConfigurationValidator.Validate(_optionsSnapshot.Value))
+        {
+            OpenOrFocusSettingsPanel();
+        }
     }
 
     // -----------------------------------------------------------------------
@@ -134,6 +136,12 @@ internal sealed class MainViewModel : INotifyPropertyChanged
     /// <summary>Creates a new project panel, loads the project, and selects the panel.</summary>
     public void OpenProjectPanel(string reference, string target)
     {
+        if (!ConfigurationValidator.Validate(_studioOptions.CurrentValue))
+        {
+            _ = PromptConfigureStudioIfNeededAsync();
+            return;
+        }
+
         var panel = new ProjectPanelViewModel(
             _partLibrary, _colorLibrary, _imageProxyFactory,
             _filePicker, _dialogs, _studioOptions, GetMainWindow);
@@ -207,6 +215,12 @@ internal sealed class MainViewModel : INotifyPropertyChanged
     {
         try
         {
+            if (!ConfigurationValidator.Validate(_studioOptions.CurrentValue))
+            {
+                await PromptConfigureStudioIfNeededAsync();
+                return;
+            }
+
             OpenProjectPanel(reference, target);
         }
         catch (Exception ex)
@@ -261,6 +275,12 @@ internal sealed class MainViewModel : INotifyPropertyChanged
             return;
         }
 
+        if (!ConfigurationValidator.Validate(_studioOptions.CurrentValue))
+        {
+            await PromptConfigureStudioIfNeededAsync();
+            return;
+        }
+
         var pick = await _loaderDialog.ShowAsync(owner);
         if (pick is null)
         {
@@ -280,6 +300,14 @@ internal sealed class MainViewModel : INotifyPropertyChanged
     private static Window? GetMainWindow()
         => (Avalonia.Application.Current?.ApplicationLifetime as IClassicDesktopStyleApplicationLifetime)
            ?.MainWindow as Window;
+
+    private async Task PromptConfigureStudioIfNeededAsync()
+    {
+        await _dialogs.ShowInfoAsync(
+            "Please configure the Studio folder in Settings before opening files.",
+            "Studio not configured");
+        OpenOrFocusSettingsPanel();
+    }
 
     public event PropertyChangedEventHandler? PropertyChanged;
 

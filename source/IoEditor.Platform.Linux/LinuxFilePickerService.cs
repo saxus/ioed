@@ -50,10 +50,21 @@ public sealed class LinuxFilePickerService : IFilePickerService
             return null;
         }
 
+        var wineProgramFiles = Path.Combine(
+            Environment.GetFolderPath(Environment.SpecialFolder.UserProfile),
+            ".wine", "drive_c", "Program Files");
+
+        IStorageFolder? startLocation = null;
+        if (Directory.Exists(wineProgramFiles))
+        {
+            startLocation = await top.StorageProvider.TryGetFolderFromPathAsync(wineProgramFiles);
+        }
+
         var folders = await top.StorageProvider.OpenFolderPickerAsync(new FolderPickerOpenOptions
         {
             Title = "Select LEGO Studio installation folder",
-            AllowMultiple = false
+            AllowMultiple = false,
+            SuggestedStartLocation = startLocation
         });
 
         if (folders.Count == 0)

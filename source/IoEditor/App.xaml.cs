@@ -41,7 +41,7 @@ namespace IoEditor
             if (!File.Exists(_configFilePath))
             {
                 var studioOptions = new StudioOptions { StudioFolder = string.Empty };
-                StudioInstallationProbe.TryApplySuggestedRootIfEmpty(studioOptions);
+                StudioInstallationProbe.TryApplySuggestedRootIfEmpty(studioOptions, provider: null);
                 var defaultConfig = new { StudioOptions = studioOptions };
                 string json = JsonSerializer.Serialize(defaultConfig, new JsonSerializerOptions { WriteIndented = true });
                 File.WriteAllText(_configFilePath, json);

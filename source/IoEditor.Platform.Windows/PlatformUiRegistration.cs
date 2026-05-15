@@ -1,3 +1,4 @@
+using IoEditor.Models.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace IoEditor.Platform;
@@ -9,5 +10,9 @@ public static class PlatformUiRegistration
         services.AddSingleton<IDialogService, WindowsDialogService>();
         services.AddSingleton<IFilePickerService, WindowsFilePickerService>();
         services.AddSingleton<IMainWindowMenuIntegration>(_ => NullMainWindowMenuIntegration.Instance);
+        services.AddSingleton<IStudioDefaultPathProvider, WindowsStudioDefaultPathProvider>();
     }
+
+    public static IStudioDefaultPathProvider CreateDefaultPathProvider()
+        => new WindowsStudioDefaultPathProvider();
 }

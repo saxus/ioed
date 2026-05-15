@@ -25,14 +25,39 @@ namespace IoEditor.Models.Studio
         private Dictionary<int, Color> blColorCodeIndex = new Dictionary<int, Color>();
         private Dictionary<int, Color> lDrawColorCodeIndex = new Dictionary<int, Color>();
 
-        private readonly StudioOptions _options;
+        private readonly IOptionsMonitor<StudioOptions> _optionsMonitor;
+        private bool _loaded = false;
+        private readonly object _lock = new object();
 
-        public ColorLibrary(IOptions<StudioOptions> options)
+        public ColorLibrary(IOptionsMonitor<StudioOptions> optionsMonitor)
         {
-            _options = options?.Value ?? throw new ArgumentNullException(nameof(options));
+            _optionsMonitor = optionsMonitor ?? throw new ArgumentNullException(nameof(optionsMonitor));
+            _optionsMonitor.OnChange(_ => Reset());
+        }
 
-            var file = Path.Combine(_options.StudioFolder, "data", "StudioColorDefinition.txt");
-            LoadColors(file);
+        private void Reset()
+        {
+            lock (_lock)
+            {
+                colors.Clear();
+                blColorCodeIndex.Clear();
+                lDrawColorCodeIndex.Clear();
+                _loaded = false;
+            }
+        }
+
+        private void EnsureLoaded()
+        {
+            if (_loaded) return;
+            lock (_lock)
+            {
+                if (_loaded) return;
+                var folder = _optionsMonitor.CurrentValue.StudioFolder;
+                if (string.IsNullOrEmpty(folder)) return;
+                var file = Path.Combine(folder, "data", "StudioColorDefinition.txt");
+                LoadColors(file);
+                _loaded = true;
+            }
         }
 
         private void LoadColors(string filePath)
@@ -163,16 +188,19 @@ namespace IoEditor.Models.Studio
 
         public Color GetColorByStudioColorCode(int studioColorCode)
         {
+            EnsureLoaded();
             return colors.TryGetValue(studioColorCode, out var color) ? color : null;
         }
 
         public Color GetColorByBLColorCode(int blColorCode)
         {
+            EnsureLoaded();
             return blColorCodeIndex.TryGetValue(blColorCode, out var color) ? color : null;
         }
 
         public Color GetColorByLDrawColorCode(int lDrawColorCode)
         {
+            EnsureLoaded();
             return lDrawColorCodeIndex.TryGetValue(lDrawColorCode, out var color) ? color : null;
         }
     }

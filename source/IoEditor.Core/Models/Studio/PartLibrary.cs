@@ -1,5 +1,4 @@
 ﻿using IoEditor.Models.Configuration;
-using IoEditor.Models.ImageCache;
 
 using Microsoft.Extensions.Options;
 
@@ -22,19 +21,43 @@ namespace IoEditor.Models.Studio
             "IsAssembly?", "flexible type", "IsDecorated", "XPCatalogIndex", "XPCatalogSubIndex"
         };
 
-
         private Dictionary<string, Part> parts = new Dictionary<string, Part>();
         private Dictionary<string, Part> blItemNoIndex = new Dictionary<string, Part>();
         private Dictionary<string, Part> lDrawItemNoIndex = new Dictionary<string, Part>();
 
-        private readonly StudioOptions _options;
+        private readonly IOptionsMonitor<StudioOptions> _optionsMonitor;
+        private bool _loaded = false;
+        private readonly object _lock = new object();
 
-        public PartLibrary(IOptions<StudioOptions> options)
+        public PartLibrary(IOptionsMonitor<StudioOptions> optionsMonitor)
         {
-            _options = options?.Value ?? throw new ArgumentNullException(nameof(options));
+            _optionsMonitor = optionsMonitor ?? throw new ArgumentNullException(nameof(optionsMonitor));
+            _optionsMonitor.OnChange(_ => Reset());
+        }
 
-            var file = Path.Combine(_options.StudioFolder, "data", "StudioPartDefinition2.txt");
-            LoadParts(file);
+        private void Reset()
+        {
+            lock (_lock)
+            {
+                parts.Clear();
+                blItemNoIndex.Clear();
+                lDrawItemNoIndex.Clear();
+                _loaded = false;
+            }
+        }
+
+        private void EnsureLoaded()
+        {
+            if (_loaded) return;
+            lock (_lock)
+            {
+                if (_loaded) return;
+                var folder = _optionsMonitor.CurrentValue.StudioFolder;
+                if (string.IsNullOrEmpty(folder)) return;
+                var file = Path.Combine(folder, "data", "StudioPartDefinition2.txt");
+                LoadParts(file);
+                _loaded = true;
+            }
         }
 
         private void LoadParts(string filePath)
@@ -144,11 +167,13 @@ namespace IoEditor.Models.Studio
 
         public Part GetPartByBLItemNo(string blItemNo)
         {
+            EnsureLoaded();
             return blItemNoIndex.TryGetValue(blItemNo, out var part) ? part : null;
         }
 
         public Part GetPartByLDrawItemNo(string lDrawItemNo)
         {
+            EnsureLoaded();
             return lDrawItemNoIndex.TryGetValue(lDrawItemNo, out var part) ? part : null;
         }
     }
