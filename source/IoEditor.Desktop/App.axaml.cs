@@ -11,7 +11,6 @@ using IoEditor.Models.Configuration;
 using IoEditor.Models.ImageCache;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Options;
 
 namespace IoEditor.Desktop;
 
@@ -41,7 +40,7 @@ public partial class App : Application
         var bg = services.GetRequiredService<BackgroundPartImageLoader>();
         _ = Task.Run(() => bg.StartAsync(CancellationToken.None));
 
-        var options = services.GetRequiredService<IOptions<StudioOptions>>().Value;
+        var options = services.GetRequiredService<Microsoft.Extensions.Options.IOptions<StudioOptions>>().Value;
         if (!ConfigurationValidator.Validate(options))
         {
             var saved = services.GetRequiredService<ISettingsUiPresenter>().ShowAsync(null).GetAwaiter().GetResult();
@@ -53,12 +52,14 @@ public partial class App : Application
             }
         }
 
+        var mainVm = services.GetRequiredService<MainViewModel>();
         var main = new MainWindow(services.GetRequiredService<IMainWindowMenuIntegration>())
         {
-            DataContext = services.GetRequiredService<MainViewModel>()
+            DataContext = mainVm
         };
+
         desktop.MainWindow = main;
-        WireSettingsNativeMenu(services.GetRequiredService<ISettingsUiPresenter>(), main);
+        WireSettingsNativeMenu(mainVm, main);
 
         desktop.ShutdownRequested += async (_, _) =>
         {
@@ -89,7 +90,7 @@ public partial class App : Application
             {
                 try
                 {
-                    services.GetRequiredService<MainViewModel>().OpenFiles(args[1], args[2]);
+                    mainVm.OpenProjectPanel(args[1], args[2]);
                 }
                 catch (Exception ex)
                 {
@@ -115,7 +116,7 @@ public partial class App : Application
         base.OnFrameworkInitializationCompleted();
     }
 
-    private void WireSettingsNativeMenu(ISettingsUiPresenter settings, Window ownerWindow)
+    private void WireSettingsNativeMenu(MainViewModel mainVm, Window ownerWindow)
     {
         if (NativeMenu.GetMenu(this) is not NativeMenu appMenu)
         {
@@ -126,7 +127,7 @@ public partial class App : Application
         {
             if (o is NativeMenuItem item && string.Equals(item.Header?.ToString(), "Settings…", StringComparison.Ordinal))
             {
-                item.Click += (_, _) => _ = settings.ShowAsync(ownerWindow);
+                item.Click += (_, _) => mainVm.OpenOrFocusSettingsPanel();
                 break;
             }
         }

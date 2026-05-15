@@ -24,8 +24,9 @@
 
   <SolidColorBrush x:Key="IoEditorNavRailBackground" Color="#252526" />
   <SolidColorBrush x:Key="IoEditorNavRailSelectionAccent" Color="#007ACC" />
+  <SolidColorBrush x:Key="IoEditorButtonBackgroundPointerOver" Color="#1c4a7c" />
   <SolidColorBrush x:Key="IoEditorNavButtonBackground" Color="Transparent" />
-  <SolidColorBrush x:Key="IoEditorNavButtonBackgroundPointerOver" Color="#2a2d2e" />
+  <SolidColorBrush x:Key="IoEditorNavButtonBackgroundPointerOver" Color="#1c4a7c" />
 
   <SolidColorBrush x:Key="IoEditorSegmentsToolbarBackground" Color="#2d2d30" />
   <SolidColorBrush x:Key="IoEditorSegmentsToolbarBorder" Color="#3e3e42" />

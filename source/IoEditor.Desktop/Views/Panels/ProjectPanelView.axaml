@@ -1,0 +1,381 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:conv="using:IoEditor.Desktop.Converters"
+             xmlns:views="using:IoEditor.Desktop.Views"
+             xmlns:panels="using:IoEditor.Desktop.Views.Panels"
+             xmlns:vm="using:IoEditor.Desktop.ViewModels.Panels"
+             xmlns:svg="clr-namespace:Avalonia.Svg;assembly=Svg.Controls.Avalonia"
+             x:Class="IoEditor.Desktop.Views.Panels.ProjectPanelView"
+             x:DataType="vm:ProjectPanelViewModel"
+             x:CompileBindings="False"
+             Background="{DynamicResource IoEditorChromeBackground}">
+
+  <UserControl.Resources>
+    <conv:ByteArrayToImageConverter x:Key="ByteArrayToImageConverter" />
+    <conv:InstructionSegmentEqualityToBrushConverter x:Key="EqualityToBrushConverter" />
+    <conv:BoolToMaxHeightConverter x:Key="BoolToMaxHeightConverter" ExpandedHeight="600" />
+    <conv:XElementToStringConverter x:Key="XElementToStringConverter" />
+    <views:IndexedStepDataTemplate x:Key="InstructionStepTmpl" />
+  </UserControl.Resources>
+
+  <Grid RowDefinitions="Auto,*,Auto">
+
+    <!-- ================================================================
+         Toolbar row
+         ================================================================ -->
+    <Border Grid.Row="0"
+            Background="{DynamicResource IoEditorSegmentsToolbarBackground}"
+            BorderBrush="{DynamicResource IoEditorSegmentsToolbarBorder}"
+            BorderThickness="0,0,0,1"
+            Padding="8,6">
+      <Grid ColumnDefinitions="Auto,*,Auto">
+
+        <!-- Left: section switcher (only when debug tabs are enabled) -->
+        <StackPanel Grid.Column="0"
+                    Orientation="Horizontal"
+                    Spacing="4"
+                    IsVisible="{Binding ShowXmlDebugTabs}">
+          <Button Padding="6,4"
+                  Command="{Binding SelectNavSectionCommand}"
+                  CommandParameter="Segments"
+                  ToolTip.Tip="Segments"
+                  Foreground="{DynamicResource IoEditorChromeForeground}">
+            <Image Width="16" Height="16">
+              <Image.Source>
+                <svg:SvgImage Source="avares://IoEditor.Desktop/Assets/Icons/nav-segments.svg" />
+              </Image.Source>
+            </Image>
+          </Button>
+          <Button Padding="6,4"
+                  Command="{Binding SelectNavSectionCommand}"
+                  CommandParameter="ReferenceXml"
+                  ToolTip.Tip="Reference XML"
+                  Foreground="{DynamicResource IoEditorChromeForeground}">
+            <Image Width="16" Height="16">
+              <Image.Source>
+                <svg:SvgImage Source="avares://IoEditor.Desktop/Assets/Icons/nav-reference-xml.svg" />
+              </Image.Source>
+            </Image>
+          </Button>
+          <Button Padding="6,4"
+                  Command="{Binding SelectNavSectionCommand}"
+                  CommandParameter="TargetXml"
+                  ToolTip.Tip="Target XML"
+                  Foreground="{DynamicResource IoEditorChromeForeground}">
+            <Image Width="16" Height="16">
+              <Image.Source>
+                <svg:SvgImage Source="avares://IoEditor.Desktop/Assets/Icons/nav-target-xml.svg" />
+              </Image.Source>
+            </Image>
+          </Button>
+          <Button Padding="6,4"
+                  Command="{Binding SelectNavSectionCommand}"
+                  CommandParameter="GeneratedXml"
+                  ToolTip.Tip="Generated XML"
+                  Foreground="{DynamicResource IoEditorChromeForeground}">
+            <Image Width="16" Height="16">
+              <Image.Source>
+                <svg:SvgImage Source="avares://IoEditor.Desktop/Assets/Icons/nav-generated-xml.svg" />
+              </Image.Source>
+            </Image>
+          </Button>
+          <Button Padding="6,4"
+                  Command="{Binding SelectNavSectionCommand}"
+                  CommandParameter="StepDictionary"
+                  ToolTip.Tip="Step Dictionary"
+                  Foreground="{DynamicResource IoEditorChromeForeground}">
+            <Image Width="16" Height="16">
+              <Image.Source>
+                <svg:SvgImage Source="avares://IoEditor.Desktop/Assets/Icons/nav-step-dictionary.svg" />
+              </Image.Source>
+            </Image>
+          </Button>
+          <Border Width="1" Margin="4,4" Background="#3e3e42" />
+        </StackPanel>
+
+        <!-- Middle: diff navigation (Segments view only) -->
+        <StackPanel Grid.Column="1"
+                    Orientation="Horizontal"
+                    Spacing="8"
+                    IsVisible="{Binding IsSegmentsViewActive}">
+          <Button Name="SegmentsPrevDiffButton"
+                  Click="OnSegmentsPrevDifferenceClick"
+                  Padding="10,6"
+                  Foreground="{DynamicResource IoEditorChromeForeground}">
+            <StackPanel Orientation="Horizontal" Spacing="6">
+              <TextBlock VerticalAlignment="Center"
+                         Foreground="{DynamicResource IoEditorChromeForeground}"
+                         Text="↑" />
+              <TextBlock VerticalAlignment="Center"
+                         Foreground="{DynamicResource IoEditorChromeForeground}"
+                         Text="Previous difference" />
+            </StackPanel>
+          </Button>
+          <Button Name="SegmentsNextDiffButton"
+                  Click="OnSegmentsNextDifferenceClick"
+                  Padding="10,6"
+                  Foreground="{DynamicResource IoEditorChromeForeground}">
+            <StackPanel Orientation="Horizontal" Spacing="6">
+              <TextBlock VerticalAlignment="Center"
+                         Foreground="{DynamicResource IoEditorChromeForeground}"
+                         Text="Next difference" />
+              <TextBlock VerticalAlignment="Center"
+                         Foreground="{DynamicResource IoEditorChromeForeground}"
+                         Text="↓" />
+            </StackPanel>
+          </Button>
+        </StackPanel>
+
+        <!-- Right: Save / Save As / Close -->
+        <StackPanel Grid.Column="2"
+                    Orientation="Horizontal"
+                    Spacing="8">
+          <Button Command="{Binding SaveCommand}"
+                  Padding="10,6"
+                  Foreground="{DynamicResource IoEditorChromeForeground}"
+                  ToolTip.Tip="Save (Ctrl+S)">
+            <TextBlock VerticalAlignment="Center"
+                       Foreground="{DynamicResource IoEditorChromeForeground}"
+                       Text="Save" />
+          </Button>
+          <Button Command="{Binding SaveAsCommand}"
+                  Padding="10,6"
+                  Foreground="{DynamicResource IoEditorChromeForeground}"
+                  ToolTip.Tip="Save As… (Ctrl+Shift+S)">
+            <TextBlock VerticalAlignment="Center"
+                       Foreground="{DynamicResource IoEditorChromeForeground}"
+                       Text="Save as…" />
+          </Button>
+          <Button Command="{Binding CloseCommand}"
+                  Padding="10,6"
+                  Foreground="{DynamicResource IoEditorChromeForeground}"
+                  ToolTip.Tip="Close project">
+            <TextBlock VerticalAlignment="Center"
+                       Foreground="{DynamicResource IoEditorChromeForeground}"
+                       Text="✕ Close" />
+          </Button>
+        </StackPanel>
+
+      </Grid>
+    </Border>
+
+    <!-- ================================================================
+         Content area – section panels
+         ================================================================ -->
+    <Grid Grid.Row="1">
+
+      <!-- Segments view -->
+      <Panel IsVisible="{Binding IsSegmentsViewActive}">
+        <Grid ColumnDefinitions="*,Auto">
+          <ListBox x:Name="SegmentsListBox"
+                   Grid.Column="0"
+                   ItemsSource="{Binding MergeSegments}"
+                   Background="Transparent"
+                   ScrollViewer.VerticalScrollBarVisibility="Hidden">
+            <ListBox.ItemsPanel>
+              <ItemsPanelTemplate>
+                <StackPanel Orientation="Vertical" />
+              </ItemsPanelTemplate>
+            </ListBox.ItemsPanel>
+            <ListBox.Styles>
+              <Style Selector="ListBoxItem">
+                <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+                <Setter Property="Padding" Value="10,8" />
+                <Setter Property="Margin" Value="0,0,0,6" />
+                <Setter Property="CornerRadius" Value="4" />
+                <Setter Property="Background" Value="{DynamicResource IoEditorSegmentRowBackground}" />
+                <Setter Property="Foreground" Value="{DynamicResource IoEditorChromeForeground}" />
+              </Style>
+              <Style Selector="ListBoxItem:pointerover">
+                <Setter Property="Background" Value="{DynamicResource IoEditorSegmentRowBackgroundPointerOver}" />
+              </Style>
+              <Style Selector="ListBoxItem:selected">
+                <Setter Property="Background" Value="{DynamicResource IoEditorSegmentRowBackgroundSelected}" />
+              </Style>
+              <Style Selector="ListBoxItem CheckBox">
+                <Setter Property="Foreground" Value="{DynamicResource IoEditorChromeForeground}" />
+                <Setter Property="Background" Value="Transparent" />
+              </Style>
+              <Style Selector="ListBoxItem ScrollViewer">
+                <Setter Property="Background" Value="{DynamicResource IoEditorSegmentExpandedBackground}" />
+              </Style>
+              <Style Selector="ListBoxItem Grid">
+                <Setter Property="Background" Value="{DynamicResource IoEditorSegmentExpandedBackground}" />
+              </Style>
+              <Style Selector="ListBoxItem ItemsControl">
+                <Setter Property="Background" Value="Transparent" />
+              </Style>
+            </ListBox.Styles>
+            <ListBox.ItemTemplate>
+              <DataTemplate>
+                <StackPanel Background="Transparent">
+                  <CheckBox IsChecked="{Binding IsExpanded}">
+                    <StackPanel Orientation="Horizontal">
+                      <TextBlock Foreground="{DynamicResource IoEditorChromeForeground}" Text="#" />
+                      <TextBlock Foreground="{DynamicResource IoEditorChromeForeground}" Text="{Binding SegmentIndex}" FontWeight="Bold" />
+                      <TextBlock Margin="6,0,0,0" Text="{Binding Equality}" Foreground="{Binding Equality, Converter={StaticResource EqualityToBrushConverter}}" />
+                      <TextBlock Margin="6,0,0,0" Foreground="{DynamicResource IoEditorChromeForeground}" Text="{Binding SegmentName}" />
+                      <TextBlock Margin="6,0,0,0" Foreground="{DynamicResource IoEditorAccentLime}" Text="{Binding ReferenceSegment.Steps.Count, StringFormat='({0})'}" />
+                    </StackPanel>
+                  </CheckBox>
+                  <ScrollViewer MaxHeight="{Binding IsExpanded, Converter={StaticResource BoolToMaxHeightConverter}}"
+                                VerticalScrollBarVisibility="Auto">
+                    <Grid Margin="40,6,0,6" ColumnDefinitions="*,*,*">
+                      <ItemsControl Grid.Column="0"
+                                    ItemsSource="{Binding ReferenceSegment.Steps}"
+                                    ItemTemplate="{StaticResource InstructionStepTmpl}" />
+                      <ItemsControl Grid.Column="1"
+                                    ItemsSource="{Binding TargetSegment.Steps}"
+                                    ItemTemplate="{StaticResource InstructionStepTmpl}" />
+                      <ScrollViewer Grid.Column="2"
+                                    MinHeight="100"
+                                    HorizontalScrollBarVisibility="Auto"
+                                    VerticalScrollBarVisibility="Auto"
+                                    Background="{DynamicResource IoEditorXmlEditorBackground}">
+                        <SelectableTextBlock Text="{Binding Differences}"
+                                             TextWrapping="Wrap"
+                                             Padding="6"
+                                             FontFamily="Consolas, Menlo, Courier New, monospace"
+                                             Background="Transparent"
+                                             Foreground="{DynamicResource IoEditorXmlEditorForeground}"
+                                             SelectionBrush="{DynamicResource IoEditorTextSelectionBrush}"
+                                             SelectionForegroundBrush="{DynamicResource IoEditorTextSelectionForegroundBrush}" />
+                      </ScrollViewer>
+                    </Grid>
+                  </ScrollViewer>
+                </StackPanel>
+              </DataTemplate>
+            </ListBox.ItemTemplate>
+          </ListBox>
+          <views:SegmentsOverviewStrip x:Name="SegmentsOverviewStrip"
+                                       Grid.Column="1"
+                                       ItemsSource="{Binding MergeSegments}"
+                                       VerticalAlignment="Stretch"
+                                       Margin="4,0,0,0" />
+        </Grid>
+      </Panel>
+
+      <!-- Reference XML view -->
+      <Panel IsVisible="{Binding IsReferenceXmlViewActive}">
+        <Border HorizontalAlignment="Stretch"
+                VerticalAlignment="Stretch"
+                Background="{DynamicResource IoEditorXmlEditorBackground}"
+                BorderBrush="{DynamicResource IoEditorXmlReadOnlyBorderBrush}"
+                BorderThickness="1">
+          <ScrollViewer HorizontalScrollBarVisibility="Auto"
+                        VerticalScrollBarVisibility="Auto">
+            <SelectableTextBlock Text="{Binding ReferenceInstructionXml, Mode=OneWay}"
+                                 TextWrapping="NoWrap"
+                                 Padding="8"
+                                 FontFamily="Consolas, Menlo, Courier New, monospace"
+                                 FontSize="12"
+                                 Background="Transparent"
+                                 Foreground="{DynamicResource IoEditorXmlEditorForeground}"
+                                 SelectionBrush="{DynamicResource IoEditorTextSelectionBrush}"
+                                 SelectionForegroundBrush="{DynamicResource IoEditorTextSelectionForegroundBrush}" />
+          </ScrollViewer>
+        </Border>
+      </Panel>
+
+      <!-- Target XML view -->
+      <Panel IsVisible="{Binding IsTargetXmlViewActive}">
+        <Border HorizontalAlignment="Stretch"
+                VerticalAlignment="Stretch"
+                Background="{DynamicResource IoEditorXmlEditorBackground}"
+                BorderBrush="{DynamicResource IoEditorXmlReadOnlyBorderBrush}"
+                BorderThickness="1">
+          <ScrollViewer HorizontalScrollBarVisibility="Auto"
+                        VerticalScrollBarVisibility="Auto">
+            <SelectableTextBlock Text="{Binding TargetInstructionXml, Mode=OneWay}"
+                                 TextWrapping="NoWrap"
+                                 Padding="8"
+                                 FontFamily="Consolas, Menlo, Courier New, monospace"
+                                 FontSize="12"
+                                 Background="Transparent"
+                                 Foreground="{DynamicResource IoEditorXmlEditorForeground}"
+                                 SelectionBrush="{DynamicResource IoEditorTextSelectionBrush}"
+                                 SelectionForegroundBrush="{DynamicResource IoEditorTextSelectionForegroundBrush}" />
+          </ScrollViewer>
+        </Border>
+      </Panel>
+
+      <!-- Generated XML view -->
+      <Panel IsVisible="{Binding IsGeneratedXmlViewActive}">
+        <Border HorizontalAlignment="Stretch"
+                VerticalAlignment="Stretch"
+                Background="{DynamicResource IoEditorXmlEditorBackground}"
+                BorderBrush="{DynamicResource IoEditorXmlReadOnlyBorderBrush}"
+                BorderThickness="1">
+          <ScrollViewer HorizontalScrollBarVisibility="Auto"
+                        VerticalScrollBarVisibility="Auto">
+            <SelectableTextBlock Text="{Binding MergedInstructionXml, Mode=OneWay}"
+                                 TextWrapping="NoWrap"
+                                 Padding="8"
+                                 FontFamily="Consolas, Menlo, Courier New, monospace"
+                                 FontSize="12"
+                                 Background="Transparent"
+                                 Foreground="{DynamicResource IoEditorXmlEditorForeground}"
+                                 SelectionBrush="{DynamicResource IoEditorTextSelectionBrush}"
+                                 SelectionForegroundBrush="{DynamicResource IoEditorTextSelectionForegroundBrush}" />
+          </ScrollViewer>
+        </Border>
+      </Panel>
+
+      <!-- Step Dictionary view -->
+      <Panel IsVisible="{Binding IsStepDictionaryViewActive}">
+        <ScrollViewer VerticalScrollBarVisibility="Auto"
+                      HorizontalAlignment="Stretch"
+                      VerticalAlignment="Stretch"
+                      Background="Transparent">
+          <ItemsControl ItemsSource="{Binding StepDictionaryRows}">
+            <ItemsControl.ItemTemplate>
+              <DataTemplate>
+                <StackPanel Margin="0,6,0,0">
+                  <TextBlock Foreground="{DynamicResource IoEditorChromeForeground}">
+                    <Run Text="#" />
+                    <Run Text="{Binding SerializedStepIndex}" Foreground="{DynamicResource IoEditorAccentWheat}" FontWeight="Bold" />
+                    <Run Text=" " />
+                    <Run Text="{Binding IsCallout, StringFormat='IsCallout: {0}'}" />
+                  </TextBlock>
+                  <ScrollViewer HorizontalScrollBarVisibility="Auto"
+                                VerticalScrollBarVisibility="Auto"
+                                Background="{DynamicResource IoEditorXmlEditorBackground}">
+                    <SelectableTextBlock Padding="6"
+                                         FontFamily="Consolas, Menlo, Courier New, monospace"
+                                         FontSize="12"
+                                         TextWrapping="NoWrap"
+                                         Background="Transparent"
+                                         Foreground="{DynamicResource IoEditorXmlEditorForeground}"
+                                         SelectionBrush="{DynamicResource IoEditorTextSelectionBrush}"
+                                         SelectionForegroundBrush="{DynamicResource IoEditorTextSelectionForegroundBrush}"
+                                         Text="{Binding Element, Converter={StaticResource XElementToStringConverter}}" />
+                  </ScrollViewer>
+                </StackPanel>
+              </DataTemplate>
+            </ItemsControl.ItemTemplate>
+          </ItemsControl>
+        </ScrollViewer>
+      </Panel>
+
+    </Grid>
+
+    <!-- ================================================================
+         Status bar
+         ================================================================ -->
+    <Border Grid.Row="2" Padding="8,4" Background="{DynamicResource IoEditorChromeBackground}">
+      <Grid ColumnDefinitions="*,Auto">
+        <TextBlock Grid.Column="0"
+                   Text="Ready."
+                   VerticalAlignment="Center"
+                   Foreground="{DynamicResource IoEditorChromeForeground}" />
+        <TextBlock x:Name="StatusSegmentText"
+                   Grid.Column="1"
+                   VerticalAlignment="Center"
+                   Margin="16,0,0,0"
+                   Text=""
+                   Foreground="{DynamicResource IoEditorChromeForeground}" />
+      </Grid>
+    </Border>
+
+  </Grid>
+</UserControl>

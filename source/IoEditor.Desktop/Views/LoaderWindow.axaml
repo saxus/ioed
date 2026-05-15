@@ -2,7 +2,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         x:Class="IoEditor.Desktop.Views.LoaderWindow"
         Title="Open stud.io files"
-        Width="440" Height="220"
+        Width="700" Height="220"
         WindowStartupLocation="CenterOwner">
   <Grid Margin="10" RowDefinitions="Auto,Auto,*,Auto" ColumnDefinitions="Auto,*,Auto" RowSpacing="8" ColumnSpacing="6">
     <TextBlock Grid.Row="0" Grid.Column="0" Text="Reference File:" VerticalAlignment="Center" />

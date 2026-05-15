@@ -14,6 +14,7 @@ internal static class DesktopServiceConfiguration
         services.AddSingleton<IAppLifetime, AvaloniaAppLifetime>();
         services.AddSingleton<ILoaderDialogPresenter, LoaderDialogPresenter>();
         services.AddSingleton<ISettingsUiPresenter, SettingsUiPresenter>();
+        services.AddSingleton<IConfigurationReloader, DesktopConfigurationReloader>();
         services.AddSingleton<MainViewModel>();
     }
 }

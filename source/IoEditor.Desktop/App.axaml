@@ -22,5 +22,8 @@
     </Application.Resources>
     <Application.Styles>
         <FluentTheme />
+        <Style Selector="Button:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+            <Setter Property="Background" Value="{DynamicResource IoEditorButtonBackgroundPointerOver}" />
+        </Style>
     </Application.Styles>
 </Application>

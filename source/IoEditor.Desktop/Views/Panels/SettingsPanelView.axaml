@@ -1,0 +1,69 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:IoEditor.Desktop.ViewModels.Panels"
+             x:Class="IoEditor.Desktop.Views.Panels.SettingsPanelView"
+             x:DataType="vm:SettingsPanelViewModel"
+             x:CompileBindings="False"
+             Background="{DynamicResource IoEditorChromeBackground}">
+  <Grid RowDefinitions="Auto,*">
+
+    <!-- Toolbar -->
+    <Border Grid.Row="0"
+            Background="{DynamicResource IoEditorSegmentsToolbarBackground}"
+            BorderBrush="{DynamicResource IoEditorSegmentsToolbarBorder}"
+            BorderThickness="0,0,0,1"
+            Padding="8,6">
+      <Grid ColumnDefinitions="*,Auto">
+        <StackPanel Grid.Column="1"
+                    Orientation="Horizontal"
+                    Spacing="8">
+          <Button Command="{Binding SaveCommand}"
+                  Padding="10,6"
+                  Foreground="{DynamicResource IoEditorChromeForeground}">
+            <TextBlock VerticalAlignment="Center"
+                       Foreground="{DynamicResource IoEditorChromeForeground}"
+                       Text="Save" />
+          </Button>
+        </StackPanel>
+      </Grid>
+    </Border>
+
+    <!-- Settings content -->
+    <ScrollViewer Grid.Row="1"
+                  HorizontalScrollBarVisibility="Disabled"
+                  VerticalScrollBarVisibility="Auto">
+      <StackPanel Margin="20" Spacing="16" MaxWidth="480">
+
+        <!-- Studio Folder section -->
+        <TextBlock Text="Settings"
+                   FontSize="18"
+                   FontWeight="SemiBold"
+                   Foreground="{DynamicResource IoEditorChromeForeground}" />
+
+        <StackPanel Spacing="8">
+          <TextBlock Text="Studio Folder:"
+                     Foreground="{DynamicResource IoEditorChromeForeground}" />
+          <Grid ColumnDefinitions="*,Auto" ColumnSpacing="8">
+            <TextBox Grid.Column="0"
+                     Text="{Binding StudioFolderPath, Mode=TwoWay}"
+                     IsReadOnly="True" />
+            <Button Grid.Column="1"
+                    Content="Browse…"
+                    Command="{Binding BrowseStudioFolderCommand}" />
+          </Grid>
+        </StackPanel>
+
+        <CheckBox IsChecked="{Binding ShowXmlDebugTabs, Mode=TwoWay}"
+                  Foreground="{DynamicResource IoEditorChromeForeground}"
+                  Content="Show XML debug entries in the sidebar (reference, target, generated instruction, step dictionary)" />
+
+        <TextBlock Opacity="0.65"
+                   TextWrapping="Wrap"
+                   Foreground="{DynamicResource IoEditorChromeForeground}"
+                   Text="When unchecked, those entries are hidden in the project panel section switcher." />
+
+      </StackPanel>
+    </ScrollViewer>
+
+  </Grid>
+</UserControl>

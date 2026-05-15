@@ -1,35 +1,24 @@
+using System.Collections.ObjectModel;
 using System.ComponentModel;
-using System.Diagnostics;
-using System.IO;
-using System.Xml.Linq;
+using System.Linq;
 using System.Windows.Input;
 using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
+using IoEditor.Desktop.Hosting;
 using IoEditor.Desktop.Services;
-using IoEditor.Platform;
 using IoEditor.Desktop.Utils;
-using IoEditor.Model;
-using System.Collections.Generic;
-using IoEditor.Models.Comparison;
-using IoEditor.Models.Instructions;
-using IoEditor.Models.ImageCache;
-using IoEditor.Models.Merging;
-using IoEditor.Models.Model;
-using IoEditor.Models.Studio;
+using IoEditor.Desktop.ViewModels.Panels;
 using IoEditor.Models.Configuration;
+using IoEditor.Models.ImageCache;
+using IoEditor.Models.Studio;
+using IoEditor.Platform;
 using Microsoft.Extensions.Options;
 
 namespace IoEditor.Desktop.ViewModels;
 
+/// <summary>Shell view-model: manages the open panel list and delegates per-panel work to panel view-models.</summary>
 internal sealed class MainViewModel : INotifyPropertyChanged
 {
-    /// <summary>Very large buffers can freeze or blank simple text controls; preview is capped.</summary>
-    private const int InstructionXmlEditorDisplayMaxChars = 2_000_000;
-
-    private string _referenceInstructionXml = string.Empty;
-    private string _targetInstructionXml = string.Empty;
-    private string _mergedInstructionXml = string.Empty;
-
     private readonly PartLibrary _partLibrary;
     private readonly ColorLibrary _colorLibrary;
     private readonly IPartImageProxyFactory _imageProxyFactory;
@@ -39,170 +28,48 @@ internal sealed class MainViewModel : INotifyPropertyChanged
     private readonly IAppLifetime _appLifetime;
     private readonly ISettingsUiPresenter _settingsUi;
     private readonly IOptionsMonitor<StudioOptions> _studioOptions;
+    private readonly IOptions<StudioOptions> _optionsSnapshot;
+    private readonly IConfigurationReloader _configReloader;
+    private readonly SettingsPanelViewModel _settingsPanel;
 
-    public ICommand OpenFilesCommand { get; }
-    public ICommand SaveFileCommand { get; }
-    public ICommand SaveAsCommand { get; }
-    public ICommand ExitCommand { get; }
-    public ICommand OpenSettingsCommand { get; }
+    public ObservableCollection<EditorPanelViewModelBase> OpenPanels { get; } = new();
 
-    public ICommand SelectNavSectionCommand { get; }
-
-    private MainNavSection _selectedSection = MainNavSection.Segments;
-
-    /// <summary>Currently selected sidebar / content section.</summary>
-    public MainNavSection SelectedSection
+    private EditorPanelViewModelBase? _selectedPanel;
+    public EditorPanelViewModelBase? SelectedPanel
     {
-        get => _selectedSection;
+        get => _selectedPanel;
         set
         {
-            var v = ClampSection(value);
-            if (_selectedSection == v)
+            if (_selectedPanel == value)
             {
                 return;
             }
 
-            _selectedSection = v;
-            RaisePropertyChanged(nameof(SelectedSection));
-            RaiseNavSectionVisualProperties();
-        }
-    }
-
-    private MainNavSection ClampSection(MainNavSection section)
-    {
-        if (!ShowXmlDebugTabs && section is MainNavSection.ReferenceXml
-                             or MainNavSection.TargetXml
-                             or MainNavSection.GeneratedXml
-                             or MainNavSection.StepDictionary)
-        {
-            return MainNavSection.Segments;
-        }
-
-        return section;
-    }
-
-    private void RaiseNavSectionVisualProperties()
-    {
-        RaisePropertyChanged(nameof(IsSegmentsViewActive));
-        RaisePropertyChanged(nameof(IsReferenceXmlViewActive));
-        RaisePropertyChanged(nameof(IsTargetXmlViewActive));
-        RaisePropertyChanged(nameof(IsGeneratedXmlViewActive));
-        RaisePropertyChanged(nameof(IsStepDictionaryViewActive));
-    }
-
-    public bool IsSegmentsViewActive => SelectedSection == MainNavSection.Segments;
-
-    public bool IsReferenceXmlViewActive => SelectedSection == MainNavSection.ReferenceXml;
-
-    public bool IsTargetXmlViewActive => SelectedSection == MainNavSection.TargetXml;
-
-    public bool IsGeneratedXmlViewActive => SelectedSection == MainNavSection.GeneratedXml;
-
-    public bool IsStepDictionaryViewActive => SelectedSection == MainNavSection.StepDictionary;
-
-    private IoEdProject? _project;
-    public IoEdProject? Project
-    {
-        get => _project;
-        set
-        {
-            if (_project != value)
+            if (_selectedPanel is not null)
             {
-                if (_project is not null)
-                {
-                    _project.PropertyChanged -= OnProjectPropertyChanged;
-                }
-
-                _project = value;
-
-                if (_project is not null)
-                {
-                    _project.PropertyChanged += OnProjectPropertyChanged;
-                }
-
-                RaisePropertyChanged(nameof(Project));
-                RaisePropertyChanged(nameof(MergeSegments));
-                RaisePropertyChanged(nameof(WindowTitle));
-                RaisePropertyChanged(nameof(StepDictionaryRows));
-
-                if (value is null)
-                {
-                    ClearInstructionXmlViews();
-                }
+                _selectedPanel.IsActive = false;
             }
+
+            _selectedPanel = value;
+
+            if (_selectedPanel is not null)
+            {
+                _selectedPanel.IsActive = true;
+            }
+
+            RaisePropertyChanged(nameof(SelectedPanel));
+            RaisePropertyChanged(nameof(WindowTitle));
+            RaisePropertyChanged(nameof(IsSettingsPanelActive));
         }
     }
 
-    public string ReferenceInstructionXml => _referenceInstructionXml;
+    public ICommand ExitCommand { get; }
+    public ICommand OpenSettingsPanelCommand { get; }
 
-    public string TargetInstructionXml => _targetInstructionXml;
-
-    public string MergedInstructionXml => _mergedInstructionXml;
-
-    private void ClearInstructionXmlViews()
-    {
-        _referenceInstructionXml = string.Empty;
-        _targetInstructionXml = string.Empty;
-        _mergedInstructionXml = string.Empty;
-        RaisePropertyChanged(nameof(ReferenceInstructionXml));
-        RaisePropertyChanged(nameof(TargetInstructionXml));
-        RaisePropertyChanged(nameof(MergedInstructionXml));
-    }
-
-    /// <summary>Passes merged XML explicitly so we can refresh the UI before <see cref="IoEdProject.MergedInstruction"/> is assigned (that assignment fires <see cref="INotifyPropertyChanged"/> early otherwise).</summary>
-    private void ApplyInstructionXmlDocuments(IoEdProject project, XDocument mergedInstruction)
-    {
-        _referenceInstructionXml = TruncateInstructionXmlForEditor(project.Reference.Instruction.Document.ToString(), "reference");
-        _targetInstructionXml = TruncateInstructionXmlForEditor(project.Target.Instruction.Document.ToString(), "target");
-        _mergedInstructionXml = TruncateInstructionXmlForEditor(mergedInstruction.ToString(), "merged");
-        RaisePropertyChanged(nameof(ReferenceInstructionXml));
-        RaisePropertyChanged(nameof(TargetInstructionXml));
-        RaisePropertyChanged(nameof(MergedInstructionXml));
-    }
-
-    private static string TruncateInstructionXmlForEditor(string xml, string role)
-    {
-        if (xml.Length <= InstructionXmlEditorDisplayMaxChars)
-        {
-            return xml;
-        }
-
-        var suffix =
-            "\r\n\r\n<!-- IoEditor: instruction XML truncated for editor display (" + role +
-            "); full length " + xml.Length +
-            " characters; increase InstructionXmlEditorDisplayMaxChars if needed -->";
-        var headLen = InstructionXmlEditorDisplayMaxChars - suffix.Length;
-        if (headLen <= 0)
-        {
-            return suffix.TrimStart();
-        }
-
-        return xml[..headLen] + suffix;
-    }
-
-    private void OnProjectPropertyChanged(object? sender, PropertyChangedEventArgs e)
-    {
-        if (e.PropertyName == nameof(IoEdProject.MergeModel))
-        {
-            RaisePropertyChanged(nameof(MergeSegments));
-        }
-    }
-
-    /// <summary>Stable binding source for the Segments list (avoids null path when no project).</summary>
-    public IEnumerable<MergedSegment> MergeSegments
-        => Project?.MergeModel?.Segments ?? Enumerable.Empty<MergedSegment>();
+    public bool IsSettingsPanelActive => _selectedPanel is SettingsPanelViewModel;
 
     public string WindowTitle
-        => !string.IsNullOrEmpty(Project?.Target?.FileName)
-            ? $"IoEditor - {Project!.Target.FileName}"
-            : "IoEditor";
-
-    public IEnumerable<InterimStepData> StepDictionaryRows
-        => Project?.InterimData?.StepDictionary?.OrderBy(static kv => kv.Key).Select(static kv => kv.Value)
-           ?? Enumerable.Empty<InterimStepData>();
-
-    /// <summary>From settings: show Reference / Target / Generated XML and Step dictionary in the sidebar.</summary>
-    public bool ShowXmlDebugTabs => _studioOptions.CurrentValue.ShowXmlDebugTabs;
+        => _selectedPanel?.Title is { Length: > 0 } t ? $"IoEditor – {t}" : "IoEditor";
 
     public MainViewModel(
         PartLibrary partLibrary,
@@ -213,7 +80,9 @@ internal sealed class MainViewModel : INotifyPropertyChanged
         IDialogService dialogs,
         IAppLifetime appLifetime,
         ISettingsUiPresenter settingsUi,
-        IOptionsMonitor<StudioOptions> studioOptions)
+        IOptionsMonitor<StudioOptions> studioOptions,
+        IOptions<StudioOptions> optionsSnapshot,
+        IConfigurationReloader configReloader)
     {
         _partLibrary = partLibrary;
         _colorLibrary = colorLibrary;
@@ -224,91 +93,83 @@ internal sealed class MainViewModel : INotifyPropertyChanged
         _appLifetime = appLifetime;
         _settingsUi = settingsUi;
         _studioOptions = studioOptions;
-        _ = _studioOptions.OnChange(_ =>
-        {
-            RaisePropertyChanged(nameof(ShowXmlDebugTabs));
-            var clamped = ClampSection(_selectedSection);
-            if (clamped != _selectedSection)
-            {
-                _selectedSection = clamped;
-                RaisePropertyChanged(nameof(SelectedSection));
-            }
+        _optionsSnapshot = optionsSnapshot;
+        _configReloader = configReloader;
 
-            RaiseNavSectionVisualProperties();
-        });
+        ExitCommand = new DelegateCommand(_ => _appLifetime.Shutdown());
+        OpenSettingsPanelCommand = new DelegateCommand(_ => OpenOrFocusSettingsPanel());
 
-        OpenFilesCommand = new DelegateCommand(OpenFilesCmd);
-        SaveFileCommand = new DelegateCommand(SaveFileCmd);
-        SaveAsCommand = new DelegateCommand(SaveAsCmd);
-        ExitCommand = new DelegateCommand(ExitCmd);
-        OpenSettingsCommand = new DelegateCommand(OpenSettingsCmd);
-        SelectNavSectionCommand = new DelegateCommand(SelectNavSectionCmd);
+        _settingsPanel = new SettingsPanelViewModel(
+            _optionsSnapshot,
+            ApplicationPaths.GetConfigFilePath(),
+            _filePicker,
+            _dialogs,
+            GetMainWindow);
+        _settingsPanel.Saved += _ => _configReloader.Reload();
+
+        var startPanel = new StartPanelViewModel();
+        startPanel.OpenRequested += OpenFilesAsync;
+        RegisterPanel(startPanel);
+        SelectedPanel = startPanel;
     }
 
-    private void SelectNavSectionCmd(object? parameter)
+    // -----------------------------------------------------------------------
+    // Public panel operations (called by App and command-line handler)
+    // -----------------------------------------------------------------------
+
+    /// <summary>Creates a new project panel, loads the project, and selects the panel.</summary>
+    public void OpenProjectPanel(string reference, string target)
     {
-        if (parameter is MainNavSection m)
-        {
-            SelectedSection = m;
-            return;
-        }
+        var panel = new ProjectPanelViewModel(
+            _partLibrary, _colorLibrary, _imageProxyFactory,
+            _filePicker, _dialogs, _studioOptions, GetMainWindow);
 
-        if (parameter is string s && Enum.TryParse<MainNavSection>(s, ignoreCase: true, out var parsed))
-        {
-            SelectedSection = parsed;
-        }
-    }
+        panel.CloseRequested += ClosePanel;
 
-    private static Window? GetMainWindow()
-        => (Avalonia.Application.Current?.ApplicationLifetime as IClassicDesktopStyleApplicationLifetime)?.MainWindow as Window;
-
-    private void ExitCmd(object? _) => _appLifetime.Shutdown();
-
-    private async void OpenSettingsCmd(object? _)
-    {
-        var owner = GetMainWindow();
-        _ = await _settingsUi.ShowAsync(owner);
-    }
-
-    private void SaveFileCmd(object? _)
-    {
-        _ = _dialogs.ShowErrorAsync("Save is not implemented yet.");
-    }
-
-    private async void SaveAsCmd(object? _)
-    {
-        var owner = GetMainWindow();
-        if (owner is null || Project is null)
-        {
-            return;
-        }
-
-        var filePath = await _filePicker.PickSaveIoFileAsync(owner);
-        if (string.IsNullOrEmpty(filePath))
-        {
-            return;
-        }
-
-        if (File.Exists(filePath))
-        {
-            if (!await _dialogs.ConfirmAsync("File already exists. Do you want to overwrite?", "Confirm Overwrite"))
-            {
-                return;
-            }
-        }
+        RegisterPanel(panel);
+        SelectedPanel = panel;
 
         try
         {
-            StudioFileSaver.Save(filePath, Project);
-            await _dialogs.ShowInfoAsync("Done.");
+            panel.LoadProject(reference, target);
         }
-        catch (Exception ex)
+        catch
         {
-            await _dialogs.ShowErrorAsync($"Error saving file: {ex.Message}");
+            ClosePanel(panel);
+            throw;
         }
     }
 
-    private async void OpenFilesCmd(object? _)
+    /// <summary>Selects the permanent settings panel.</summary>
+    public void OpenOrFocusSettingsPanel()
+    {
+        SelectedPanel = _settingsPanel;
+    }
+
+    // -----------------------------------------------------------------------
+    // Private helpers
+    // -----------------------------------------------------------------------
+
+    private void RegisterPanel(EditorPanelViewModelBase panel)
+    {
+        panel.SelectCommand = new DelegateCommand(_ => SelectedPanel = panel);
+        OpenPanels.Add(panel);
+    }
+
+    private void ClosePanel(EditorPanelViewModelBase panel)
+    {
+        var idx = OpenPanels.IndexOf(panel);
+        OpenPanels.Remove(panel);
+
+        if (SelectedPanel == panel)
+        {
+            SelectedPanel = idx > 0
+                ? OpenPanels[Math.Min(idx, OpenPanels.Count) - 1]
+                : OpenPanels.FirstOrDefault();
+        }
+    }
+
+    private async void OpenFilesAsync()
     {
         var owner = GetMainWindow();
         if (owner is null)
@@ -324,7 +185,7 @@ internal sealed class MainViewModel : INotifyPropertyChanged
 
         try
         {
-            OpenFiles(pick.Value.ReferencePath, pick.Value.TargetPath);
+            OpenProjectPanel(pick.Value.ReferencePath, pick.Value.TargetPath);
         }
         catch (Exception ex)
         {
@@ -332,45 +193,9 @@ internal sealed class MainViewModel : INotifyPropertyChanged
         }
     }
 
-    public void OpenFiles(string reference, string target)
-    {
-        var sw = Stopwatch.StartNew();
-        try
-        {
-            Console.WriteLine("==== Loading project ====");
-            Project = null;
-
-            var project = IoEdProjectLoader.Load(reference, target);
-            Project = project;
-
-            Console.WriteLine("Compare reference and target files");
-            var stepBuilder = new IndexedStepsBuilder(_partLibrary, _colorLibrary, _imageProxyFactory);
-            var stepComparer = new StepComparer(stepBuilder);
-            var comparisonResult = stepComparer.Compare(Project!.Reference, Project.Target);
-            Project.ComparisonResult = comparisonResult;
-
-            var mergeBuilder = new MergeModelBuilder();
-            var mergeResult = mergeBuilder.Build(comparisonResult, Project.Reference.Instruction);
-            project.MergeModel = mergeResult;
-
-            Console.WriteLine("Merging instructions");
-            (var instruction, var imageResources) = InstructionMerger.Merge(project);
-
-            ApplyInstructionXmlDocuments(project, instruction);
-
-            project.MergedInstruction = instruction;
-            project.MergedImageResources = imageResources;
-
-            project.InterimData.StepDictionary = StepDictionaryBuilder.FromInstructionDocument(project.Target.Instruction.Document);
-            RaisePropertyChanged(nameof(StepDictionaryRows));
-
-            Console.WriteLine("Done loading project");
-        }
-        finally
-        {
-            Console.WriteLine($"Done. Elapsed: {sw.Elapsed}");
-        }
-    }
+    private static Window? GetMainWindow()
+        => (Avalonia.Application.Current?.ApplicationLifetime as IClassicDesktopStyleApplicationLifetime)
+           ?.MainWindow as Window;
 
     public event PropertyChangedEventHandler? PropertyChanged;
 
