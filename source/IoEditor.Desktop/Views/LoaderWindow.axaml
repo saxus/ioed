@@ -3,7 +3,9 @@
         x:Class="IoEditor.Desktop.Views.LoaderWindow"
         Title="Open stud.io files"
         Width="700" Height="220"
-        WindowStartupLocation="CenterOwner">
+        WindowStartupLocation="CenterOwner"
+        Background="{DynamicResource IoEditorChromeBackground}"
+        Foreground="{DynamicResource IoEditorChromeForeground}">
   <Grid Margin="10" RowDefinitions="Auto,Auto,*,Auto" ColumnDefinitions="Auto,*,Auto" RowSpacing="8" ColumnSpacing="6">
     <TextBlock Grid.Row="0" Grid.Column="0" Text="Reference File:" VerticalAlignment="Center" />
     <TextBox Grid.Row="0" Grid.Column="1" Text="{Binding ReferenceFile, Mode=TwoWay}" />

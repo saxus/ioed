@@ -15,23 +15,26 @@ internal sealed class SettingsUiPresenter : ISettingsUiPresenter
     private readonly IOptions<StudioOptions> _options;
     private readonly IFilePickerService _files;
     private readonly IDialogService _dialogs;
+    private readonly IThemeService _themeService;
 
     public SettingsUiPresenter(
         IHost host,
         IOptions<StudioOptions> options,
         IFilePickerService files,
-        IDialogService dialogs)
+        IDialogService dialogs,
+        IThemeService themeService)
     {
         _host = host;
         _options = options;
         _files = files;
         _dialogs = dialogs;
+        _themeService = themeService;
     }
 
     public async Task<bool> ShowAsync(Window? owner)
     {
         var configPath = ApplicationPaths.GetConfigFilePath();
-        var vm = new SettingsViewModel(_options, configPath, _files, _dialogs);
+        var vm = new SettingsViewModel(_options, configPath, _files, _dialogs, _themeService);
         var win = new SettingsWindow { DataContext = vm };
         vm.SetOwner(win);
         vm.RequestClose += () => win.Close();

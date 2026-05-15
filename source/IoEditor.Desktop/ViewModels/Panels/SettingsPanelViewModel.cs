@@ -3,6 +3,7 @@ using System.Text.Json;
 using System.Windows.Input;
 using Avalonia.Controls;
 using IoEditor.Desktop.Hosting;
+using IoEditor.Desktop.Services;
 using IoEditor.Desktop.Utils;
 using IoEditor.Models.Configuration;
 using IoEditor.Models.Studio;
@@ -19,6 +20,7 @@ internal sealed class SettingsPanelViewModel : EditorPanelViewModelBase
     private readonly IFilePickerService _files;
     private readonly IDialogService _dialogs;
     private readonly Func<Window?> _getMainWindow;
+    private readonly IThemeService _themeService;
 
     public override string Title => "Settings";
 
@@ -57,6 +59,24 @@ internal sealed class SettingsPanelViewModel : EditorPanelViewModelBase
         }
     }
 
+    private AppThemeMode _themeMode;
+    public AppThemeMode ThemeMode
+    {
+        get => _themeMode;
+        set
+        {
+            if (_themeMode == value)
+            {
+                return;
+            }
+
+            _themeMode = value;
+            RaisePropertyChanged(nameof(ThemeMode));
+        }
+    }
+
+    public AppThemeMode[] ThemeModes { get; } = Enum.GetValues<AppThemeMode>();
+
     public ICommand SaveCommand { get; }
     public ICommand BrowseStudioFolderCommand { get; }
 
@@ -68,15 +88,18 @@ internal sealed class SettingsPanelViewModel : EditorPanelViewModelBase
         string configFilePath,
         IFilePickerService files,
         IDialogService dialogs,
+        IThemeService themeService,
         Func<Window?> getMainWindow)
     {
         _options = options.Value;
         _configFilePath = configFilePath;
         _files = files;
         _dialogs = dialogs;
+        _themeService = themeService;
         _getMainWindow = getMainWindow;
         _studioFolderPath = _options.StudioFolder ?? string.Empty;
         _showXmlDebugTabs = _options.ShowXmlDebugTabs;
+        _themeMode = _options.ThemeMode;
 
         SaveCommand = new DelegateCommand(Save);
         BrowseStudioFolderCommand = new DelegateCommand(BrowseStudioFolder);
@@ -86,9 +109,11 @@ internal sealed class SettingsPanelViewModel : EditorPanelViewModelBase
     {
         _options.StudioFolder = StudioFolderPath;
         _options.ShowXmlDebugTabs = ShowXmlDebugTabs;
+        _options.ThemeMode = ThemeMode;
         var config = new { StudioOptions = _options };
         var json = JsonSerializer.Serialize(config, new JsonSerializerOptions { WriteIndented = true });
         File.WriteAllText(_configFilePath, json);
+        _themeService.Apply(_options.ThemeMode);
         Saved?.Invoke(this);
     }
 

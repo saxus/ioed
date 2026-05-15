@@ -17,16 +17,24 @@ internal sealed class SettingsViewModel : INotifyPropertyChanged
     private readonly string _configFilePath;
     private readonly IFilePickerService _files;
     private readonly IDialogService _dialogs;
+    private readonly IThemeService _themeService;
     private Window? _owner;
 
-    public SettingsViewModel(IOptions<StudioOptions> options, string configFilePath, IFilePickerService files, IDialogService dialogs)
+    public SettingsViewModel(
+        IOptions<StudioOptions> options,
+        string configFilePath,
+        IFilePickerService files,
+        IDialogService dialogs,
+        IThemeService themeService)
     {
         _options = options.Value;
         _configFilePath = configFilePath;
         _files = files;
         _dialogs = dialogs;
+        _themeService = themeService;
         _studioFolderPath = _options.StudioFolder ?? string.Empty;
         _showXmlDebugTabs = _options.ShowXmlDebugTabs;
+        _themeMode = _options.ThemeMode;
         BrowseStudioFolderCommand = new DelegateCommand(BrowseStudioFolder);
         SaveCommand = new DelegateCommand(Save);
         CancelCommand = new DelegateCommand(Cancel);
@@ -61,6 +69,22 @@ internal sealed class SettingsViewModel : INotifyPropertyChanged
             }
         }
     }
+
+    private AppThemeMode _themeMode;
+    public AppThemeMode ThemeMode
+    {
+        get => _themeMode;
+        set
+        {
+            if (_themeMode != value)
+            {
+                _themeMode = value;
+                RaisePropertyChanged(nameof(ThemeMode));
+            }
+        }
+    }
+
+    public AppThemeMode[] ThemeModes { get; } = Enum.GetValues<AppThemeMode>();
 
     public ICommand BrowseStudioFolderCommand { get; }
     public ICommand SaveCommand { get; }
@@ -97,9 +121,11 @@ internal sealed class SettingsViewModel : INotifyPropertyChanged
     {
         _options.StudioFolder = StudioFolderPath;
         _options.ShowXmlDebugTabs = ShowXmlDebugTabs;
+        _options.ThemeMode = ThemeMode;
         var config = new { StudioOptions = _options };
         var json = JsonSerializer.Serialize(config, new JsonSerializerOptions { WriteIndented = true });
         File.WriteAllText(_configFilePath, json);
+        _themeService.Apply(_options.ThemeMode);
         WasSaved = true;
         RequestClose?.Invoke();
     }

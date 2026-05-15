@@ -1,33 +1,131 @@
 <ResourceDictionary xmlns="https://github.com/avaloniaui"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
-  <!-- Matches legacy WPF StandardWindow / LightBackground (#2D2D30) -->
-  <SolidColorBrush x:Key="IoEditorChromeBackground" Color="#2D2D30" />
-  <SolidColorBrush x:Key="IoEditorChromeForeground" Color="White" />
-  <SolidColorBrush x:Key="IoEditorAccentLime" Color="Lime" />
-  <SolidColorBrush x:Key="IoEditorAccentWheat" Color="Wheat" />
+  <ResourceDictionary.ThemeDictionaries>
+    <ResourceDictionary x:Key="Dark">
+      <!-- Matches the original dark chrome (#2D2D30) while covering all common controls. -->
+      <SolidColorBrush x:Key="IoEditorChromeBackground" Color="#2D2D30" />
+      <SolidColorBrush x:Key="IoEditorChromeForeground" Color="#FFFFFF" />
+      <SolidColorBrush x:Key="IoEditorSurfaceBackground" Color="#252526" />
+      <SolidColorBrush x:Key="IoEditorSurfaceForeground" Color="#FFFFFF" />
+      <SolidColorBrush x:Key="IoEditorPanelBackground" Color="#1E1E1E" />
+      <SolidColorBrush x:Key="IoEditorPanelForeground" Color="#FFFFFF" />
+      <SolidColorBrush x:Key="IoEditorMutedForeground" Color="#B8B8B8" />
+      <SolidColorBrush x:Key="IoEditorDisabledForeground" Color="#808080" />
+      <SolidColorBrush x:Key="IoEditorBorderBrush" Color="#3E3E42" />
+      <SolidColorBrush x:Key="IoEditorAccentBrush" Color="#007ACC" />
+      <SolidColorBrush x:Key="IoEditorAccentForeground" Color="#FFFFFF" />
 
-  <SolidColorBrush x:Key="IoEditorXmlEditorBackground" Color="#3f3f46" />
-  <SolidColorBrush x:Key="IoEditorXmlEditorForeground" Color="White" />
-  <SolidColorBrush x:Key="IoEditorXmlReadOnlyBorderBrush" Color="#555555" />
-  <SolidColorBrush x:Key="IoEditorTextSelectionBrush" Color="#553B5B8A" />
-  <SolidColorBrush x:Key="IoEditorTextSelectionForegroundBrush" Color="White" />
+      <SolidColorBrush x:Key="IoEditorButtonBackground" Color="#3F3F46" />
+      <SolidColorBrush x:Key="IoEditorButtonForeground" Color="#FFFFFF" />
+      <SolidColorBrush x:Key="IoEditorButtonBorderBrush" Color="#54545C" />
+      <SolidColorBrush x:Key="IoEditorButtonBackgroundPointerOver" Color="#1C4A7C" />
+      <SolidColorBrush x:Key="IoEditorButtonBorderBrushPointerOver" Color="#6A6A75" />
+      <SolidColorBrush x:Key="IoEditorButtonBackgroundPressed" Color="#007ACC" />
+      <SolidColorBrush x:Key="IoEditorButtonBorderBrushPressed" Color="#1C97EA" />
+      <SolidColorBrush x:Key="IoEditorButtonForegroundDisabled" Color="#808080" />
 
-  <!-- Segments list: rows and expanded block (Fluent defaults are light-themed) -->
-  <SolidColorBrush x:Key="IoEditorSegmentRowBackground" Color="#323238" />
-  <SolidColorBrush x:Key="IoEditorSegmentRowBackgroundPointerOver" Color="#3a3a42" />
-  <SolidColorBrush x:Key="IoEditorSegmentRowBackgroundSelected" Color="#3f3f46" />
-  <SolidColorBrush x:Key="IoEditorSegmentExpandedBackground" Color="#252528" />
+      <SolidColorBrush x:Key="IoEditorInputBackground" Color="#333337" />
+      <SolidColorBrush x:Key="IoEditorInputForeground" Color="#FFFFFF" />
+      <SolidColorBrush x:Key="IoEditorInputBorderBrush" Color="#54545C" />
+      <SolidColorBrush x:Key="IoEditorInputBackgroundFocused" Color="#3F3F46" />
+      <SolidColorBrush x:Key="IoEditorInputBorderBrushFocused" Color="#007ACC" />
 
-  <SolidColorBrush x:Key="IoEditorSegmentsOverviewTrackBackground" Color="#1e1e22" />
-  <SolidColorBrush x:Key="IoEditorSegmentsOverviewThumbFill" Color="#AAFFFFFF" />
-  <SolidColorBrush x:Key="IoEditorSegmentsOverviewThumbBorder" Color="#FFFFFFFF" />
+      <SolidColorBrush x:Key="IoEditorSelectionBrush" Color="#553B5B8A" />
+      <SolidColorBrush x:Key="IoEditorSelectionForegroundBrush" Color="#FFFFFF" />
+      <SolidColorBrush x:Key="IoEditorTextSelectionBrush" Color="#553B5B8A" />
+      <SolidColorBrush x:Key="IoEditorTextSelectionForegroundBrush" Color="#FFFFFF" />
 
-  <SolidColorBrush x:Key="IoEditorNavRailBackground" Color="#252526" />
-  <SolidColorBrush x:Key="IoEditorNavRailSelectionAccent" Color="#007ACC" />
-  <SolidColorBrush x:Key="IoEditorButtonBackgroundPointerOver" Color="#1c4a7c" />
-  <SolidColorBrush x:Key="IoEditorNavButtonBackground" Color="Transparent" />
-  <SolidColorBrush x:Key="IoEditorNavButtonBackgroundPointerOver" Color="#1c4a7c" />
+      <SolidColorBrush x:Key="IoEditorTabBackground" Color="#252526" />
+      <SolidColorBrush x:Key="IoEditorTabForeground" Color="#FFFFFF" />
+      <SolidColorBrush x:Key="IoEditorTabSelectedBackground" Color="#007ACC" />
+      <SolidColorBrush x:Key="IoEditorTabPointerOverBackground" Color="#1C4A7C" />
 
-  <SolidColorBrush x:Key="IoEditorSegmentsToolbarBackground" Color="#2d2d30" />
-  <SolidColorBrush x:Key="IoEditorSegmentsToolbarBorder" Color="#3e3e42" />
+      <SolidColorBrush x:Key="IoEditorXmlEditorBackground" Color="#3F3F46" />
+      <SolidColorBrush x:Key="IoEditorXmlEditorForeground" Color="#FFFFFF" />
+      <SolidColorBrush x:Key="IoEditorXmlReadOnlyBorderBrush" Color="#555555" />
+
+      <SolidColorBrush x:Key="IoEditorSegmentRowBackground" Color="#323238" />
+      <SolidColorBrush x:Key="IoEditorSegmentRowBackgroundPointerOver" Color="#3A3A42" />
+      <SolidColorBrush x:Key="IoEditorSegmentRowBackgroundSelected" Color="#3F3F46" />
+      <SolidColorBrush x:Key="IoEditorSegmentExpandedBackground" Color="#252528" />
+
+      <SolidColorBrush x:Key="IoEditorSegmentsOverviewTrackBackground" Color="#1E1E22" />
+      <SolidColorBrush x:Key="IoEditorSegmentsOverviewThumbFill" Color="#AAFFFFFF" />
+      <SolidColorBrush x:Key="IoEditorSegmentsOverviewThumbBorder" Color="#FFFFFFFF" />
+
+      <SolidColorBrush x:Key="IoEditorNavRailBackground" Color="#252526" />
+      <SolidColorBrush x:Key="IoEditorNavRailSelectionAccent" Color="#007ACC" />
+      <SolidColorBrush x:Key="IoEditorNavButtonBackground" Color="Transparent" />
+      <SolidColorBrush x:Key="IoEditorNavButtonBackgroundPointerOver" Color="#1C4A7C" />
+
+      <SolidColorBrush x:Key="IoEditorSegmentsToolbarBackground" Color="#2D2D30" />
+      <SolidColorBrush x:Key="IoEditorSegmentsToolbarBorder" Color="#3E3E42" />
+
+      <SolidColorBrush x:Key="IoEditorAccentLime" Color="#8AD072" />
+      <SolidColorBrush x:Key="IoEditorAccentWheat" Color="#F5DEB3" />
+    </ResourceDictionary>
+
+    <ResourceDictionary x:Key="Light">
+      <SolidColorBrush x:Key="IoEditorChromeBackground" Color="#F3F3F3" />
+      <SolidColorBrush x:Key="IoEditorChromeForeground" Color="#1F1F1F" />
+      <SolidColorBrush x:Key="IoEditorSurfaceBackground" Color="#FFFFFF" />
+      <SolidColorBrush x:Key="IoEditorSurfaceForeground" Color="#1F1F1F" />
+      <SolidColorBrush x:Key="IoEditorPanelBackground" Color="#FFFFFF" />
+      <SolidColorBrush x:Key="IoEditorPanelForeground" Color="#1F1F1F" />
+      <SolidColorBrush x:Key="IoEditorMutedForeground" Color="#5F5F5F" />
+      <SolidColorBrush x:Key="IoEditorDisabledForeground" Color="#8A8A8A" />
+      <SolidColorBrush x:Key="IoEditorBorderBrush" Color="#D0D0D0" />
+      <SolidColorBrush x:Key="IoEditorAccentBrush" Color="#0078D4" />
+      <SolidColorBrush x:Key="IoEditorAccentForeground" Color="#FFFFFF" />
+
+      <SolidColorBrush x:Key="IoEditorButtonBackground" Color="#FFFFFF" />
+      <SolidColorBrush x:Key="IoEditorButtonForeground" Color="#1F1F1F" />
+      <SolidColorBrush x:Key="IoEditorButtonBorderBrush" Color="#C8C8C8" />
+      <SolidColorBrush x:Key="IoEditorButtonBackgroundPointerOver" Color="#EAF4FF" />
+      <SolidColorBrush x:Key="IoEditorButtonBorderBrushPointerOver" Color="#8ABDEB" />
+      <SolidColorBrush x:Key="IoEditorButtonBackgroundPressed" Color="#D0E7FF" />
+      <SolidColorBrush x:Key="IoEditorButtonBorderBrushPressed" Color="#0078D4" />
+      <SolidColorBrush x:Key="IoEditorButtonForegroundDisabled" Color="#8A8A8A" />
+
+      <SolidColorBrush x:Key="IoEditorInputBackground" Color="#FFFFFF" />
+      <SolidColorBrush x:Key="IoEditorInputForeground" Color="#1F1F1F" />
+      <SolidColorBrush x:Key="IoEditorInputBorderBrush" Color="#C8C8C8" />
+      <SolidColorBrush x:Key="IoEditorInputBackgroundFocused" Color="#FFFFFF" />
+      <SolidColorBrush x:Key="IoEditorInputBorderBrushFocused" Color="#0078D4" />
+
+      <SolidColorBrush x:Key="IoEditorSelectionBrush" Color="#663B8EEA" />
+      <SolidColorBrush x:Key="IoEditorSelectionForegroundBrush" Color="#FFFFFF" />
+      <SolidColorBrush x:Key="IoEditorTextSelectionBrush" Color="#663B8EEA" />
+      <SolidColorBrush x:Key="IoEditorTextSelectionForegroundBrush" Color="#FFFFFF" />
+
+      <SolidColorBrush x:Key="IoEditorTabBackground" Color="#F3F3F3" />
+      <SolidColorBrush x:Key="IoEditorTabForeground" Color="#1F1F1F" />
+      <SolidColorBrush x:Key="IoEditorTabSelectedBackground" Color="#D0E7FF" />
+      <SolidColorBrush x:Key="IoEditorTabPointerOverBackground" Color="#EAF4FF" />
+
+      <SolidColorBrush x:Key="IoEditorXmlEditorBackground" Color="#FFFFFF" />
+      <SolidColorBrush x:Key="IoEditorXmlEditorForeground" Color="#1F1F1F" />
+      <SolidColorBrush x:Key="IoEditorXmlReadOnlyBorderBrush" Color="#C8C8C8" />
+
+      <SolidColorBrush x:Key="IoEditorSegmentRowBackground" Color="#FFFFFF" />
+      <SolidColorBrush x:Key="IoEditorSegmentRowBackgroundPointerOver" Color="#F2F8FF" />
+      <SolidColorBrush x:Key="IoEditorSegmentRowBackgroundSelected" Color="#DDEEFF" />
+      <SolidColorBrush x:Key="IoEditorSegmentExpandedBackground" Color="#F7F7F7" />
+
+      <SolidColorBrush x:Key="IoEditorSegmentsOverviewTrackBackground" Color="#E5E5E5" />
+      <SolidColorBrush x:Key="IoEditorSegmentsOverviewThumbFill" Color="#AA1F1F1F" />
+      <SolidColorBrush x:Key="IoEditorSegmentsOverviewThumbBorder" Color="#CC1F1F1F" />
+
+      <SolidColorBrush x:Key="IoEditorNavRailBackground" Color="#EAEAEA" />
+      <SolidColorBrush x:Key="IoEditorNavRailSelectionAccent" Color="#0078D4" />
+      <SolidColorBrush x:Key="IoEditorNavButtonBackground" Color="Transparent" />
+      <SolidColorBrush x:Key="IoEditorNavButtonBackgroundPointerOver" Color="#D0E7FF" />
+
+      <SolidColorBrush x:Key="IoEditorSegmentsToolbarBackground" Color="#F3F3F3" />
+      <SolidColorBrush x:Key="IoEditorSegmentsToolbarBorder" Color="#D0D0D0" />
+
+      <SolidColorBrush x:Key="IoEditorAccentLime" Color="#2E7D32" />
+      <SolidColorBrush x:Key="IoEditorAccentWheat" Color="#8A5A00" />
+    </ResourceDictionary>
+  </ResourceDictionary.ThemeDictionaries>
 </ResourceDictionary>

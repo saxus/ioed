@@ -7,4 +7,7 @@ internal static class ApplicationPaths
 
     public static string GetConfigFilePath()
         => Path.Combine(GetConfigFolderPath(), "appsettings.json");
+
+    public static string GetRecentProjectsFilePath()
+        => Path.Combine(GetConfigFolderPath(), "recent-projects.json");
 }

@@ -99,6 +99,7 @@ internal sealed class SegmentsOverviewStrip : Control
         {
             InvalidateVisual();
         }
+
     }
 
     private void ResolveThemeBrushes()
@@ -189,6 +190,7 @@ internal sealed class SegmentsOverviewStrip : Control
     public override void Render(DrawingContext context)
     {
         base.Render(context);
+        ResolveThemeBrushes();
 
         var h = Bounds.Height;
         var w = Bounds.Width;

@@ -38,8 +38,7 @@
           <Button Padding="6,4"
                   Command="{Binding SelectNavSectionCommand}"
                   CommandParameter="Segments"
-                  ToolTip.Tip="Segments"
-                  Foreground="{DynamicResource IoEditorChromeForeground}">
+                  ToolTip.Tip="Segments">
             <Image Width="16" Height="16">
               <Image.Source>
                 <svg:SvgImage Source="avares://IoEditor.Desktop/Assets/Icons/nav-segments.svg" />
@@ -49,8 +48,7 @@
           <Button Padding="6,4"
                   Command="{Binding SelectNavSectionCommand}"
                   CommandParameter="ReferenceXml"
-                  ToolTip.Tip="Reference XML"
-                  Foreground="{DynamicResource IoEditorChromeForeground}">
+                  ToolTip.Tip="Reference XML">
             <Image Width="16" Height="16">
               <Image.Source>
                 <svg:SvgImage Source="avares://IoEditor.Desktop/Assets/Icons/nav-reference-xml.svg" />
@@ -60,8 +58,7 @@
           <Button Padding="6,4"
                   Command="{Binding SelectNavSectionCommand}"
                   CommandParameter="TargetXml"
-                  ToolTip.Tip="Target XML"
-                  Foreground="{DynamicResource IoEditorChromeForeground}">
+                  ToolTip.Tip="Target XML">
             <Image Width="16" Height="16">
               <Image.Source>
                 <svg:SvgImage Source="avares://IoEditor.Desktop/Assets/Icons/nav-target-xml.svg" />
@@ -71,8 +68,7 @@
           <Button Padding="6,4"
                   Command="{Binding SelectNavSectionCommand}"
                   CommandParameter="GeneratedXml"
-                  ToolTip.Tip="Generated XML"
-                  Foreground="{DynamicResource IoEditorChromeForeground}">
+                  ToolTip.Tip="Generated XML">
             <Image Width="16" Height="16">
               <Image.Source>
                 <svg:SvgImage Source="avares://IoEditor.Desktop/Assets/Icons/nav-generated-xml.svg" />
@@ -82,15 +78,14 @@
           <Button Padding="6,4"
                   Command="{Binding SelectNavSectionCommand}"
                   CommandParameter="StepDictionary"
-                  ToolTip.Tip="Step Dictionary"
-                  Foreground="{DynamicResource IoEditorChromeForeground}">
+                  ToolTip.Tip="Step Dictionary">
             <Image Width="16" Height="16">
               <Image.Source>
                 <svg:SvgImage Source="avares://IoEditor.Desktop/Assets/Icons/nav-step-dictionary.svg" />
               </Image.Source>
             </Image>
           </Button>
-          <Border Width="1" Margin="4,4" Background="#3e3e42" />
+          <Border Width="1" Margin="4,4" Background="{DynamicResource IoEditorBorderBrush}" />
         </StackPanel>
 
         <!-- Middle: diff navigation (Segments view only) -->
@@ -100,27 +95,21 @@
                     IsVisible="{Binding IsSegmentsViewActive}">
           <Button Name="SegmentsPrevDiffButton"
                   Click="OnSegmentsPrevDifferenceClick"
-                  Padding="10,6"
-                  Foreground="{DynamicResource IoEditorChromeForeground}">
+                  Padding="10,6">
             <StackPanel Orientation="Horizontal" Spacing="6">
               <TextBlock VerticalAlignment="Center"
-                         Foreground="{DynamicResource IoEditorChromeForeground}"
                          Text="↑" />
               <TextBlock VerticalAlignment="Center"
-                         Foreground="{DynamicResource IoEditorChromeForeground}"
                          Text="Previous difference" />
             </StackPanel>
           </Button>
           <Button Name="SegmentsNextDiffButton"
                   Click="OnSegmentsNextDifferenceClick"
-                  Padding="10,6"
-                  Foreground="{DynamicResource IoEditorChromeForeground}">
+                  Padding="10,6">
             <StackPanel Orientation="Horizontal" Spacing="6">
               <TextBlock VerticalAlignment="Center"
-                         Foreground="{DynamicResource IoEditorChromeForeground}"
                          Text="Next difference" />
               <TextBlock VerticalAlignment="Center"
-                         Foreground="{DynamicResource IoEditorChromeForeground}"
                          Text="↓" />
             </StackPanel>
           </Button>
@@ -132,26 +121,20 @@
                     Spacing="8">
           <Button Command="{Binding SaveCommand}"
                   Padding="10,6"
-                  Foreground="{DynamicResource IoEditorChromeForeground}"
                   ToolTip.Tip="Save (Ctrl+S)">
             <TextBlock VerticalAlignment="Center"
-                       Foreground="{DynamicResource IoEditorChromeForeground}"
                        Text="Save" />
           </Button>
           <Button Command="{Binding SaveAsCommand}"
                   Padding="10,6"
-                  Foreground="{DynamicResource IoEditorChromeForeground}"
                   ToolTip.Tip="Save As… (Ctrl+Shift+S)">
             <TextBlock VerticalAlignment="Center"
-                       Foreground="{DynamicResource IoEditorChromeForeground}"
                        Text="Save as…" />
           </Button>
           <Button Command="{Binding CloseCommand}"
                   Padding="10,6"
-                  Foreground="{DynamicResource IoEditorChromeForeground}"
                   ToolTip.Tip="Close project">
             <TextBlock VerticalAlignment="Center"
-                       Foreground="{DynamicResource IoEditorChromeForeground}"
                        Text="✕ Close" />
           </Button>
         </StackPanel>
@@ -184,7 +167,6 @@
                 <Setter Property="Margin" Value="0,0,0,6" />
                 <Setter Property="CornerRadius" Value="4" />
                 <Setter Property="Background" Value="{DynamicResource IoEditorSegmentRowBackground}" />
-                <Setter Property="Foreground" Value="{DynamicResource IoEditorChromeForeground}" />
               </Style>
               <Style Selector="ListBoxItem:pointerover">
                 <Setter Property="Background" Value="{DynamicResource IoEditorSegmentRowBackgroundPointerOver}" />
@@ -193,7 +175,6 @@
                 <Setter Property="Background" Value="{DynamicResource IoEditorSegmentRowBackgroundSelected}" />
               </Style>
               <Style Selector="ListBoxItem CheckBox">
-                <Setter Property="Foreground" Value="{DynamicResource IoEditorChromeForeground}" />
                 <Setter Property="Background" Value="Transparent" />
               </Style>
               <Style Selector="ListBoxItem ScrollViewer">
@@ -211,10 +192,10 @@
                 <StackPanel Background="Transparent">
                   <CheckBox IsChecked="{Binding IsExpanded}">
                     <StackPanel Orientation="Horizontal">
-                      <TextBlock Foreground="{DynamicResource IoEditorChromeForeground}" Text="#" />
-                      <TextBlock Foreground="{DynamicResource IoEditorChromeForeground}" Text="{Binding SegmentIndex}" FontWeight="Bold" />
+                      <TextBlock Text="#" />
+                      <TextBlock Text="{Binding SegmentIndex}" FontWeight="Bold" />
                       <TextBlock Margin="6,0,0,0" Text="{Binding Equality}" Foreground="{Binding Equality, Converter={StaticResource EqualityToBrushConverter}}" />
-                      <TextBlock Margin="6,0,0,0" Foreground="{DynamicResource IoEditorChromeForeground}" Text="{Binding SegmentName}" />
+                      <TextBlock Margin="6,0,0,0" Text="{Binding SegmentName}" />
                       <TextBlock Margin="6,0,0,0" Foreground="{DynamicResource IoEditorAccentLime}" Text="{Binding ReferenceSegment.Steps.Count, StringFormat='({0})'}" />
                     </StackPanel>
                   </CheckBox>
@@ -331,7 +312,7 @@
             <ItemsControl.ItemTemplate>
               <DataTemplate>
                 <StackPanel Margin="0,6,0,0">
-                  <TextBlock Foreground="{DynamicResource IoEditorChromeForeground}">
+                  <TextBlock>
                     <Run Text="#" />
                     <Run Text="{Binding SerializedStepIndex}" Foreground="{DynamicResource IoEditorAccentWheat}" FontWeight="Bold" />
                     <Run Text=" " />
@@ -366,14 +347,12 @@
       <Grid ColumnDefinitions="*,Auto">
         <TextBlock Grid.Column="0"
                    Text="Ready."
-                   VerticalAlignment="Center"
-                   Foreground="{DynamicResource IoEditorChromeForeground}" />
+                   VerticalAlignment="Center" />
         <TextBlock x:Name="StatusSegmentText"
                    Grid.Column="1"
                    VerticalAlignment="Center"
                    Margin="16,0,0,0"
-                   Text=""
-                   Foreground="{DynamicResource IoEditorChromeForeground}" />
+                   Text="" />
       </Grid>
     </Border>
 

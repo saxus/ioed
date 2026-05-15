@@ -5,6 +5,7 @@ using System.Windows.Input;
 using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
 using IoEditor.Desktop.Hosting;
+using IoEditor.Desktop.Models;
 using IoEditor.Desktop.Services;
 using IoEditor.Desktop.Utils;
 using IoEditor.Desktop.ViewModels.Panels;
@@ -30,7 +31,11 @@ internal sealed class MainViewModel : INotifyPropertyChanged
     private readonly IOptionsMonitor<StudioOptions> _studioOptions;
     private readonly IOptions<StudioOptions> _optionsSnapshot;
     private readonly IConfigurationReloader _configReloader;
+    private readonly IThemeService _themeService;
     private readonly SettingsPanelViewModel _settingsPanel;
+    private readonly IRecentProjectsStore _recentProjectsStore;
+    private readonly List<RecentProjectEntry> _recentProjects;
+    private readonly StartPanelViewModel _startPanel;
 
     public ObservableCollection<EditorPanelViewModelBase> OpenPanels { get; } = new();
 
@@ -82,7 +87,9 @@ internal sealed class MainViewModel : INotifyPropertyChanged
         ISettingsUiPresenter settingsUi,
         IOptionsMonitor<StudioOptions> studioOptions,
         IOptions<StudioOptions> optionsSnapshot,
-        IConfigurationReloader configReloader)
+        IConfigurationReloader configReloader,
+        IThemeService themeService,
+        IRecentProjectsStore recentProjectsStore)
     {
         _partLibrary = partLibrary;
         _colorLibrary = colorLibrary;
@@ -95,6 +102,9 @@ internal sealed class MainViewModel : INotifyPropertyChanged
         _studioOptions = studioOptions;
         _optionsSnapshot = optionsSnapshot;
         _configReloader = configReloader;
+        _themeService = themeService;
+        _recentProjectsStore = recentProjectsStore;
+        _recentProjects = _recentProjectsStore.Load().ToList();
 
         ExitCommand = new DelegateCommand(_ => _appLifetime.Shutdown());
         OpenSettingsPanelCommand = new DelegateCommand(_ => OpenOrFocusSettingsPanel());
@@ -104,13 +114,17 @@ internal sealed class MainViewModel : INotifyPropertyChanged
             ApplicationPaths.GetConfigFilePath(),
             _filePicker,
             _dialogs,
+            _themeService,
             GetMainWindow);
         _settingsPanel.Saved += _ => _configReloader.Reload();
 
-        var startPanel = new StartPanelViewModel();
-        startPanel.OpenRequested += OpenFilesAsync;
-        RegisterPanel(startPanel);
-        SelectedPanel = startPanel;
+        _startPanel = new StartPanelViewModel();
+        _startPanel.OpenRequested += OpenFilesAsync;
+        _startPanel.RecentOpenRequested += OpenRecentProjectAsync;
+        _startPanel.RecentRemoveRequested += RemoveRecentProject;
+        _startPanel.SetRecentProjects(_recentProjects);
+        RegisterPanel(_startPanel);
+        SelectedPanel = _startPanel;
     }
 
     // -----------------------------------------------------------------------
@@ -132,6 +146,7 @@ internal sealed class MainViewModel : INotifyPropertyChanged
         try
         {
             panel.LoadProject(reference, target);
+            AddRecentProject(reference, target);
         }
         catch
         {
@@ -166,6 +181,75 @@ internal sealed class MainViewModel : INotifyPropertyChanged
             SelectedPanel = idx > 0
                 ? OpenPanels[Math.Min(idx, OpenPanels.Count) - 1]
                 : OpenPanels.FirstOrDefault();
+        }
+    }
+
+    private void AddRecentProject(string reference, string target)
+    {
+        var entry = new RecentProjectEntry
+        {
+            ReferencePath = NormalizePath(reference),
+            TargetPath = NormalizePath(target)
+        };
+
+        _recentProjects.RemoveAll(existing => IsSameProject(existing, entry.ReferencePath, entry.TargetPath));
+        _recentProjects.Insert(0, entry);
+
+        if (_recentProjects.Count > _recentProjectsStore.MaxEntries)
+        {
+            _recentProjects.RemoveRange(_recentProjectsStore.MaxEntries, _recentProjects.Count - _recentProjectsStore.MaxEntries);
+        }
+
+        SaveAndRefreshRecentProjects();
+    }
+
+    private async void OpenRecentProjectAsync(string reference, string target)
+    {
+        try
+        {
+            OpenProjectPanel(reference, target);
+        }
+        catch (Exception ex)
+        {
+            await _dialogs.ShowErrorAsync($"Error opening files: {ex.Message}");
+        }
+    }
+
+    private void RemoveRecentProject(string reference, string target)
+    {
+        _recentProjects.RemoveAll(existing => IsSameProject(existing, reference, target));
+        SaveAndRefreshRecentProjects();
+    }
+
+    private void SaveAndRefreshRecentProjects()
+    {
+        try
+        {
+            _recentProjectsStore.Save(_recentProjects);
+        }
+        catch (IOException)
+        {
+        }
+        catch (UnauthorizedAccessException)
+        {
+        }
+
+        _startPanel.SetRecentProjects(_recentProjects);
+    }
+
+    private static bool IsSameProject(RecentProjectEntry entry, string reference, string target)
+        => string.Equals(NormalizePath(entry.ReferencePath), NormalizePath(reference), StringComparison.OrdinalIgnoreCase)
+           && string.Equals(NormalizePath(entry.TargetPath), NormalizePath(target), StringComparison.OrdinalIgnoreCase);
+
+    private static string NormalizePath(string path)
+    {
+        try
+        {
+            return Path.GetFullPath(path);
+        }
+        catch
+        {
+            return path;
         }
     }
 

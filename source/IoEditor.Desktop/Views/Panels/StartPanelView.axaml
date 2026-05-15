@@ -16,8 +16,7 @@
             Padding="8,6">
       <StackPanel Orientation="Horizontal" Spacing="8">
         <Button Command="{Binding OpenCommand}"
-                Padding="10,6"
-                Foreground="{DynamicResource IoEditorChromeForeground}">
+                Padding="10,6">
           <StackPanel Orientation="Horizontal" Spacing="6">
             <Image Width="16" Height="16">
               <Image.Source>
@@ -25,46 +24,104 @@
               </Image.Source>
             </Image>
             <TextBlock VerticalAlignment="Center"
-                       Foreground="{DynamicResource IoEditorChromeForeground}"
                        Text="Open project…" />
           </StackPanel>
         </Button>
       </StackPanel>
     </Border>
 
-    <!-- Welcome content -->
-    <Grid Grid.Row="1">
-      <StackPanel HorizontalAlignment="Center"
-                  VerticalAlignment="Center"
-                  Spacing="20">
-        <TextBlock Text="IoEditor"
-                   FontSize="36"
-                   FontWeight="Light"
-                   HorizontalAlignment="Center"
-                   Foreground="{DynamicResource IoEditorChromeForeground}" />
-        <TextBlock Text="Compare and merge stud.io instruction files."
-                   FontSize="14"
-                   Opacity="0.7"
-                   HorizontalAlignment="Center"
-                   Foreground="{DynamicResource IoEditorChromeForeground}" />
-        <Button Command="{Binding OpenCommand}"
-                HorizontalAlignment="Center"
-                Padding="24,10"
-                Foreground="{DynamicResource IoEditorChromeForeground}">
-          <StackPanel Orientation="Horizontal" Spacing="8">
-            <Image Width="18" Height="18">
-              <Image.Source>
-                <svg:SvgImage Source="avares://IoEditor.Desktop/Assets/Icons/icon-open-folder.svg" />
-              </Image.Source>
-            </Image>
-            <TextBlock Text="Open project…"
-                       FontSize="14"
-                       VerticalAlignment="Center"
-                       Foreground="{DynamicResource IoEditorChromeForeground}" />
-          </StackPanel>
-        </Button>
-      </StackPanel>
-    </Grid>
+    <!-- Recent projects content -->
+    <ScrollViewer Grid.Row="1"
+                  HorizontalScrollBarVisibility="Disabled"
+                  VerticalScrollBarVisibility="Auto">
+      <Grid Margin="24"
+            HorizontalAlignment="Stretch">
+        <StackPanel Spacing="10">
+          <TextBlock Text="Recent projects..."
+                     FontSize="18"
+                     FontWeight="SemiBold" />
+
+          <ItemsControl ItemsSource="{Binding RecentProjects}"
+                        IsVisible="{Binding HasRecentProjects}">
+            <ItemsControl.ItemTemplate>
+              <DataTemplate DataType="vm:RecentProjectItemViewModel">
+                <Border Margin="0,0,0,8"
+                        Padding="12"
+                        CornerRadius="6"
+                        Background="{DynamicResource IoEditorPanelBackground}"
+                        BorderBrush="{DynamicResource IoEditorBorderBrush}"
+                        BorderThickness="1">
+                  <Grid ColumnDefinitions="*,Auto"
+                        ColumnSpacing="12">
+                    <StackPanel Grid.Column="0"
+                                Spacing="4">
+                      <TextBlock Text="{Binding DisplayName}"
+                                 FontSize="14"
+                                 TextWrapping="Wrap" />
+
+                      <Grid ColumnDefinitions="Auto,*"
+                            ColumnSpacing="6">
+                        <TextBlock Grid.Column="0"
+                                   Text="⚠"
+                                   Foreground="#D7B84A"
+                                   IsVisible="{Binding ReferenceMissing}" />
+                        <SelectableTextBlock Grid.Column="1"
+                                             Text="{Binding ReferencePath}"
+                                             FontSize="12"
+                                             Opacity="0.65"
+                                             TextWrapping="Wrap" />
+                      </Grid>
+
+                      <Grid ColumnDefinitions="Auto,*"
+                            ColumnSpacing="6">
+                        <TextBlock Grid.Column="0"
+                                   Text="⚠"
+                                   Foreground="#D7B84A"
+                                   IsVisible="{Binding TargetMissing}" />
+                        <SelectableTextBlock Grid.Column="1"
+                                             Text="{Binding TargetPath}"
+                                             FontSize="12"
+                                             Opacity="0.65"
+                                             TextWrapping="Wrap" />
+                      </Grid>
+                    </StackPanel>
+
+                    <StackPanel Grid.Column="1"
+                                Orientation="Horizontal"
+                                Spacing="6"
+                                VerticalAlignment="Center">
+                      <Button Command="{Binding OpenCommand}"
+                              Padding="8,5"
+                              ToolTip.Tip="Open project">
+                        <StackPanel Orientation="Horizontal" Spacing="6">
+                          <Image Width="16" Height="16">
+                            <Image.Source>
+                              <svg:SvgImage Source="avares://IoEditor.Desktop/Assets/Icons/icon-open-folder.svg" />
+                            </Image.Source>
+                          </Image>
+                          <TextBlock Text="Open..."
+                                     VerticalAlignment="Center" />
+                        </StackPanel>
+                      </Button>
+
+                      <Button Command="{Binding RemoveCommand}"
+                              Padding="7,5"
+                              ToolTip.Tip="Remove from recent projects">
+                        <Image Width="16" Height="16">
+                          <Image.Source>
+                            <svg:SvgImage Source="avares://IoEditor.Desktop/Assets/Icons/icon-trash.svg" />
+                          </Image.Source>
+                        </Image>
+                      </Button>
+                    </StackPanel>
+                  </Grid>
+                </Border>
+              </DataTemplate>
+            </ItemsControl.ItemTemplate>
+          </ItemsControl>
+        </StackPanel>
+      </Grid>
+    </ScrollViewer>
 
   </Grid>
 </UserControl>

@@ -4,6 +4,7 @@ using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Markup.Xaml;
 using IoEditor.Desktop.Hosting;
+using IoEditor.Desktop.Services;
 using IoEditor.Desktop.ViewModels;
 using IoEditor.Desktop.Views;
 using IoEditor.Platform;
@@ -41,6 +42,7 @@ public partial class App : Application
         _ = Task.Run(() => bg.StartAsync(CancellationToken.None));
 
         var options = services.GetRequiredService<Microsoft.Extensions.Options.IOptions<StudioOptions>>().Value;
+        services.GetRequiredService<IThemeService>().Apply(options.ThemeMode);
         if (!ConfigurationValidator.Validate(options))
         {
             var saved = services.GetRequiredService<ISettingsUiPresenter>().ShowAsync(null).GetAwaiter().GetResult();

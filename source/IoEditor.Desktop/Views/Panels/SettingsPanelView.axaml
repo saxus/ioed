@@ -18,10 +18,8 @@
                     Orientation="Horizontal"
                     Spacing="8">
           <Button Command="{Binding SaveCommand}"
-                  Padding="10,6"
-                  Foreground="{DynamicResource IoEditorChromeForeground}">
+                  Padding="10,6">
             <TextBlock VerticalAlignment="Center"
-                       Foreground="{DynamicResource IoEditorChromeForeground}"
                        Text="Save" />
           </Button>
         </StackPanel>
@@ -37,12 +35,10 @@
         <!-- Studio Folder section -->
         <TextBlock Text="Settings"
                    FontSize="18"
-                   FontWeight="SemiBold"
-                   Foreground="{DynamicResource IoEditorChromeForeground}" />
+                   FontWeight="SemiBold" />
 
         <StackPanel Spacing="8">
-          <TextBlock Text="Studio Folder:"
-                     Foreground="{DynamicResource IoEditorChromeForeground}" />
+          <TextBlock Text="Studio Folder:" />
           <Grid ColumnDefinitions="*,Auto" ColumnSpacing="8">
             <TextBox Grid.Column="0"
                      Text="{Binding StudioFolderPath, Mode=TwoWay}"
@@ -53,13 +49,18 @@
           </Grid>
         </StackPanel>
 
+        <StackPanel Spacing="8">
+          <TextBlock Text="Theme:" />
+          <ComboBox ItemsSource="{Binding ThemeModes}"
+                    SelectedItem="{Binding ThemeMode, Mode=TwoWay}"
+                    MinWidth="160" />
+        </StackPanel>
+
         <CheckBox IsChecked="{Binding ShowXmlDebugTabs, Mode=TwoWay}"
-                  Foreground="{DynamicResource IoEditorChromeForeground}"
                   Content="Show XML debug entries in the sidebar (reference, target, generated instruction, step dictionary)" />
 
         <TextBlock Opacity="0.65"
                    TextWrapping="Wrap"
-                   Foreground="{DynamicResource IoEditorChromeForeground}"
                    Text="When unchecked, those entries are hidden in the project panel section switcher." />
 
       </StackPanel>

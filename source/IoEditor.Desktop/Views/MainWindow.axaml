@@ -21,7 +21,7 @@
          ================================================================ -->
     <Border Grid.Column="0"
             Background="{DynamicResource IoEditorNavRailBackground}"
-            BorderBrush="#3e3e42"
+            BorderBrush="{DynamicResource IoEditorBorderBrush}"
             BorderThickness="0,0,1,0">
       <Border.Styles>
         <Style Selector="Button.navRailBtn">

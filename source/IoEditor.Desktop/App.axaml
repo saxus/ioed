@@ -22,8 +22,85 @@
     </Application.Resources>
     <Application.Styles>
         <FluentTheme />
+        <Style Selector="Window">
+            <Setter Property="Background" Value="{DynamicResource IoEditorChromeBackground}" />
+            <Setter Property="Foreground" Value="{DynamicResource IoEditorChromeForeground}" />
+        </Style>
+        <Style Selector="UserControl">
+            <Setter Property="Background" Value="{DynamicResource IoEditorChromeBackground}" />
+        </Style>
+        <Style Selector="TextBlock">
+            <Setter Property="Foreground" Value="{DynamicResource IoEditorChromeForeground}" />
+        </Style>
+        <Style Selector="SelectableTextBlock">
+            <Setter Property="Foreground" Value="{DynamicResource IoEditorChromeForeground}" />
+            <Setter Property="SelectionBrush" Value="{DynamicResource IoEditorSelectionBrush}" />
+            <Setter Property="SelectionForegroundBrush" Value="{DynamicResource IoEditorSelectionForegroundBrush}" />
+        </Style>
+        <Style Selector="Button">
+            <Setter Property="Background" Value="{DynamicResource IoEditorButtonBackground}" />
+            <Setter Property="Foreground" Value="{DynamicResource IoEditorButtonForeground}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource IoEditorButtonBorderBrush}" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="Padding" Value="8,5" />
+        </Style>
+        <Style Selector="Button:pointerover">
+            <Setter Property="Foreground" Value="{DynamicResource IoEditorButtonForeground}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource IoEditorButtonBorderBrushPointerOver}" />
+        </Style>
         <Style Selector="Button:pointerover /template/ ContentPresenter#PART_ContentPresenter">
             <Setter Property="Background" Value="{DynamicResource IoEditorButtonBackgroundPointerOver}" />
+        </Style>
+        <Style Selector="Button:pressed">
+            <Setter Property="Foreground" Value="{DynamicResource IoEditorButtonForeground}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource IoEditorButtonBorderBrushPressed}" />
+        </Style>
+        <Style Selector="Button:pressed /template/ ContentPresenter#PART_ContentPresenter">
+            <Setter Property="Background" Value="{DynamicResource IoEditorButtonBackgroundPressed}" />
+        </Style>
+        <Style Selector="Button:disabled">
+            <Setter Property="Foreground" Value="{DynamicResource IoEditorButtonForegroundDisabled}" />
+        </Style>
+        <Style Selector="TextBox">
+            <Setter Property="Background" Value="{DynamicResource IoEditorInputBackground}" />
+            <Setter Property="Foreground" Value="{DynamicResource IoEditorInputForeground}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource IoEditorInputBorderBrush}" />
+            <Setter Property="SelectionBrush" Value="{DynamicResource IoEditorSelectionBrush}" />
+            <Setter Property="SelectionForegroundBrush" Value="{DynamicResource IoEditorSelectionForegroundBrush}" />
+        </Style>
+        <Style Selector="TextBox:focus">
+            <Setter Property="Background" Value="{DynamicResource IoEditorInputBackgroundFocused}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource IoEditorInputBorderBrushFocused}" />
+        </Style>
+        <Style Selector="CheckBox">
+            <Setter Property="Foreground" Value="{DynamicResource IoEditorChromeForeground}" />
+        </Style>
+        <Style Selector="ComboBox">
+            <Setter Property="Background" Value="{DynamicResource IoEditorInputBackground}" />
+            <Setter Property="Foreground" Value="{DynamicResource IoEditorInputForeground}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource IoEditorInputBorderBrush}" />
+        </Style>
+        <Style Selector="TabControl">
+            <Setter Property="Background" Value="{DynamicResource IoEditorPanelBackground}" />
+            <Setter Property="Foreground" Value="{DynamicResource IoEditorPanelForeground}" />
+        </Style>
+        <Style Selector="TabItem">
+            <Setter Property="Background" Value="{DynamicResource IoEditorTabBackground}" />
+            <Setter Property="Foreground" Value="{DynamicResource IoEditorTabForeground}" />
+        </Style>
+        <Style Selector="TabItem:pointerover">
+            <Setter Property="Background" Value="{DynamicResource IoEditorTabPointerOverBackground}" />
+        </Style>
+        <Style Selector="TabItem:selected">
+            <Setter Property="Background" Value="{DynamicResource IoEditorTabSelectedBackground}" />
+            <Setter Property="Foreground" Value="{DynamicResource IoEditorChromeForeground}" />
+        </Style>
+        <Style Selector="ListBox">
+            <Setter Property="Background" Value="{DynamicResource IoEditorPanelBackground}" />
+            <Setter Property="Foreground" Value="{DynamicResource IoEditorPanelForeground}" />
+        </Style>
+        <Style Selector="ListBoxItem">
+            <Setter Property="Foreground" Value="{DynamicResource IoEditorPanelForeground}" />
         </Style>
     </Application.Styles>
 </Application>
