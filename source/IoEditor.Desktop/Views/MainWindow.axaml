@@ -8,6 +8,7 @@
         x:DataType="vm:MainViewModel"
         x:CompileBindings="False"
         Title="{Binding WindowTitle}"
+        Icon="avares://IoEditor.Desktop/Assets/AppIcon/app.ico"
         Width="900" Height="600"
         WindowStartupLocation="CenterScreen"
         Background="{DynamicResource IoEditorChromeBackground}"

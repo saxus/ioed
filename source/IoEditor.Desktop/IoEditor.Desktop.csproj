@@ -7,6 +7,7 @@
     <ApplicationManifest>app.manifest</ApplicationManifest>
     <AvaloniaUseCompiledBindingsByDefault>false</AvaloniaUseCompiledBindingsByDefault>
     <RootNamespace>IoEditor.Desktop</RootNamespace>
+    <ApplicationIcon>Assets\AppIcon\app.ico</ApplicationIcon>
   </PropertyGroup>
 
   <ItemGroup>
@@ -24,6 +25,8 @@
 
   <ItemGroup>
     <AvaloniaResource Include="Assets\Icons\*.svg" />
+    <AvaloniaResource Include="Assets\AppIcon\app.ico" />
+    <AvaloniaResource Include="Assets\AppIcon\app-icon-512.png" />
   </ItemGroup>
 
   <ItemGroup>
