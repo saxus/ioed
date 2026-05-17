@@ -1,15 +1,19 @@
-using Avalonia.Threading;
+using Avalonia.Controls;
+using Avalonia.Controls.ApplicationLifetimes;
 
 namespace IoEditor.Platform;
 
 public sealed class MacosDialogService : IDialogService
 {
-    public async Task ShowErrorAsync(string message, string title = "Error")
-        => await Dispatcher.UIThread.InvokeAsync(() => AppKitInterop.RunError(message, title));
+    private static Window? GetOwner()
+        => (Avalonia.Application.Current?.ApplicationLifetime as IClassicDesktopStyleApplicationLifetime)?.MainWindow as Window;
 
-    public async Task ShowInfoAsync(string message, string title = "")
-        => await Dispatcher.UIThread.InvokeAsync(() => AppKitInterop.RunInformational(message, title));
+    public Task ShowErrorAsync(string message, string title = "Error")
+        => SimpleMessageBox.ShowAsync(GetOwner(), message, title);
 
-    public async Task<bool> ConfirmAsync(string message, string title = "Confirm")
-        => await Dispatcher.UIThread.InvokeAsync(() => AppKitInterop.RunConfirm(message, title));
+    public Task ShowInfoAsync(string message, string title = "")
+        => SimpleMessageBox.ShowAsync(GetOwner(), message, string.IsNullOrEmpty(title) ? "IoEditor" : title);
+
+    public Task<bool> ConfirmAsync(string message, string title = "Confirm")
+        => SimpleMessageBox.ConfirmAsync(GetOwner(), message, title);
 }

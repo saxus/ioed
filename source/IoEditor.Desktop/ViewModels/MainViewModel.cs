@@ -314,3 +314,4 @@ internal sealed class MainViewModel : INotifyPropertyChanged
     private void RaisePropertyChanged(string propertyName)
         => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
 }
+

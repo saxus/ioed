@@ -43,7 +43,7 @@ internal sealed class IndexedStepDataTemplate : IDataTemplate
         {
             ItemsSource = step.Items,
             ItemTemplate = _itemTemplate,
-            ItemsPanel = new FuncTemplate<Panel?>(() => new WrapPanel { Orientation = Orientation.Horizontal })
+            ItemsPanel = new FuncTemplate<Panel?>(() => new StackPanel { Orientation = Orientation.Vertical })
         };
         root.Children.Add(items);
 

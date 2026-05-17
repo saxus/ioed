@@ -8,4 +8,12 @@
   <ItemGroup>
     <PackageReference Include="Avalonia" Version="12.0.1" />
   </ItemGroup>
+  <ItemGroup>
+    <AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleToAttribute">
+      <_Parameter1>IoEditor.Platform.Linux</_Parameter1>
+    </AssemblyAttribute>
+    <AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleToAttribute">
+      <_Parameter1>IoEditor.Platform.macOS</_Parameter1>
+    </AssemblyAttribute>
+  </ItemGroup>
 </Project>
