@@ -1,4 +1,5 @@
 ﻿using IoEditor.Models.Comparison;
+using IoEditor.Models.Studio;
 
 using System;
 using System.Collections.Generic;
@@ -9,6 +10,8 @@ using System.Threading.Tasks;
 
 namespace IoEditor.Models.Merging
 {
+    internal record StepPair(IndexedStep? Reference, IndexedStep? Target);
+
     internal class MergeModel
     {
         public List<MergedSegment> Segments { get; } = new List<MergedSegment>();
@@ -39,6 +42,20 @@ namespace IoEditor.Models.Merging
             }
         }
 
+
+        public IEnumerable<StepPair> PairedSteps
+        {
+            get
+            {
+                var refSteps = ReferenceSegment?.Steps ?? (IList<IndexedStep>)Array.Empty<IndexedStep>();
+                var tgtSteps = TargetSegment?.Steps ?? (IList<IndexedStep>)Array.Empty<IndexedStep>();
+                int count = Math.Max(refSteps.Count, tgtSteps.Count);
+                for (int i = 0; i < count; i++)
+                    yield return new StepPair(
+                        i < refSteps.Count ? refSteps[i] : null,
+                        i < tgtSteps.Count ? tgtSteps[i] : null);
+            }
+        }
 
         public MergedSegment(InstructionSegmentComparison instructionSegment, int segmentIndex)
         {

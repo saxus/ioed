@@ -16,6 +16,7 @@
     <conv:BoolToMaxHeightConverter x:Key="BoolToMaxHeightConverter" ExpandedHeight="600" />
     <conv:XElementToStringConverter x:Key="XElementToStringConverter" />
     <views:IndexedStepDataTemplate x:Key="InstructionStepTmpl" />
+    <views:StepPairDataTemplate x:Key="StepPairTmpl" />
   </UserControl.Resources>
 
   <Grid RowDefinitions="Auto,*,Auto">
@@ -201,28 +202,28 @@
                   </CheckBox>
                   <ScrollViewer MaxHeight="{Binding IsExpanded, Converter={StaticResource BoolToMaxHeightConverter}}"
                                 VerticalScrollBarVisibility="Auto">
-                    <Grid Margin="40,6,0,6" ColumnDefinitions="*,*,*">
-                      <ItemsControl Grid.Column="0"
-                                    ItemsSource="{Binding ReferenceSegment.Steps}"
-                                    ItemTemplate="{StaticResource InstructionStepTmpl}" />
-                      <ItemsControl Grid.Column="1"
-                                    ItemsSource="{Binding TargetSegment.Steps}"
-                                    ItemTemplate="{StaticResource InstructionStepTmpl}" />
-                      <ScrollViewer Grid.Column="2"
-                                    MinHeight="100"
-                                    HorizontalScrollBarVisibility="Auto"
-                                    VerticalScrollBarVisibility="Auto"
-                                    Background="{DynamicResource IoEditorXmlEditorBackground}">
-                        <SelectableTextBlock Text="{Binding Differences}"
-                                             TextWrapping="Wrap"
-                                             Padding="6"
-                                             FontFamily="Consolas, Menlo, Courier New, monospace"
-                                             Background="Transparent"
-                                             Foreground="{DynamicResource IoEditorXmlEditorForeground}"
-                                             SelectionBrush="{DynamicResource IoEditorTextSelectionBrush}"
-                                             SelectionForegroundBrush="{DynamicResource IoEditorTextSelectionForegroundBrush}" />
-                      </ScrollViewer>
-                    </Grid>
+                    <Border Margin="40,6,0,6"
+                            BorderBrush="Silver"
+                            BorderThickness="1"
+                            CornerRadius="2">
+                      <StackPanel>
+                        <Grid ColumnDefinitions="*,1,*">
+                          <TextBlock Grid.Column="0"
+                                     Text="Original"
+                                     FontWeight="SemiBold"
+                                     Padding="6,4"
+                                     Background="{DynamicResource IoEditorSegmentsToolbarBackground}" />
+                          <Border Grid.Column="1" Background="Silver" />
+                          <TextBlock Grid.Column="2"
+                                     Text="Modified"
+                                     FontWeight="SemiBold"
+                                     Padding="6,4"
+                                     Background="{DynamicResource IoEditorSegmentsToolbarBackground}" />
+                        </Grid>
+                        <ItemsControl ItemsSource="{Binding PairedSteps}"
+                                      ItemTemplate="{StaticResource StepPairTmpl}" />
+                      </StackPanel>
+                    </Border>
                   </ScrollViewer>
                 </StackPanel>
               </DataTemplate>
