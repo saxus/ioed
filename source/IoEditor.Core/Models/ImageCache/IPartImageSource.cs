@@ -1,6 +1,6 @@
 namespace IoEditor.Models.ImageCache
 {
-    internal interface IPartImageSource
+    public interface IPartImageSource
     {
         string Name { get; }
         Task InitializeAsync();

@@ -5,66 +5,163 @@
              x:DataType="vm:SettingsPanelViewModel"
              x:CompileBindings="False"
              Background="{DynamicResource IoEditorChromeBackground}">
+
+  <UserControl.Styles>
+
+    <!-- ── Settings nav list ── -->
+    <Style Selector="ListBox.settingsNav">
+      <Setter Property="Background" Value="{DynamicResource IoEditorNavRailBackground}" />
+      <Setter Property="BorderThickness" Value="0" />
+      <Setter Property="Padding" Value="0" />
+    </Style>
+
+    <Style Selector="ListBox.settingsNav ListBoxItem">
+      <Setter Property="Padding" Value="20,10" />
+      <Setter Property="Cursor" Value="Hand" />
+      <Setter Property="Background" Value="Transparent" />
+      <Setter Property="BorderThickness" Value="3,0,0,0" />
+      <Setter Property="BorderBrush" Value="Transparent" />
+      <Setter Property="FontSize" Value="13" />
+    </Style>
+
+    <Style Selector="ListBox.settingsNav ListBoxItem:pointerover /template/ ContentPresenter">
+      <Setter Property="Background" Value="{DynamicResource IoEditorNavButtonBackgroundPointerOver}" />
+    </Style>
+
+    <Style Selector="ListBox.settingsNav ListBoxItem:selected">
+      <Setter Property="BorderBrush" Value="{DynamicResource IoEditorNavRailSelectionAccent}" />
+    </Style>
+
+    <Style Selector="ListBox.settingsNav ListBoxItem:selected /template/ ContentPresenter">
+      <Setter Property="Background" Value="{DynamicResource IoEditorSegmentRowBackgroundSelected}" />
+    </Style>
+
+    <!-- ── Section heading ── -->
+    <Style Selector="TextBlock.sectionHeading">
+      <Setter Property="FontSize" Value="11" />
+      <Setter Property="FontWeight" Value="SemiBold" />
+      <Setter Property="Foreground" Value="{DynamicResource IoEditorMutedForeground}" />
+      <Setter Property="Margin" Value="0,0,0,4" />
+    </Style>
+
+  </UserControl.Styles>
+
   <Grid RowDefinitions="Auto,*">
 
-    <!-- Toolbar -->
+    <!-- ══ Toolbar ══════════════════════════════════════════════════════════ -->
     <Border Grid.Row="0"
             Background="{DynamicResource IoEditorSegmentsToolbarBackground}"
             BorderBrush="{DynamicResource IoEditorSegmentsToolbarBorder}"
             BorderThickness="0,0,0,1"
             Padding="8,6">
       <Grid ColumnDefinitions="*,Auto">
-        <StackPanel Grid.Column="1"
-                    Orientation="Horizontal"
-                    Spacing="8">
-          <Button Command="{Binding SaveCommand}"
-                  Padding="10,6">
-            <TextBlock VerticalAlignment="Center"
-                       Text="Save" />
+        <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="8">
+          <Button Command="{Binding SaveCommand}" Padding="10,6">
+            <TextBlock VerticalAlignment="Center" Text="Save" />
           </Button>
         </StackPanel>
       </Grid>
     </Border>
 
-    <!-- Settings content -->
-    <ScrollViewer Grid.Row="1"
-                  HorizontalScrollBarVisibility="Disabled"
-                  VerticalScrollBarVisibility="Auto">
-      <StackPanel Margin="20" Spacing="16" MaxWidth="480">
+    <!-- ══ Main area ═════════════════════════════════════════════════════════ -->
+    <Grid Grid.Row="1" ColumnDefinitions="180,Auto,*">
 
-        <!-- Studio Folder section -->
-        <TextBlock Text="Settings"
-                   FontSize="18"
-                   FontWeight="SemiBold" />
+      <!-- ── Left nav ───────────────────────────────────────────────────── -->
+      <ListBox Grid.Column="0"
+               Classes="settingsNav"
+               ItemsSource="{Binding Sections}"
+               SelectedItem="{Binding SelectedSection, Mode=TwoWay}" />
 
-        <StackPanel Spacing="8">
-          <TextBlock Text="Studio Folder:" />
-          <Grid ColumnDefinitions="*,Auto" ColumnSpacing="8">
-            <TextBox Grid.Column="0"
-                     Text="{Binding StudioFolderPath, Mode=TwoWay}"
-                     IsReadOnly="True" />
-            <Button Grid.Column="1"
-                    Content="Browse…"
-                    Command="{Binding BrowseStudioFolderCommand}" />
-          </Grid>
-        </StackPanel>
+      <!-- ── Separator ──────────────────────────────────────────────────── -->
+      <Border Grid.Column="1"
+              Width="1"
+              Background="{DynamicResource IoEditorBorderBrush}" />
 
-        <StackPanel Spacing="8">
-          <TextBlock Text="Theme:" />
-          <ComboBox ItemsSource="{Binding ThemeModes}"
-                    SelectedItem="{Binding ThemeMode, Mode=TwoWay}"
-                    MinWidth="160" />
-        </StackPanel>
+      <!-- ── Right content ──────────────────────────────────────────────── -->
+      <ScrollViewer Grid.Column="2"
+                    HorizontalScrollBarVisibility="Disabled"
+                    VerticalScrollBarVisibility="Auto">
+        <Panel>
 
-        <CheckBox IsChecked="{Binding ShowXmlDebugTabs, Mode=TwoWay}"
-                  Content="Show XML debug entries in the sidebar (reference, target, generated instruction, step dictionary)" />
+          <!-- ═══ GENERAL ══════════════════════════════════════════════════ -->
+          <StackPanel IsVisible="{Binding IsGeneralSelected}"
+                      Margin="28,24" Spacing="24" MaxWidth="520">
 
-        <TextBlock Opacity="0.65"
-                   TextWrapping="Wrap"
-                   Text="When unchecked, those entries are hidden in the project panel section switcher." />
+            <!-- Theme -->
+            <StackPanel Spacing="10">
+              <TextBlock Classes="sectionHeading" Text="Theme" />
+              <ComboBox ItemsSource="{Binding ThemeModes}"
+                        SelectedItem="{Binding ThemeMode, Mode=TwoWay}"
+                        MinWidth="160" />
+            </StackPanel>
 
-      </StackPanel>
-    </ScrollViewer>
+            <!-- Debug -->
+            <StackPanel Spacing="10">
+              <TextBlock Classes="sectionHeading" Text="Debug" />
+              <CheckBox IsChecked="{Binding ShowXmlDebugTabs, Mode=TwoWay}"
+                        Content="Show XML debug entries in the sidebar (reference, target, generated instruction, step dictionary)" />
+              <TextBlock Opacity="0.55"
+                         TextWrapping="Wrap"
+                         FontSize="12"
+                         Text="When unchecked, those entries are hidden in the project panel section switcher." />
+            </StackPanel>
 
+          </StackPanel>
+
+          <!-- ═══ STUDIO ═══════════════════════════════════════════════════ -->
+          <StackPanel IsVisible="{Binding IsStudioSelected}"
+                      Margin="28,24" Spacing="24" MaxWidth="520">
+
+            <StackPanel Spacing="10">
+              <TextBlock Classes="sectionHeading" Text="Studio" />
+              <TextBlock Text="Studio Folder:" />
+              <Grid ColumnDefinitions="*,Auto" ColumnSpacing="8">
+                <TextBox Grid.Column="0"
+                         Text="{Binding StudioFolderPath, Mode=TwoWay}"
+                         IsReadOnly="True" />
+                <Button Grid.Column="1"
+                        Content="Browse…"
+                        Command="{Binding BrowseStudioFolderCommand}" />
+              </Grid>
+            </StackPanel>
+
+          </StackPanel>
+
+          <!-- ═══ IMAGES ════════════════════════════════════════════════════ -->
+          <StackPanel IsVisible="{Binding IsImagesSelected}"
+                      Margin="28,24" Spacing="24" MaxWidth="520">
+
+            <!-- Image source selector -->
+            <StackPanel Spacing="10">
+              <TextBlock Classes="sectionHeading" Text="Image Source" />
+              <ComboBox ItemsSource="{Binding AvailableSources}"
+                        SelectedItem="{Binding ActiveSource, Mode=TwoWay}"
+                        DisplayMemberBinding="{Binding Name}"
+                        MinWidth="200" />
+            </StackPanel>
+
+            <!-- Per-source cache info -->
+            <StackPanel Spacing="10">
+              <TextBlock Classes="sectionHeading" Text="{Binding ActiveSource.Name}" />
+              <Grid ColumnDefinitions="*,Auto" VerticalAlignment="Center">
+                <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="6" VerticalAlignment="Center">
+                  <TextBlock Text="Cache size:" VerticalAlignment="Center" />
+                  <TextBlock Text="{Binding CacheSizeMb, StringFormat={}{0:0.0} MB}"
+                             FontWeight="SemiBold"
+                             VerticalAlignment="Center" />
+                </StackPanel>
+                <Button Grid.Column="1"
+                        Content="Clear cache"
+                        Command="{Binding ClearCacheCommand}"
+                        Padding="10,6" />
+              </Grid>
+            </StackPanel>
+
+          </StackPanel>
+
+        </Panel>
+      </ScrollViewer>
+
+    </Grid>
   </Grid>
 </UserControl>

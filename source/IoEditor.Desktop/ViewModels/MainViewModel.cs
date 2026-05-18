@@ -87,7 +87,8 @@ internal sealed class MainViewModel : INotifyPropertyChanged
         IOptions<StudioOptions> optionsSnapshot,
         IConfigurationReloader configReloader,
         IThemeService themeService,
-        IRecentProjectsStore recentProjectsStore)
+        IRecentProjectsStore recentProjectsStore,
+        IPartImageSourceSelector imageSourceSelector)
     {
         _partLibrary = partLibrary;
         _colorLibrary = colorLibrary;
@@ -112,7 +113,8 @@ internal sealed class MainViewModel : INotifyPropertyChanged
             _filePicker,
             _dialogs,
             _themeService,
-            GetMainWindow);
+            GetMainWindow,
+            imageSourceSelector);
         _settingsPanel.Saved += _ => _configReloader.Reload();
 
         _startPanel = new StartPanelViewModel();
