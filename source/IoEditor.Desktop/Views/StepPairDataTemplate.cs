@@ -20,8 +20,6 @@ internal sealed class StepPairDataTemplate : IDataTemplate
 
         var outer = new Border
         {
-            BorderBrush = Brushes.Silver,
-            BorderThickness = new Thickness(0, 0, 0, 1),
             Margin = new Thickness(0, 0, 0, 0)
         };
 

@@ -192,7 +192,13 @@ internal sealed class ProjectPanelViewModel : EditorPanelViewModelBase
             project.MergedInstruction = instruction;
             project.MergedImageResources = imageResources;
 
-            project.InterimData.StepDictionary = StepDictionaryBuilder.FromInstructionDocument(project.Target.Instruction.Document);
+            var refStepDict = StepDictionaryBuilder.FromInstructionDocument(project.Reference.Instruction.Document);
+            var tgtStepDict = StepDictionaryBuilder.FromInstructionDocument(project.Target.Instruction.Document);
+
+            EnrichSteps(comparisonResult.IndexedReferenceSteps, refStepDict);
+            EnrichSteps(comparisonResult.IndexedTargetSteps, tgtStepDict);
+
+            project.InterimData.StepDictionary = tgtStepDict;
             RaisePropertyChanged(nameof(StepDictionaryRows));
 
             Console.WriteLine("Done loading project");
@@ -200,6 +206,20 @@ internal sealed class ProjectPanelViewModel : EditorPanelViewModelBase
         finally
         {
             Console.WriteLine($"Done. Elapsed: {sw.Elapsed}");
+        }
+    }
+
+    private static void EnrichSteps(List<IndexedStep> steps, Dictionary<int, InterimStepData> dict)
+    {
+        foreach (var step in steps)
+        {
+            if (dict.TryGetValue(step.Index, out var data))
+            {
+                step.PageNumber = data.PageNumber;
+                step.ColumnNumber = data.ColumnNumber;
+                step.IsCallout = data.IsCallout;
+                step.CalloutParentStepIndex = data.CalloutParentStepIndex;
+            }
         }
     }
 

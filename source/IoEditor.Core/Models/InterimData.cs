@@ -10,25 +10,31 @@ namespace IoEditor.Model
         {
             var result = new Dictionary<int, InterimStepData>();
 
-            var xpages = document.Element("Instruction")?.Element("Pages")?.Elements("Page");
+            var xpages = document.Element("Instruction")?.Element("Pages")?.Elements("Page").ToList();
             if (xpages is null)
             {
                 return result;
             }
 
-            foreach (var xpage in xpages)
+            for (int pageIdx = 0; pageIdx < xpages.Count; pageIdx++)
             {
-                foreach (var xslot in xpage.Elements("Slot"))
+                var xpage = xpages[pageIdx];
+                var slots = xpage.Elements("Slot").ToList();
+
+                for (int slotIdx = 0; slotIdx < slots.Count; slotIdx++)
                 {
+                    var xslot = slots[slotIdx];
                     var xstep = xslot.Element("Step");
                     if (xstep is null)
                     {
                         continue;
                     }
 
-                    var serializedIndex = Convert.ToInt32(xstep.Attribute("SerializedIndex")!.Value);
+                    int pageNumber = pageIdx + 1;
+                    int columnNumber = slotIdx + 1;
 
-                    result.Add(serializedIndex, new InterimStepData(xstep, serializedIndex, false));
+                    var serializedIndex = Convert.ToInt32(xstep.Attribute("SerializedIndex")!.Value);
+                    result.Add(serializedIndex, new InterimStepData(xstep, serializedIndex, false, pageNumber, columnNumber, null));
 
                     var xcallout = xstep.Element("CallOut");
                     if (xcallout is null)
@@ -46,9 +52,8 @@ namespace IoEditor.Model
                                 continue;
                             }
 
-                            serializedIndex = Convert.ToInt32(xcalloutStep.Attribute("SerializedIndex")!.Value);
-
-                            result.Add(serializedIndex, new InterimStepData(xcalloutStep, serializedIndex, true));
+                            var calloutSerializedIndex = Convert.ToInt32(xcalloutStep.Attribute("SerializedIndex")!.Value);
+                            result.Add(calloutSerializedIndex, new InterimStepData(xcalloutStep, calloutSerializedIndex, true, pageNumber, columnNumber, serializedIndex));
                         }
                     }
                 }
@@ -96,5 +101,8 @@ namespace IoEditor.Model
     internal record class InterimStepData(
         XElement Element,
         int SerializedStepIndex,
-        bool IsCallout);
+        bool IsCallout,
+        int PageNumber,
+        int ColumnNumber,
+        int? CalloutParentStepIndex);
 }

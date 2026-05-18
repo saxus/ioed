@@ -202,11 +202,7 @@
                   </CheckBox>
                   <ScrollViewer MaxHeight="{Binding IsExpanded, Converter={StaticResource BoolToMaxHeightConverter}}"
                                 VerticalScrollBarVisibility="Auto">
-                    <Border Margin="40,6,0,6"
-                            BorderBrush="Silver"
-                            BorderThickness="1"
-                            CornerRadius="2">
-                      <StackPanel>
+                    <StackPanel Margin="40,6,0,6">
                         <Grid ColumnDefinitions="*,1,*">
                           <TextBlock Grid.Column="0"
                                      Text="Original"
@@ -222,8 +218,7 @@
                         </Grid>
                         <ItemsControl ItemsSource="{Binding PairedSteps}"
                                       ItemTemplate="{StaticResource StepPairTmpl}" />
-                      </StackPanel>
-                    </Border>
+                    </StackPanel>
                   </ScrollViewer>
                 </StackPanel>
               </DataTemplate>

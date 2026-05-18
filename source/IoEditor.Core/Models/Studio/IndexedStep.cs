@@ -16,6 +16,11 @@ namespace IoEditor.Models.Studio
 
         public LDrawStep LDrawStep { get; set; }
 
+        public int? PageNumber { get; set; }
+        public int? ColumnNumber { get; set; }
+        public bool IsCallout { get; set; }
+        public int? CalloutParentStepIndex { get; set; }
+
         public List<IndexedStepItem> Items { get; } = new List<IndexedStepItem>();
 
         public IEnumerable<IndexedStepSubmodel> Submodels => Items.OfType<IndexedStepSubmodel>();
