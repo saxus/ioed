@@ -7,12 +7,14 @@ namespace IoEditor.Models.ImageCache
     internal class BackgroundPartImageLoader : IPartImageLoader
     {
         private readonly PartImageCache _cache;
+        private readonly IPartImageSourceSelector _selector;
         private BlockingCollection<(Part part, Color color, Action<byte[]?> callback)>? _queue;
         private readonly CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource();
 
-        public BackgroundPartImageLoader(PartImageCache cache)
+        public BackgroundPartImageLoader(PartImageCache cache, IPartImageSourceSelector selector)
         {
             _cache = cache;
+            _selector = selector;
         }
 
         public void QueueLoadingImage(Part part, Color color, Action<byte[]?> callback)
@@ -43,10 +45,15 @@ namespace IoEditor.Models.ImageCache
 
         private async Task ProcessQueuedItem(Part part, Color color, Action<byte[]?> callback)
         {
-            if (!color.BLColorCode.HasValue)
+            if (color == null)
             {
+                var partInfo = part != null ? $" (part: {part.BLItemNo} – {part.Description})" : string.Empty;
+                Console.WriteLine($"Cannot load image, because color is null{partInfo}!");
                 return;
             }
+
+            if (!color.BLColorCode.HasValue)
+                return;
 
             if (part == null)
             {
@@ -64,9 +71,10 @@ namespace IoEditor.Models.ImageCache
             _queue = null;
         }
 
-        public Task StartAsync(CancellationToken cancellationToken)
+        public async Task StartAsync(CancellationToken cancellationToken)
         {
-            return StartProcessingQueueAsync();
+            await _selector.ActiveSource.InitializeAsync();
+            _ = StartProcessingQueueAsync();
         }
 
         public Task StopAsync(CancellationToken cancellationToken)

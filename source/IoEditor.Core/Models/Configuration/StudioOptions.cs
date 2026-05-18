@@ -21,5 +21,7 @@ namespace IoEditor.Models.Configuration
         public bool ShowXmlDebugTabs { get; set; }
 
         public AppThemeMode ThemeMode { get; set; } = AppThemeMode.System;
+
+        public string? ImageSourceName { get; set; }
     }
 }

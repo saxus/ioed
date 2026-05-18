@@ -12,11 +12,21 @@ namespace Microsoft.Extensions.DependencyInjection
         {
             services.Configure<StudioOptions>(configuration.GetSection("StudioOptions"));
 
-            // image handling
+            // image sources
+            services.AddSingleton<IPartImageSource>(sp =>
+            {
+                var basePath = Path.GetDirectoryName(typeof(BrickLinkImageSource).Assembly.Location)
+                               ?? AppContext.BaseDirectory;
+                return new BrickLinkImageSource(basePath);
+            });
+
+            services.AddSingleton<IPartImageSourceSelector, PartImageSourceSelector>();
+            services.AddSingleton<PartImageCache>();
+
+            // image loading
             services.AddSingleton<BackgroundPartImageLoader>();
             services.AddSingleton<IPartImageLoader>(provider => provider.GetRequiredService<BackgroundPartImageLoader>());
-            
-            services.AddSingleton<PartImageCache>();
+
             services.AddSingleton<IPartImageProxyFactory, PartImageProxyFactory>();
 
             // base data
