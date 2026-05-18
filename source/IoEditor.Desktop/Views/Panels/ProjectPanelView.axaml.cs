@@ -1,9 +1,12 @@
 using System;
 using System.Linq;
 using Avalonia.Controls;
+using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia.Markup.Xaml;
 using Avalonia.VisualTree;
+using IoEditor.Desktop.ViewModels.Panels;
+using IoEditor.Models.Merging;
 
 namespace IoEditor.Desktop.Views.Panels;
 
@@ -148,6 +151,95 @@ public partial class ProjectPanelView : Avalonia.Controls.UserControl
     private void OnSegmentsNextDifferenceClick(object? sender, RoutedEventArgs e)
     {
         NavigateAdjacentDifference(goNext: true);
+    }
+
+    private void OnViewKeyDown(object? sender, KeyEventArgs e)
+    {
+        if (e.Key != Key.G)
+        {
+            return;
+        }
+
+        var mods = e.KeyModifiers;
+        var jumpChord = (mods & KeyModifiers.Control) != 0 || (mods & KeyModifiers.Meta) != 0;
+        if (!jumpChord)
+        {
+            return;
+        }
+
+        if (DataContext is ProjectPanelViewModel vm && !vm.IsSegmentsViewActive)
+        {
+            return;
+        }
+
+        if (this.FindControl<TextBox>("JumpToTextBox") is not { } tb)
+        {
+            return;
+        }
+
+        tb.Focus();
+        tb.SelectAll();
+        e.Handled = true;
+    }
+
+    private void OnJumpToKeyDown(object? sender, KeyEventArgs e)
+    {
+        if (e.Key != Key.Enter)
+        {
+            return;
+        }
+
+        var useSource = (e.KeyModifiers & KeyModifiers.Shift) == 0;
+        ExecuteJumpTo(useSource);
+        e.Handled = true;
+    }
+
+    private void OnJumpToSourceClick(object? sender, RoutedEventArgs e) => ExecuteJumpTo(useSource: true);
+
+    private void OnJumpToTargetClick(object? sender, RoutedEventArgs e) => ExecuteJumpTo(useSource: false);
+
+    private void ExecuteJumpTo(bool useSource)
+    {
+        if (_segmentsListBox is null || _segmentsScrollViewer is null ||
+            this.FindControl<TextBox>("JumpToTextBox") is not { } jumpBox)
+        {
+            return;
+        }
+
+        var text = jumpBox.Text?.Trim() ?? string.Empty;
+        if (!int.TryParse(text, System.Globalization.NumberStyles.Integer,
+                System.Globalization.CultureInfo.InvariantCulture, out var pageNumber))
+        {
+            return;
+        }
+
+        var count = _segmentsListBox.Items.Count;
+        for (var i = 0; i < count; i++)
+        {
+            if (_segmentsListBox.Items[i] is not MergedSegment seg)
+            {
+                continue;
+            }
+
+            var segment = useSource ? seg.ReferenceSegment : seg.TargetSegment;
+            var steps = segment?.Steps;
+            if (steps is null || steps.Count == 0)
+            {
+                continue;
+            }
+
+            if (!steps.Any(s => s.PageNumber == pageNumber))
+            {
+                continue;
+            }
+
+            seg.IsExpanded = true;
+            SegmentsListScrollMetrics.TryScrollSegmentIndexToTop(_segmentsListBox, _segmentsScrollViewer, i);
+            _segmentsListBox.SelectedIndex = i;
+            UpdateDifferenceNavigationButtons();
+            UpdateTopVisibleSegmentStatus();
+            return;
+        }
     }
 
     private void NavigateAdjacentDifference(bool goNext)

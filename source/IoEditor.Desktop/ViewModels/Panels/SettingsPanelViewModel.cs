@@ -13,7 +13,7 @@ using Microsoft.Extensions.Options;
 
 namespace IoEditor.Desktop.ViewModels.Panels;
 
-internal enum SettingsSection { General, Studio, Images }
+internal enum SettingsSection { General, Studio, Images, Hotkeys }
 
 /// <summary>Permanent settings panel; always available via the nav rail, never closed.</summary>
 internal sealed class SettingsPanelViewModel : EditorPanelViewModelBase
@@ -57,6 +57,7 @@ internal sealed class SettingsPanelViewModel : EditorPanelViewModelBase
             RaisePropertyChanged(nameof(IsGeneralSelected));
             RaisePropertyChanged(nameof(IsStudioSelected));
             RaisePropertyChanged(nameof(IsImagesSelected));
+            RaisePropertyChanged(nameof(IsHotkeysSelected));
             if (value == SettingsSection.Images)
                 _ = RefreshCacheSizeAsync();
         }
@@ -65,6 +66,7 @@ internal sealed class SettingsPanelViewModel : EditorPanelViewModelBase
     public bool IsGeneralSelected => _selectedSection == SettingsSection.General;
     public bool IsStudioSelected  => _selectedSection == SettingsSection.Studio;
     public bool IsImagesSelected  => _selectedSection == SettingsSection.Images;
+    public bool IsHotkeysSelected => _selectedSection == SettingsSection.Hotkeys;
 
     // ── General ──────────────────────────────────────────────────────────────
 

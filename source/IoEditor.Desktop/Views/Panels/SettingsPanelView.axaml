@@ -164,6 +164,50 @@
 
           </StackPanel>
 
+          <!-- ═══ HOTKEYS ════════════════════════════════════════════════════ -->
+          <StackPanel IsVisible="{Binding IsHotkeysSelected}"
+                      Margin="28,24"
+                      Spacing="24"
+                      MaxWidth="520">
+
+            <TextBlock Classes="sectionHeading"
+                       Text="Keyboard shortcuts" />
+
+            <Grid ColumnDefinitions="160,*"
+                  RowDefinitions="Auto,Auto,Auto"
+                  RowSpacing="12">
+
+              <TextBlock Grid.Row="0"
+                         Grid.Column="0"
+                         FontWeight="SemiBold"
+                         Text="Ctrl+G / Cmd+G" />
+              <TextBlock Grid.Row="0"
+                         Grid.Column="1"
+                         TextWrapping="Wrap"
+                         Text="Focus the Jump to page field (Segments view)" />
+
+              <TextBlock Grid.Row="1"
+                         Grid.Column="0"
+                         FontWeight="SemiBold"
+                         Text="Enter" />
+              <TextBlock Grid.Row="1"
+                         Grid.Column="1"
+                         TextWrapping="Wrap"
+                         Text="Jump to the entered page in the Source file" />
+
+              <TextBlock Grid.Row="2"
+                         Grid.Column="0"
+                         FontWeight="SemiBold"
+                         Text="Shift+Enter" />
+              <TextBlock Grid.Row="2"
+                         Grid.Column="1"
+                         TextWrapping="Wrap"
+                         Text="Jump to the entered page in the Target file" />
+
+            </Grid>
+
+          </StackPanel>
+
         </Panel>
       </ScrollViewer>
 

@@ -8,7 +8,8 @@
              x:Class="IoEditor.Desktop.Views.Panels.ProjectPanelView"
              x:DataType="vm:ProjectPanelViewModel"
              x:CompileBindings="False"
-             Background="{DynamicResource IoEditorChromeBackground}">
+             Background="{DynamicResource IoEditorChromeBackground}"
+             KeyDown="OnViewKeyDown">
 
   <UserControl.Resources>
     <conv:ByteArrayToImageConverter x:Key="ByteArrayToImageConverter" />
@@ -113,6 +114,27 @@
               <TextBlock VerticalAlignment="Center"
                          Text="↓" />
             </StackPanel>
+          </Button>
+          <Border Width="1"
+                  Margin="4,0"
+                  Background="{DynamicResource IoEditorBorderBrush}" />
+          <TextBlock VerticalAlignment="Center"
+                     Text="Jump to page:" />
+          <TextBox Name="JumpToTextBox"
+                   Width="70"
+                   VerticalAlignment="Center"
+                   KeyDown="OnJumpToKeyDown" />
+          <Button Click="OnJumpToSourceClick"
+                  Padding="10,6"
+                  ToolTip.Tip="Jump to page in Source (Enter)">
+            <TextBlock VerticalAlignment="Center"
+                       Text="Source" />
+          </Button>
+          <Button Click="OnJumpToTargetClick"
+                  Padding="10,6"
+                  ToolTip.Tip="Jump to page in Target (Shift+Enter)">
+            <TextBlock VerticalAlignment="Center"
+                       Text="Target" />
           </Button>
         </StackPanel>
 
