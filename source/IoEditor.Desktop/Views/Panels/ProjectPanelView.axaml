@@ -179,10 +179,10 @@
                 <Setter Property="Background" Value="Transparent" />
               </Style>
               <Style Selector="ListBoxItem ScrollViewer">
-                <Setter Property="Background" Value="{DynamicResource IoEditorSegmentExpandedBackground}" />
+                <Setter Property="Background" Value="Transparent" />
               </Style>
               <Style Selector="ListBoxItem Grid">
-                <Setter Property="Background" Value="{DynamicResource IoEditorSegmentExpandedBackground}" />
+                <Setter Property="Background" Value="Transparent" />
               </Style>
               <Style Selector="ListBoxItem ItemsControl">
                 <Setter Property="Background" Value="Transparent" />
