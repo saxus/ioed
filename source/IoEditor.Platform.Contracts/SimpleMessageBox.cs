@@ -54,6 +54,52 @@ internal static class SimpleMessageBox
         return holder.Accepted;
     }
 
+    public static async Task<SaveConfirmResult> SaveConfirmAsync(
+        Window? owner, string message, string title)
+    {
+        var holder = new SaveConfirmHolder();
+        var panel = new StackPanel { Margin = new Avalonia.Thickness(16), Spacing = 16 };
+        panel.Children.Add(new TextBlock { Text = message, TextWrapping = Avalonia.Media.TextWrapping.Wrap });
+
+        var save    = new Button { Content = "Save",    MinWidth = 80 };
+        var discard = new Button { Content = "Discard", MinWidth = 80 };
+        var cancel  = new Button { Content = "Cancel",  MinWidth = 80 };
+
+        var buttons = new StackPanel
+        {
+            Orientation = Orientation.Horizontal,
+            Spacing = 8,
+            HorizontalAlignment = HorizontalAlignment.Right
+        };
+        buttons.Children.Add(save);
+        buttons.Children.Add(discard);
+        buttons.Children.Add(cancel);
+        panel.Children.Add(buttons);
+
+        var dlg = new Window
+        {
+            Title = title,
+            Width = 440,
+            SizeToContent = SizeToContent.Height,
+            WindowStartupLocation = WindowStartupLocation.CenterOwner,
+            CanResize = false,
+            Content = panel
+        };
+
+        save.Click    += (_, _) => { holder.Result = SaveConfirmResult.Save;    dlg.Close(); };
+        discard.Click += (_, _) => { holder.Result = SaveConfirmResult.Discard; dlg.Close(); };
+        cancel.Click  += (_, _) => { holder.Result = SaveConfirmResult.Cancel;  dlg.Close(); };
+        dlg.Closing   += (_, _) => { /* X button keeps default Cancel */ };
+
+        await ShowWindowAsync(owner, dlg);
+        return holder.Result;
+    }
+
+    private sealed class SaveConfirmHolder
+    {
+        public SaveConfirmResult Result { get; set; } = SaveConfirmResult.Cancel;
+    }
+
     private sealed class ResultHolder
     {
         public bool Accepted { get; set; }

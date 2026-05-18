@@ -18,6 +18,16 @@ internal enum SettingsSection { General, Studio, Images }
 /// <summary>Permanent settings panel; always available via the nav rail, never closed.</summary>
 internal sealed class SettingsPanelViewModel : EditorPanelViewModelBase
 {
+    // ── Snapshot record ──────────────────────────────────────────────────────
+    // Adding a new setting: add a property here. TakeSnapshot() and ApplySnapshot()
+    // will produce a compile error until they are updated as well.
+    private sealed record SettingsSnapshot(
+        string       StudioFolder,
+        bool         ShowXmlDebugTabs,
+        AppThemeMode ThemeMode,
+        string?      ImageSourceName
+    );
+
     private readonly StudioOptions _options;
     private readonly string _configFilePath;
     private readonly IFilePickerService _files;
@@ -25,6 +35,8 @@ internal sealed class SettingsPanelViewModel : EditorPanelViewModelBase
     private readonly Func<Window?> _getMainWindow;
     private readonly IThemeService _themeService;
     private readonly IPartImageSourceSelector _imageSourceSelector;
+
+    private SettingsSnapshot _snapshot;
 
     public override string Title => "Settings";
     public override bool IsClosable => false;
@@ -45,7 +57,6 @@ internal sealed class SettingsPanelViewModel : EditorPanelViewModelBase
             RaisePropertyChanged(nameof(IsGeneralSelected));
             RaisePropertyChanged(nameof(IsStudioSelected));
             RaisePropertyChanged(nameof(IsImagesSelected));
-            RaisePropertyChanged(nameof(ShowSaveButton));
             if (value == SettingsSection.Images)
                 _ = RefreshCacheSizeAsync();
         }
@@ -54,7 +65,6 @@ internal sealed class SettingsPanelViewModel : EditorPanelViewModelBase
     public bool IsGeneralSelected => _selectedSection == SettingsSection.General;
     public bool IsStudioSelected  => _selectedSection == SettingsSection.Studio;
     public bool IsImagesSelected  => _selectedSection == SettingsSection.Images;
-    public bool ShowSaveButton    => true;
 
     // ── General ──────────────────────────────────────────────────────────────
 
@@ -126,9 +136,14 @@ internal sealed class SettingsPanelViewModel : EditorPanelViewModelBase
         }
     }
 
+    // ── Dirty tracking ───────────────────────────────────────────────────────
+
+    public bool IsDirty => TakeSnapshot() != _snapshot;
+
     // ── Commands ─────────────────────────────────────────────────────────────
 
     public ICommand SaveCommand { get; }
+    public ICommand UndoCommand { get; }
     public ICommand BrowseStudioFolderCommand { get; }
     public ICommand ClearCacheCommand { get; }
 
@@ -158,12 +173,46 @@ internal sealed class SettingsPanelViewModel : EditorPanelViewModelBase
         _showXmlDebugTabs = _options.ShowXmlDebugTabs;
         _themeMode = _options.ThemeMode;
 
-        SaveCommand = new DelegateCommand(Save);
+        _snapshot = TakeSnapshot();
+
+        // Any property change automatically re-evaluates IsDirty for bindings.
+        PropertyChanged += (_, e) =>
+        {
+            if (e.PropertyName != nameof(IsDirty))
+                RaisePropertyChanged(nameof(IsDirty));
+        };
+
+        SaveCommand            = new DelegateCommand(Save);
+        UndoCommand            = new DelegateCommand(_ => ApplySnapshot(_snapshot));
         BrowseStudioFolderCommand = new DelegateCommand(BrowseStudioFolder);
-        ClearCacheCommand = new DelegateCommand(async _ => await ClearCacheAsync());
+        ClearCacheCommand      = new DelegateCommand(async _ => await ClearCacheAsync());
+    }
+
+    // ── Snapshot helpers ─────────────────────────────────────────────────────
+
+    private SettingsSnapshot TakeSnapshot() => new(
+        StudioFolder:     StudioFolderPath,
+        ShowXmlDebugTabs: ShowXmlDebugTabs,
+        ThemeMode:        ThemeMode,
+        ImageSourceName:  ActiveSource.Name
+    );
+
+    private void ApplySnapshot(SettingsSnapshot s)
+    {
+        StudioFolderPath = s.StudioFolder;
+        ShowXmlDebugTabs = s.ShowXmlDebugTabs;
+        ThemeMode        = s.ThemeMode;
+        _imageSourceSelector.ActiveSource =
+            _imageSourceSelector.AvailableSources
+                .FirstOrDefault(src => src.Name == s.ImageSourceName)
+            ?? _imageSourceSelector.ActiveSource;
+        RaisePropertyChanged(nameof(ActiveSource));
     }
 
     // ── Save ─────────────────────────────────────────────────────────────────
+
+    /// <summary>Called by MainViewModel when the user confirms save on navigate-away.</summary>
+    internal void ExecuteSave() => Save(null);
 
     private void Save(object? _)
     {
@@ -175,6 +224,7 @@ internal sealed class SettingsPanelViewModel : EditorPanelViewModelBase
         var json = JsonSerializer.Serialize(config, new JsonSerializerOptions { WriteIndented = true });
         File.WriteAllText(_configFilePath, json);
         _themeService.Apply(_options.ThemeMode);
+        _snapshot = TakeSnapshot();
         Saved?.Invoke(this);
     }
 

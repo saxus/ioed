@@ -16,4 +16,7 @@ public sealed class LinuxDialogService : IDialogService
 
     public Task<bool> ConfirmAsync(string message, string title = "Confirm")
         => SimpleMessageBox.ConfirmAsync(GetOwner(), message, title);
+
+    public Task<SaveConfirmResult> ShowSaveConfirmAsync(string message, string title = "Unsaved changes")
+        => SimpleMessageBox.SaveConfirmAsync(GetOwner(), message, title);
 }

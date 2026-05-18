@@ -105,7 +105,7 @@ internal sealed class MainViewModel : INotifyPropertyChanged
         _recentProjects = _recentProjectsStore.Load().ToList();
 
         ExitCommand = new DelegateCommand(_ => _appLifetime.Shutdown());
-        OpenSettingsPanelCommand = new DelegateCommand(_ => OpenOrFocusSettingsPanel());
+        OpenSettingsPanelCommand = new AsyncDelegateCommand(_ => TrySwitchPanelAsync(_settingsPanel));
 
         _settingsPanel = new SettingsPanelViewModel(
             _optionsSnapshot,
@@ -165,11 +165,13 @@ internal sealed class MainViewModel : INotifyPropertyChanged
         }
     }
 
-    /// <summary>Selects the permanent settings panel.</summary>
+    /// <summary>Selects the permanent settings panel (shows dirty-guard if needed).</summary>
+    public Task OpenOrFocusSettingsPanelAsync()
+        => TrySwitchPanelAsync(_settingsPanel);
+
+    /// <summary>Selects the permanent settings panel unconditionally (use only on startup).</summary>
     public void OpenOrFocusSettingsPanel()
-    {
-        SelectedPanel = _settingsPanel;
-    }
+        => SelectedPanel = _settingsPanel;
 
     // -----------------------------------------------------------------------
     // Private helpers
@@ -177,8 +179,20 @@ internal sealed class MainViewModel : INotifyPropertyChanged
 
     private void RegisterPanel(EditorPanelViewModelBase panel)
     {
-        panel.SelectCommand = new DelegateCommand(_ => SelectedPanel = panel);
+        panel.SelectCommand = new AsyncDelegateCommand(async _ => await TrySwitchPanelAsync(panel));
         OpenPanels.Add(panel);
+    }
+
+    private async Task TrySwitchPanelAsync(EditorPanelViewModelBase targetPanel)
+    {
+        if (_selectedPanel is SettingsPanelViewModel settings && settings.IsDirty)
+        {
+            var result = await _dialogs.ShowSaveConfirmAsync(
+                "Settings have unsaved changes. Save before leaving?");
+            if (result == SaveConfirmResult.Cancel) return;
+            if (result == SaveConfirmResult.Save) settings.ExecuteSave();
+        }
+        SelectedPanel = targetPanel;
     }
 
     private void ClosePanel(EditorPanelViewModelBase panel)
