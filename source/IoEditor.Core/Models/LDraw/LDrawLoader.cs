@@ -24,6 +24,7 @@ namespace IoEditor.Models.LDraw
             LDrawModel mainModel = null;
 
             var isParsingFinished = false;
+            var hadFileDirective = false;
             var currentStep = new LDrawStep();
 
             var lineIndex = 0;
@@ -52,7 +53,9 @@ namespace IoEditor.Models.LDraw
                 }
             }
 
-            if (!isParsingFinished)
+            // NOFILE is only required when the multi-model FILE directive was used.
+            // Single-model files that start with Name: may omit NOFILE.
+            if (!isParsingFinished && hadFileDirective)
             {
                 throw new InvalidOperationException("Unexpected end of file.");
             }
@@ -99,6 +102,8 @@ namespace IoEditor.Models.LDraw
                 }
                 else if (content.StartsWith("FILE "))
                 {
+                    hadFileDirective = true;
+
                     if (currentModel != null)
                     {
                         models.Add(currentModel);
@@ -133,7 +138,29 @@ namespace IoEditor.Models.LDraw
                 }
                 else if (content.StartsWith("Name: "))
                 {
-                    currentModel.Name = content.Substring(6).Trim();
+                    var nameValue = content.Substring(6).Trim();
+
+                    if (currentModel == null)
+                    {
+                        // FILE line is missing; initialise the model from the Name header.
+                        currentModel = new LDrawModel
+                        {
+                            File = nameValue,
+                            Name = nameValue,
+                        };
+
+                        if (mainModel == null)
+                        {
+                            mainModel = currentModel;
+                        }
+
+                        currentStep = new LDrawStep();
+                        currentModel.Steps.Add(currentStep);
+                    }
+                    else
+                    {
+                        currentModel.Name = nameValue;
+                    }
                 }
                 else if (content.StartsWith("Author: "))
                 {
